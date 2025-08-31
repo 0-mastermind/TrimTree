@@ -1,23 +1,34 @@
-import {Schema, Model} from "mongoose";
-import { availaibleUserRoles } from "../utils/constants.js";
+import mongoose, { Model, Schema, model } from "mongoose";
+import type { IUser } from "../types/type.js";
+import { EnumUserRoles } from "../utils/constants.js";
 
-const UserSchema = new Schema({
-  name: {
-    type: String,
+const UserSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      trim: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 8,
+    },
+    role: {
+      type: String,
+      enum: EnumUserRoles,
+      required: true,
+    },
   },
-  username: {
-    type: String,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  }, 
-  role: {
-   type: String,
-   enum: availaibleUserRoles,
-   required: true,
-  }
-}, {timestamps: true});
+  { timestamps: true }
+);
 
-export const User = new Model("User", UserSchema);
+
+const UserModel: Model<IUser> =
+  mongoose.models.User || model<IUser>("User", UserSchema);
+export default UserModel;

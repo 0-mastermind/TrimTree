@@ -1,50 +1,20 @@
-import { Schema, Model } from "mongoose";
-
-const staffSchema = new Schema(
+import mongoose, { model, Model, Schema } from "mongoose";
+import type { IStaff } from "../types/type.js"; 
+const StaffSchema = new Schema<IStaff>(
   {
-    userId: {
+     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    leaves: [
-      {
-        date: {
-          type: String,
-          required: true,
-        },
-        isApproved: {
-          type: Boolean,
-          required: true,
-        },
-        description: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-    attendance: [
-      {
-        date: {
-          type: String,
-          required: true,
-        },
-        punchInTime: {
-          time: Date,
-          isApproved: Boolean,
-        },
-        punchOutTime: {
-          time: Date,
-          isApproved: Boolean,
-        },
-      },
-    ],
     designation: {
       type: String,
-    },
+      trim: true
+    }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-export const Staff = new Model("Staff", staffSchema);
+
+const StaffModel: Model<IStaff> =
+  mongoose.models.Staff || model<IStaff>("Staff", StaffSchema);
+export default StaffModel;
