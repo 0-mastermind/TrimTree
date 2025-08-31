@@ -6,6 +6,7 @@ const AppProvider = ({children}: {children: React.ReactNode}) => {
     <div className="container mx-auto">
       <Navbar />
       {children}
+      {/* Hello! Testing branch protection */}
     </div>
   )
 }
