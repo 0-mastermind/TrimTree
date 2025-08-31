@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: "TASA Explorer";
+  src: url("./assets/fonts/font.ttf");
+}
+
+:root {
+  --primary-background: #ffffff;
+  --primary-yellow: #ffaa00;
+  --text-gray-dark: #454545;
+  --text-gray-light: #757575;
+}
+
+[data-theme='dark'] {
+  --primary-background: #151515;
+  --text-primary: #fff;
+}
+
+* {
+  font-family: "TASA Explorer", monospace;
+}
+
+body {
+  background: var(--primary-background);
+}
