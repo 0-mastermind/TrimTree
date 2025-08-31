@@ -6,7 +6,7 @@ const AppProvider = ({children}: {children: React.ReactNode}) => {
     <div className="container mx-auto">
       <Navbar />
       {children}
-      {/* Hello! */}
+      {/* Hello! Test 2 */}
     </div>
   )
 }
