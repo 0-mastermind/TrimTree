@@ -1,7 +1,7 @@
 # Product Requirement Document
 
 ## Objective
-Create a simple landing page and attendance software for a salon. Where manager will approve holidays to employee (basic punch-in and punch-out system with manager approval).
+Create a simple landing page and attendance software for a salon. Where manager will approve holidays to employee (basic punch-in and punch-out system with manager approval)
 There will be:
 - Owner Panel
 - Manager Panel
