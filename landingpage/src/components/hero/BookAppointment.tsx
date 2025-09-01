@@ -1,4 +1,5 @@
 import React from "react";
+import ArtistsHighlights from "./ArtistsHighlights";
 
 const BookAppointment = () => {
   return (
@@ -14,8 +15,9 @@ const BookAppointment = () => {
         Get in touch
       </button>
 
-      <div className="relative">
-        <div className="hero-gradient h-[400px] w-[800px] absolute top-40 left-1/2 -translate-x-1/2"></div>
+      <div className="relative mt-6">
+        <ArtistsHighlights />
+        <div className="hero-gradient h-[600px] w-[800px] absolute top-22 left-1/2 -translate-x-1/2 -z-99"></div>
       </div>
     </div>
   );

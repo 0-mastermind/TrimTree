@@ -6,21 +6,21 @@ const HappyCustomers = () => {
     <div className="flex items-center gap-2">
       <div className="flex">
         <Image
-          src="/images/avatar-one.svg"
+          src="/images/hero/avatar-one.svg"
           alt="user-avatar-1"
           width={40}
           height={40}
           className="-ml-3 border border-gray-600 rounded-full"
         />
         <Image
-          src="/images/avatar-two.svg"
+          src="/images/hero/avatar-two.svg"
           alt="user-avatar-2"
           width={40}
           height={40}
           className="-ml-3 border border-gray-600 rounded-full"
         />
         <Image
-          src="/images/avatar-three.svg"
+          src="/images/hero/avatar-three.svg"
           alt="user-avatar-3"
           width={40}
           height={40}

@@ -1,9 +1,12 @@
+import Image from "next/image";
 import ThemeToggler from "./ThemeToggler";
 
 const Navbar = () => {
   return (
     <nav className="flex justify-between my-6 items-center gap-2">
       <div className="mr-14 flex items-center">
+        {/* <Image src="/images/logo_light.png" height={70} width={100} alt="Trimtree Logo" className="dark:hidden"/>
+        <Image src="/images/logo_dark.png" height={70} width={100} alt="Trimtree Logo" className="hidden dark:block"/> */}
         <h1 className="text-2xl font-bold font-secondary dark:text-[var(--text-white)]">TrimTree</h1>
       </div>
       <div className="flex-1 flex justify-center items-center">
