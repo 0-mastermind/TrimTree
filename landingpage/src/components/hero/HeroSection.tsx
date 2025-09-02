@@ -1,6 +1,7 @@
 import React from 'react'
 import HappyCustomers from "./HappyCustomers"
 import BookAppointment from "./BookAppointment"
+import UserReviewHeroSection from "./UserReviewHeroSection"
 
 const HeroSection = () => {
   return (
@@ -8,6 +9,7 @@ const HeroSection = () => {
       <div className="flex justify-center items-center flex-col">
         <HappyCustomers />
         <BookAppointment />
+        <UserReviewHeroSection />
       </div>
     </section>
   )

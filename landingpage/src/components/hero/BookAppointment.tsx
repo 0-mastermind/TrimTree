@@ -4,10 +4,10 @@ import ArtistsHighlights from "./ArtistsHighlights";
 const BookAppointment = () => {
   return (
     <div className="mt-20 max-w-200 flex flex-col items-center">
-      <h1 className="text-6xl capitalize text-center dark:text-[var(--text-white)]">
+      <h1 className="text-5xl md:text-6xl capitalize text-center dark:text-[var(--text-white)]">
         Let your hair shine with strength & beauty
       </h1>
-      <p className="text-center mt-6 text-xl max-w-140 font-secondary text-[var(--text-gray-light)]">
+      <p className="text-center mt-6 text-md md:text-xl p-2 max-w-120 md:max-w-140 font-secondary text-[var(--text-gray-light)]">
         A haircut is just the beginning. Experience hair artistry that enhances
         your beauty and boosts
       </p>
@@ -15,9 +15,9 @@ const BookAppointment = () => {
         Get in touch
       </button>
 
-      <div className="relative mt-6">
+      <div className="relative mt-12">
         <ArtistsHighlights />
-        <div className="hero-gradient h-[600px] w-[800px] absolute top-22 left-1/2 -translate-x-1/2 -z-99"></div>
+        <div className="hero-gradient h-[400px] w-[400px] md:h-[600px] md:w-[800px] absolute top-22 left-1/2 -translate-x-1/2 -z-99"></div>
       </div>
     </div>
   );
