@@ -13,6 +13,20 @@ const UserSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+    image: {
+      url: {
+        type: String,
+        trim: true,
+      },
+      publicId: {
+        type: String,
+        trim: true,
+      },
+    },
+    email: {
+      type: String,
+      trim: true,
+    },
     password: {
       type: String,
       required: true,

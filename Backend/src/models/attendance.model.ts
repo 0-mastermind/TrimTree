@@ -1,40 +1,73 @@
 import mongoose, { Model, Schema, model } from "mongoose";
 import type { IAttendance } from "../types/type.js";
-import { attendanceStatus, EnumWorkingHour, WorkingHour  } from "../utils/constants.js";
+import {
+  attendanceStatus,
+  attendanceType,
+  EnumAttendanceType,
+  EnumWorkingHour,
+  WorkingHour,
+} from "../utils/constants.js";
 
 const AttendanceSchema = new Schema<IAttendance>(
   {
-     staffId: { 
-        type: Schema.Types.ObjectId, 
-        ref: "Staff", 
-        required: true 
+    staffId: {
+      type: Schema.Types.ObjectId,
+      ref: "Staff",
+      required: true,
     },
-    date: { 
-        type: Date, 
-        required: true,
-        default: Date.now()
+    date: {
+      type: Date,
+      required: true,
+      default: Date.now(),
     },
     type: {
-        type: String, 
-        enum: EnumWorkingHour,
-        default: WorkingHour.FULL_DAY
-        },
-
-    status: { 
-        type: String, 
-        enum: attendanceStatus,
-        default: attendanceStatus.PENDING
-     },
+      type: String,
+      enum: EnumAttendanceType,
+      required: true,
+      default: attendanceType.ATTENDANCE,
+    },
+    workingHour : {
+      type : String,
+      enum : EnumWorkingHour,
+      default : WorkingHour.FULL_DAY
+    },
+    punchIn: {
+      time : {
+        type: Date,
+      },
+      isApproved : {
+        type: Boolean,
+        default: false,
+      }
+    },
+    punchOut: {
+      time : {
+        type: Date,
+      },
+      isApproved : {
+        type: Boolean,
+        default: false,
+      }
+    },
+    status: {
+      type: String,
+      enum: attendanceStatus,
+      default: attendanceStatus.PENDING,
+    },
     leaveDescription: {
-        type: String,
-        trim: true,
-        default: ""
-    }
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   { timestamps: true }
 );
 
+AttendanceSchema.index({ staffId: 1, date: -1 });  
+AttendanceSchema.index({ staffId: 1, status: 1 });
+AttendanceSchema.index({ date: 1 }); 
 
 const AttendanceModel: Model<IAttendance> =
-  mongoose.models.Attendance || model<IAttendance>("Attendance", AttendanceSchema);
+  mongoose.models.Attendance ||
+  model<IAttendance>("Attendance", AttendanceSchema);
 export default AttendanceModel;
