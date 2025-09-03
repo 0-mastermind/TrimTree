@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import demoRouter from "./routes/auth.routes.js";
 import dbConnect from "./config/database.js";
+import { testRoutes } from "./routes/test.routes.js";
 async function startServer() {
   dotenv.config();
 
@@ -37,6 +38,7 @@ async function startServer() {
 
   // Routes
   app.use("/api/auth", demoRouter);
+  app.use("/api/test", testRoutes);
 
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`);
