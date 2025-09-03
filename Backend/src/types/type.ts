@@ -13,6 +13,8 @@ export interface IUser  {
   role: userRoles;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+  generateJWT(): string;
 }
 
 export interface IAttendance  {
