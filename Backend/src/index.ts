@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import demoRouter from "./routes/demo.routes.js";
+import demoRouter from "./routes/auth.routes.js";
 import dbConnect from "./config/database.js";
 async function startServer() {
   dotenv.config();
@@ -17,7 +17,7 @@ async function startServer() {
   app.use(express.urlencoded());
 
   // DB connect
-//   await dbConnect();
+  await dbConnect();
 
 
  // CORS setup
@@ -36,7 +36,7 @@ async function startServer() {
   );
 
   // Routes
-  app.use("/api/demo", demoRouter);
+  app.use("/api/auth", demoRouter);
 
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`);
