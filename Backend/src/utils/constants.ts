@@ -24,4 +24,9 @@ export enum WorkingHour {
 
 export const EnumWorkingHour = Object.values(WorkingHour);
 
+export enum attendanceType {
+  ATTENDANCE = "ATTENDANCE",
+  LEAVE = "LEAVE",
+}
 
+export const EnumAttendanceType = Object.values(attendanceType);
