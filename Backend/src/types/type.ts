@@ -1,5 +1,5 @@
 import type { Types } from "mongoose";
-import type { attendanceStatus, attendanceType, userRoles, WorkingHour } from "../utils/constants.js";
+import type { attendanceStatus, attendanceType, Branch, userRoles, WorkingHour } from "../utils/constants.js";
 
 export interface IUser  {
   name: string;
@@ -11,6 +11,7 @@ export interface IUser  {
   };
   email: string;
   role: userRoles;
+  branch: Branch;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -41,6 +42,7 @@ export interface IStaff  {
   userId: Types.ObjectId;
   designation: string;
   salary: number;
+  manager: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;  
 }
