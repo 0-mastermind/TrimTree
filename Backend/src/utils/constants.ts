@@ -11,6 +11,7 @@ export enum attendanceStatus {
   PRESENT="PRESENT",
   ABSENT="ABSENT",
   HOLIDAY="HOLIDAY",
+  WORKING_HOLIDAY="WORKING HOLIDAY",
   LEAVE_PAID="LEAVE PAID",
   LEAVE_UNPAID="LEAVE UNPAID"
 }
@@ -30,3 +31,12 @@ export enum attendanceType {
 }
 
 export const EnumAttendanceType = Object.values(attendanceType);
+
+
+export enum Branch {
+  BRANCH1 = "BRANCH1",
+  BRANCH2 = "BRANCH2",
+  BRANCH3 = "BRANCH3",
+}
+
+export const EnumBranch = Object.values(attendanceType);

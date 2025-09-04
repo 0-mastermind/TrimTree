@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema, model } from "mongoose";
 import type { IUser } from "../types/type.js";
-import { EnumUserRoles } from "../utils/constants.js";
+import { EnumBranch, EnumUserRoles } from "../utils/constants.js";
 import bcrypt  from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -43,6 +43,10 @@ const UserSchema = new Schema<IUser>(
       enum: EnumUserRoles,
       required: true,
     },
+    branch : {
+      type : String,
+      enum : EnumBranch,
+    }
   },
   { timestamps: true }
 );

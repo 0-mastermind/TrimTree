@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema, model } from "mongoose";
 import type { IAttendance, IOfficialHoliday, IUser } from "../types/type.js";
-import { EnumWorkingHour, WorkingHour } from "../utils/constants.js";
+import { Branch, EnumWorkingHour, WorkingHour } from "../utils/constants.js";
 
 const OfficialHolidaySchema = new Schema<IOfficialHoliday>(
   {
@@ -21,6 +21,7 @@ const OfficialHolidaySchema = new Schema<IOfficialHoliday>(
       type: String, 
       required: true 
     }},
+    // Branch
   { timestamps: true }
 );
 
