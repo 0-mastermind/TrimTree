@@ -83,6 +83,7 @@ UserSchema.methods.generateJWT = function () {
     {
       _id: this._id,
       role: this.role,
+      branch: this.branch,
     },
     JWT_SECRET,
     { expiresIn: "6h" }
