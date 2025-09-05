@@ -4,9 +4,10 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dbConnect from "./config/database.js";
-import { testRoutes } from "./routes/test.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import { ApiError } from "./utils/ApiError.js"; 
+import managerRouter from "./routes/manager.routes.js";
+import staffRouter from "./routes/staff.routes.js";
 async function startServer() {
   dotenv.config();
 
@@ -40,7 +41,8 @@ async function startServer() {
 
   // Routes
   app.use("/api/auth", authRouter);
-  app.use("/api/test", testRoutes);
+  app.use("/api/manager", managerRouter);
+  app.use("/api/staff", staffRouter);
 
   // Global error handler 
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
