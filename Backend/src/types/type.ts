@@ -51,6 +51,7 @@ export interface IOfficialHoliday  {
   name: string;
   date: Date;
   type: WorkingHour;
+  branch: Branch;
   description: string;
   createdAt: Date;
   updatedAt: Date;
