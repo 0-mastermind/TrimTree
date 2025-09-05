@@ -1,16 +1,19 @@
 import express from "express";
+import type { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import demoRouter from "./routes/auth.routes.js";
 import dbConnect from "./config/database.js";
 import { testRoutes } from "./routes/test.routes.js";
+import authRouter from "./routes/auth.routes.js";
+import { ApiError } from "./utils/ApiError.js"; 
 async function startServer() {
   dotenv.config();
 
   const app = express();
   const PORT = process.env.PORT || 3030;
-  const whitelist = process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"];
+  const whitelist =
+    process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"];
 
   // Middleware
   app.use(cookieParser());
@@ -20,8 +23,7 @@ async function startServer() {
   // DB connect
   await dbConnect();
 
-
- // CORS setup
+  // CORS setup
   app.use(
     cors({
       origin: (origin, callback) => {
@@ -37,11 +39,30 @@ async function startServer() {
   );
 
   // Routes
-  app.use("/api/auth", demoRouter);
+  app.use("/api/auth", authRouter);
   app.use("/api/test", testRoutes);
 
+  // Global error handler 
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof ApiError) {
+      return res.status(err.statusCode).json({
+        success: err.success,
+        message: err.message,
+        errors: err.errors,
+      });
+    }
+
+    console.error(err); 
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  });
+
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`);
+    console.log(
+      `Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`
+    );
   });
 }
 
