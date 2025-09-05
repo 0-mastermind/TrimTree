@@ -3,44 +3,49 @@ import asyncErrorHandler from "../utils/asyncErrorHandler.js";
 import UserModel from "../models/user.model.js";
 import StaffModel from "../models/staff.model.js";
 import { userRoles } from "../utils/constants.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../utils/ApiError.js";
 
 export const registerUser = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { name, username, password, role } = req.body;
-
-    if (![userRoles.ADMIN, userRoles.MANAGER].includes(req.role as any)) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-    }
+    const { name, username, password, role, salary, designation, manager } = req.body;
 
     if (!username || !password || !role) {
-      return res.status(400).json({
-        success: false,
-        message: "Username, password, and role are required",
-      });
+      throw new ApiError(400, "Fill All the Required Fields");
     }
 
     const existingUser = await UserModel.findOne({ username });
     if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "User with this username already exists",
-      });
+      throw new ApiError(409, "User with this username already exists");
     }
 
-    await UserModel.create({
+    const user = await UserModel.create({
       name,
       username,
       password,
       role,
     });
 
-    return res.status(201).json({
-      success: true,
+    if (role === userRoles.STAFF) {
+      if (!salary || !designation || !manager) {
+        throw new ApiError(
+          400,
+          "Salary, designation, and manager are required for staff"
+        );
+      }
+
+      await StaffModel.create({
+        userId: user._id,
+        salary,
+        designation,
+        manager,
+      });
+    }
+
+    return new ApiResponse({
+      statusCode: 201,
       message: "User registered successfully",
-    });
+    }).send(res);
   }
 );
 
@@ -49,30 +54,22 @@ export const loginUser = asyncErrorHandler(
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Username and password are required",
-      });
+      throw new ApiError(400, "Fill All the Required Fields");
     }
 
     const user = await UserModel.findOne({ username });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      throw new ApiError(404, "User not found");
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      return new ApiError(401, "Invalid credentials");
     }
 
     const token = user.generateJWT();
 
+    // set token cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -80,12 +77,35 @@ export const loginUser = asyncErrorHandler(
       maxAge: 6 * 60 * 60 * 1000, // 6 hours
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "User logged in successfully",
-    });
+ 
+    let redirectUrl: string;
+
+    switch (user.role) {
+      case userRoles.ADMIN:
+        redirectUrl =
+          process.env.ADMIN_DASHBOARD_URL ||
+          `http://localhost:3000/dashboard/admin`;
+        break;
+      case userRoles.MANAGER:
+        redirectUrl =
+          process.env.MANAGER_DASHBOARD_URL ||
+          `http://localhost:3000/dashboard/manager`;
+        break;
+      case userRoles.STAFF:
+        redirectUrl =
+          process.env.STAFF_DASHBOARD_URL ||
+          `http://localhost:3000/dashboard/staff`;
+        break;
+    }
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "User Logged In Successfully",
+      data: { redirectUrl },
+    }).send(res);
   }
 );
+
 
 export const logout = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -94,10 +114,11 @@ export const logout = asyncErrorHandler(
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
     });
-    res.status(200).json({ 
-      success: true, 
-      message: "Logged out successfully" 
-    });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Logged out successfully",
+    }).send(res);
   }
 );
 
@@ -106,35 +127,24 @@ export const getUserProfile = asyncErrorHandler(
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
+      return new ApiError(401, "Unauthorized");
     }
 
     const user = await UserModel.findById(userId).select("-password");
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      throw new ApiError(404, "User not found");
     }
 
     let staffData = null;
 
-    if (user.role === "STAFF") {
+    if (user.role === userRoles.STAFF) {
       staffData = await StaffModel.findOne({ user: userId });
     }
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        user,
-        staffData,
-      },
-    });
+    return new ApiResponse({
+      statusCode: 200,
+      data: { user, staffData },
+      message: "Profile fetched successfully",
+    }).send(res);
   }
 );
-
-
-
