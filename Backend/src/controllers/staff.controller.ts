@@ -48,10 +48,12 @@ export const applyForAttendance = asyncErrorHandler(
       punchIn: { time: new Date(), isApproved: false },
     });
 
-    return new ApiResponse({
-      statusCode: 201,
-      message: "Attendance applied successfully",
-    }).send(res);
+    return res.send(
+      new ApiResponse({
+        statusCode: 201,
+        message: "Attendance applied successfully",
+      })
+    );
   }
 );
 
@@ -101,11 +103,12 @@ export const applyForLeave = asyncErrorHandler(
     if (createdLeaves.length === 0)
       throw new ApiError(400, "Leave already applied for all given dates");
 
-
-    return new ApiResponse({
-      statusCode: 201,
-      message: "Leave applied successfully",
-    }).send(res);
+    return res.send(
+      new ApiResponse({
+        statusCode: 201,
+        message: "Leave applied successfully",
+      })
+    );
   }
 );
 
@@ -115,7 +118,8 @@ export const getMonthlyAttendance = asyncErrorHandler(
     const { month, year } = req.query; // month: 1-12, year: YYYY
 
     if (!staffId) throw new ApiError(400, "User Not Logged In");
-    if (!month || !year) throw new ApiError(400, "Please provide month and year");
+    if (!month || !year)
+      throw new ApiError(400, "Please provide month and year");
 
     const monthNum = parseInt(month as string);
     const yearNum = parseInt(year as string);
@@ -130,11 +134,13 @@ export const getMonthlyAttendance = asyncErrorHandler(
       .sort({ date: 1 }) // ascending by day
       .select("date status type workingHour");
 
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Monthly attendance fetched successfully",
-      data: attendance,
-    }).send(res);
+    return res.send(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Monthly attendance fetched successfully",
+        data: attendance,
+      })
+    );
   }
 );
 
@@ -159,16 +165,18 @@ export const applyForPunchOut = asyncErrorHandler(
 
     attendance.punchOut = {
       time: new Date(),
-      isApproved: false, 
+      isApproved: false,
     };
 
     await attendance.save();
 
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Punch-out applied successfully, pending approval",
-      data: attendance.punchOut,
-    }).send(res);
+    return res.send(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Punch-out applied successfully, pending approval",
+        data: attendance.punchOut,
+      })
+    );
   }
 );
 
@@ -185,10 +193,12 @@ export const getTodayAttendanceStatus = asyncErrorHandler(
       date: { $gte: startOfDay, $lte: endOfDay },
     }).select("type status workingHour punchIn punchOut leaveDescription");
 
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Today's attendance status fetched successfully",
-      data: record || { status: "NOT_APPLIED" },
-    }).send(res);
+    return res.send(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Today's attendance status fetched successfully",
+        data: record || { status: "NOT_APPLIED" },
+      })
+    );
   }
 );
