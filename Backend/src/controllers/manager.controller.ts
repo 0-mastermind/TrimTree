@@ -9,7 +9,6 @@ import {
   attendanceType,
   WorkingHour,
 } from "../utils/constants.js";
-import StaffModel from "../models/staff.model.js";
 
 export const createOfficialHoliday = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -244,27 +243,6 @@ export const getMonthlyOfficialHolidays = asyncErrorHandler(
   }
 );
 
-export const getTodayAttendanceStatus = asyncErrorHandler(
-  async (req: Request, res: Response) => {
-    const staffId = req.userId;
-
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-
-    const record = await AttendanceModel.findOne({
-      staffId,
-      date: { $gte: startOfDay, $lte: endOfDay },
-    }).select("type status workingHour punchIn punchOut leaveDescription");
-
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Today's attendance status fetched successfully",
-      data: record || { status: "NOT_APPLIED" },
-    }).send(res);
-  }
-);
-
 export const approvePunchOut = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const { attendanceId } = req.params;
@@ -317,3 +295,20 @@ export const rejectPunchOut = asyncErrorHandler(
 );
 
 
+export const getAllPendingPunchOuts = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const pendingPunchOuts = await AttendanceModel.find({
+      "punchOut.isApproved": false,     
+      type: attendanceType.ATTENDANCE,
+    })
+      .sort({ date: -1 })
+      .populate("staffId", "name") 
+      .select("date punchOut staffId");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Pending punch-outs fetched successfully",
+      data: pendingPunchOuts,
+    }).send(res);
+  }
+);
