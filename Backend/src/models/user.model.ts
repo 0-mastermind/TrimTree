@@ -43,9 +43,10 @@ const UserSchema = new Schema<IUser>(
       enum: EnumUserRoles,
       required: true,
     },
-    branch : {
-      type : String,
-      enum : EnumBranch,
+    branch: {
+      type : Schema.Types.ObjectId,
+      ref: 'Branch',
+      required: true,
     }
   },
   { timestamps: true }

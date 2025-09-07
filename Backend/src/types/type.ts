@@ -11,7 +11,7 @@ export interface IUser  {
   };
   email: string;
   role: userRoles;
-  branch: Branch;
+  branch: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -53,6 +53,17 @@ export interface IOfficialHoliday  {
   type: WorkingHour;
   branch: Branch;
   description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IBranches {
+  name: string;
+  branchImage: {
+    publicId: string;
+    url: string;
+  };
+  address: string;
   createdAt: Date;
   updatedAt: Date;
 }
