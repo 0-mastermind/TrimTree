@@ -172,4 +172,23 @@ export const applyForPunchOut = asyncErrorHandler(
   }
 );
 
+export const getTodayAttendanceStatus = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.userId;
 
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const record = await AttendanceModel.findOne({
+      staffId,
+      date: { $gte: startOfDay, $lte: endOfDay },
+    }).select("type status workingHour punchIn punchOut leaveDescription");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Today's attendance status fetched successfully",
+      data: record || { status: "NOT_APPLIED" },
+    }).send(res);
+  }
+);
