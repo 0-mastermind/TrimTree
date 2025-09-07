@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.routes.js";
 import { ApiError } from "./utils/ApiError.js"; 
 import managerRouter from "./routes/manager.routes.js";
 import staffRouter from "./routes/staff.routes.js";
+import adminRouter from "./routes/admin.routes.js";
 async function startServer() {
   dotenv.config();
 
@@ -43,6 +44,7 @@ async function startServer() {
   app.use("/api/auth", authRouter);
   app.use("/api/manager", managerRouter);
   app.use("/api/staff", staffRouter);
+  app.use("/api/branches", adminRouter);
 
   // Global error handler 
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
