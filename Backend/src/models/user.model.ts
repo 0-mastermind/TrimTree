@@ -3,8 +3,7 @@ import type { IUser } from "../types/type.js";
 import { EnumBranch, EnumUserRoles } from "../utils/constants.js";
 import bcrypt  from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
+
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 const UserSchema = new Schema<IUser>(

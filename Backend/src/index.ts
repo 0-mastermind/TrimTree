@@ -1,6 +1,6 @@
+import "./utils/dotenv.config.js"
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dbConnect from "./config/database.js";
@@ -9,9 +9,8 @@ import { ApiError } from "./utils/ApiError.js";
 import managerRouter from "./routes/manager.routes.js";
 import staffRouter from "./routes/staff.routes.js";
 import adminRouter from "./routes/admin.routes.js";
-async function startServer() {
-  dotenv.config();
 
+async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3030;
   const whitelist =
