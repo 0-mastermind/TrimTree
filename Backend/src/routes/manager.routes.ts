@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware, managerMiddleware } from "../middleware/auth.middleware.js";
-import { approveAttendance, approveLeaves, createOfficialHoliday, rejectLeaves } from "../controllers/manager.controller.js";
+import { approveAttendance, approveLeaves, approvePunchOut, createOfficialHoliday, rejectLeaves } from "../controllers/manager.controller.js";
 
 const managerRouter = Router();
 
@@ -14,7 +14,7 @@ managerRouter.post("/approve-leave" , authMiddleware , managerMiddleware , appro
 
 managerRouter.post("/reject-leave" , authMiddleware , managerMiddleware , rejectLeaves);
 
-
+managerRouter.post("/approve-punch-out/:attendanceId", authMiddleware ,  managerMiddleware , approvePunchOut);
 
 
 export default managerRouter;
