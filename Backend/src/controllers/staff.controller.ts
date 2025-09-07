@@ -108,3 +108,68 @@ export const applyForLeave = asyncErrorHandler(
     }).send(res);
   }
 );
+
+export const getMonthlyAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.userId;
+    const { month, year } = req.query; // month: 1-12, year: YYYY
+
+    if (!staffId) throw new ApiError(400, "User Not Logged In");
+    if (!month || !year) throw new ApiError(400, "Please provide month and year");
+
+    const monthNum = parseInt(month as string);
+    const yearNum = parseInt(year as string);
+
+    const startOfMonth = new Date(yearNum, monthNum - 1, 1, 0, 0, 0, 0);
+    const endOfMonth = new Date(yearNum, monthNum, 0, 23, 59, 59, 999);
+
+    const attendance = await AttendanceModel.find({
+      staffId,
+      date: { $gte: startOfMonth, $lte: endOfMonth },
+    })
+      .sort({ date: 1 }) // ascending by day
+      .select("date status type workingHour");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Monthly attendance fetched successfully",
+      data: attendance,
+    }).send(res);
+  }
+);
+
+export const applyForPunchOut = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.userId;
+
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const attendance = await AttendanceModel.findOne({
+      staffId,
+      date: { $gte: startOfDay, $lte: endOfDay },
+      type: attendanceType.ATTENDANCE,
+    });
+
+    if (!attendance) throw new ApiError(404, "No attendance found for today");
+    if (attendance.punchOut?.time) {
+      throw new ApiError(400, "Punch-out already applied for today");
+    }
+
+    attendance.punchOut = {
+      time: new Date(),
+      isApproved: false, 
+    };
+
+    await attendance.save();
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Punch-out applied successfully, pending approval",
+      data: attendance.punchOut,
+    }).send(res);
+  }
+);
+
+

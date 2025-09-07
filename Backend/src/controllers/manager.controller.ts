@@ -9,18 +9,21 @@ import {
   attendanceType,
   WorkingHour,
 } from "../utils/constants.js";
+import StaffModel from "../models/staff.model.js";
 
 export const createOfficialHoliday = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { name, date, type, description, branch } = req.body;
+    const { name, date, type, description } = req.body;
 
-    if (!name || !date || !description || !branch) {
+    if (!name || !date || !description ) {
       throw new ApiError(400, "All fields are required");
     }
 
     const holidayDate = new Date(date);
     const startOfDay = new Date(holidayDate.setHours(0, 0, 0, 0));
     const endOfDay = new Date(holidayDate.setHours(23, 59, 59, 999));
+
+    const branch = req.branch
 
     // Check if holiday already exists for the branch on this date
     const existingHoliday = await OfficialHolidayModel.findOne({
@@ -147,4 +150,170 @@ export const rejectLeaves = asyncErrorHandler(async (req: Request, res: Response
     message: "Leaves rejected successfully",
   }).send(res);
 });
+
+export const getAllPendingAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const pendingAttendance = await AttendanceModel.find({
+      status: attendanceStatus.PENDING,
+      type: attendanceType.ATTENDANCE,
+    }).sort({ date: -1 });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Pending attendance fetched successfully",
+      data: pendingAttendance,
+    }).send(res);
+  }
+);
+
+export const getAllPendingLeaves = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const groupedLeaves = await AttendanceModel.aggregate([
+      {
+        $match: {
+          status: attendanceStatus.PENDING,
+          type: attendanceType.LEAVE,
+        },
+      },
+      {
+        $group: {
+          _id: "$staffId",
+          leaves: { $push: "$$ROOT" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "staffs", 
+          localField: "_id",
+          foreignField: "_id",
+          as: "staff",
+        },
+      },
+      {
+        $unwind: "$staff",
+      },
+      {
+        $project: {
+          _id: 0,
+          staffId: "$_id",
+          staffName: "$staff.name",
+          leaves: 1,
+          count: 1,
+        },
+      },
+      {
+        $sort: { staffName: 1 },
+      },
+    ]);
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Pending leaves grouped by staff fetched successfully",
+      data: groupedLeaves,
+    }).send(res);
+  }
+);
+
+export const getMonthlyOfficialHolidays = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const branch = req.branch;
+    const { month, year } = req.query; // month: 1-12, year: YYYY
+
+    if (!branch) throw new ApiError(400, "Branch is required");
+    if (!month || !year) throw new ApiError(400, "Please provide month and year");
+
+    const monthNum = parseInt(month as string);
+    const yearNum = parseInt(year as string);
+
+    // Start of month
+    const startOfMonth = new Date(yearNum, monthNum - 1, 1, 0, 0, 0, 0);
+    // End of month
+    const endOfMonth = new Date(yearNum, monthNum, 0, 23, 59, 59, 999);
+
+    const officialHolidays = await OfficialHolidayModel.find({
+      branch,
+      date: { $gte: startOfMonth, $lte: endOfMonth },
+    }).sort({ date: 1 }); // ascending by date
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Monthly official holidays fetched successfully",
+      data: officialHolidays,
+    }).send(res);
+  }
+);
+
+export const getTodayAttendanceStatus = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.userId;
+
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const record = await AttendanceModel.findOne({
+      staffId,
+      date: { $gte: startOfDay, $lte: endOfDay },
+    }).select("type status workingHour punchIn punchOut leaveDescription");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Today's attendance status fetched successfully",
+      data: record || { status: "NOT_APPLIED" },
+    }).send(res);
+  }
+);
+
+export const approvePunchOut = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const { attendanceId } = req.params;
+
+    const attendance = await AttendanceModel.findById(attendanceId);
+    if (!attendance) throw new ApiError(404, "Attendance not found");
+    if (!attendance.punchOut?.time) {
+      throw new ApiError(400, "Punch-out not applied yet");
+    }
+    if (attendance.punchOut.isApproved) {
+      throw new ApiError(400, "Punch-out already approved");
+    }
+
+    attendance.punchOut.isApproved = true;
+    await attendance.save();
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Punch-out approved successfully",
+      data: attendance.punchOut,
+    }).send(res);
+  }
+);
+
+export const rejectPunchOut = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const { attendanceId } = req.params;
+
+    const attendance = await AttendanceModel.findById(attendanceId);
+    if (!attendance) throw new ApiError(404, "Attendance not found");
+    if (!attendance.punchOut?.time) {
+      throw new ApiError(400, "Punch-out not applied yet");
+    }
+    if (attendance.punchOut.isApproved) {
+      throw new ApiError(400, "Punch-out already approved, cannot reject");
+    }
+
+    // Reset punchOut since manager rejected it
+    attendance.punchOut = {
+      time: new Date(new Date().setHours(3, 0, 0, 0)), // 3:00 AM today,
+      isApproved: false,
+    };
+    await attendance.save();
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Punch-out rejected successfully",
+    }).send(res);
+  }
+);
+
 
