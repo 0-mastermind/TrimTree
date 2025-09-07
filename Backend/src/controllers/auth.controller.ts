@@ -8,8 +8,7 @@ import { ApiError } from "../utils/ApiError.js";
 
 export const registerUser = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { name, username, password, role, salary, designation, manager } =
-      req.body;
+    const { name, username, password, role, salary, designation, manager } = req.body;
 
     if (!username || !password || !role) {
       throw new ApiError(400, "Fill All the Required Fields");
@@ -43,12 +42,10 @@ export const registerUser = asyncErrorHandler(
       });
     }
 
-    return res.send(
-      new ApiResponse({
-        statusCode: 201,
-        message: "User registered successfully",
-      })
-    );
+    return new ApiResponse({
+      statusCode: 201,
+      message: "User registered successfully",
+    }).send(res);
   }
 );
 
@@ -80,6 +77,7 @@ export const loginUser = asyncErrorHandler(
       maxAge: 6 * 60 * 60 * 1000, // 6 hours
     });
 
+ 
     let redirectUrl: string;
 
     switch (user.role) {
@@ -100,30 +98,29 @@ export const loginUser = asyncErrorHandler(
         break;
     }
 
-    return res.send(
-      new ApiResponse({
-        statusCode: 200,
-        message: "User Logged In Successfully",
-        data: { redirectUrl },
-      })
-    );
+    return new ApiResponse({
+      statusCode: 200,
+      message: "User Logged In Successfully",
+      data: { redirectUrl },
+    }).send(res);
   }
 );
 
-export const logout = asyncErrorHandler(async (req: Request, res: Response) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    secure: process.env.NODE_ENV === "production",
-  });
 
-  return res.send(
-    new ApiResponse({
+export const logout = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return new ApiResponse({
       statusCode: 200,
       message: "Logged out successfully",
-    })
-  );
-});
+    }).send(res);
+  }
+);
 
 export const getUserProfile = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -144,12 +141,10 @@ export const getUserProfile = asyncErrorHandler(
       staffData = await StaffModel.findOne({ user: userId });
     }
 
-    return res.send(
-      new ApiResponse({
-        statusCode: 200,
-        data: { user, staffData },
-        message: "Profile fetched successfully",
-      })
-    );
+    return new ApiResponse({
+      statusCode: 200,
+      data: { user, staffData },
+      message: "Profile fetched successfully",
+    }).send(res);
   }
 );
