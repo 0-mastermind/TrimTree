@@ -6,11 +6,7 @@ import React, { useEffect } from "react";
 
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const parts = pathname.split("/").slice(1);
-  
-  useEffect(() => {
-    console.log(pathname);
-  }, [])
+  const parts = pathname.split("/").slice(1); 
   
   return (
     <div className="drawer drawer-end">
