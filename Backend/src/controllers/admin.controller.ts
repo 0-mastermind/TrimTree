@@ -38,11 +38,10 @@ export const createBranch = asyncErrorHandler(
       throw new ApiError(500, "Error while storing branch data");
     }
 
-    return res.send(
-      new ApiResponse({
+   
+      return new ApiResponse({
         statusCode: 201,
         message: "Branch created successfully!",
-      })
-    );
+      }).send(res);
   }
 );

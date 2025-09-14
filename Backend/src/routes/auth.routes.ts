@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { getUserProfile, loginUser, logout, registerUser } from "../controllers/auth.controller.js";
-import { authMiddleware, managerMiddleware } from "../middleware/auth.middleware.js";
+import { admin_managerMiddleware, adminMiddleware, authMiddleware, managerMiddleware } from "../middleware/auth.middleware.js";
 
 const authRouter = Router();
 
-authRouter.post("/register", authMiddleware ,managerMiddleware,registerUser);  
+authRouter.post("/register", authMiddleware ,admin_managerMiddleware,registerUser);  
 
-authRouter.post("/login", authMiddleware ,  loginUser);  
+authRouter.post("/login" , loginUser);  
 
 authRouter.post("/logout", authMiddleware , logout); 
 

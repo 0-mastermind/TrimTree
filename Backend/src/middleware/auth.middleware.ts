@@ -17,7 +17,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     const decoded = jwt.verify(token, JWT_SECRET) as { _id: string; role: string; branch : string };
     req.userId = decoded._id;
     req.role = decoded.role;
-    req.branch = decoded.branch;
+    req.branchId = decoded.branch;
     next();
   } catch (err) {
     throw new ApiError(401 , "Invalid token, authorization denied");
@@ -44,6 +44,14 @@ export const managerMiddleware = (req: Request, res: Response, next: NextFunctio
 export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
   if (req.role !== "ADMIN") {
     throw new ApiError(403, "Access denied: Admin only");
+  }
+  next();
+};
+
+
+export const admin_managerMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  if (req.role == "STAFF") {
+    throw new ApiError(403, "Access denied: Admin / Manager only");
   }
   next();
 };

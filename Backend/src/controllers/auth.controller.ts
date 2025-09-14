@@ -8,9 +8,9 @@ import { ApiError } from "../utils/ApiError.js";
 
 export const registerUser = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { name, username, password, role, salary, designation, manager } = req.body;
+    const { name, username, password, role, salary, designation, manager , branch } = req.body;
 
-    if (!username || !password || !role) {
+    if (!username || !password || !role || !branch) {
       throw new ApiError(400, "Fill All the Required Fields");
     }
 
@@ -24,6 +24,7 @@ export const registerUser = asyncErrorHandler(
       username,
       password,
       role,
+      branch,
     });
 
     if (role === userRoles.STAFF) {
