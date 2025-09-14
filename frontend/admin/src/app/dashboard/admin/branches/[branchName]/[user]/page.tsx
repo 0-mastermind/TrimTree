@@ -2,7 +2,7 @@
 import { attendanceData, metricsData } from "@/data/data";
 import { CheckCircle2 } from "lucide-react";
 import Image from "next/image";
-import "./calendar.css";
+import "@/app/calendar.css";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 const Calendar = dynamic(() => import("react-calendar"), { ssr: false });
