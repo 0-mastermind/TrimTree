@@ -14,13 +14,6 @@ const page = () => {
       <div>
         <div className="flex justify-between items-center">
           <h1 className="text-2xl md:text-3xl font-semibold">Your Employees</h1>
-            <button
-              className="text-xs mt-4 cursor-pointer transition-all bg-green-600 text-white px-6 py-2 rounded-lg border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center"
-              onClick={() =>
-                redirectToURI("/dashboard/admin/branches/branch-1/add-branch")
-              }>
-             <Store className="h-4 w-4 md:h-5 md:w-5" /> Add an employee
-            </button>
         </div>
       </div>
       <div className="mt-8 flex flex-wrap gap-10">
