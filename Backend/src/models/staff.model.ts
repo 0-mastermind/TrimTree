@@ -14,7 +14,7 @@ const StaffSchema = new Schema<IStaff>(
     manager:{
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "user",
+      ref: "User",
     },
     salary: {
       type: Number,

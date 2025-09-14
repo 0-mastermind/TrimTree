@@ -1,8 +1,9 @@
 import mongoose, { Model, Schema, model } from "mongoose";
 import type { IUser } from "../types/type.js";
-import { EnumBranch, EnumUserRoles } from "../utils/constants.js";
+import {  EnumUserRoles } from "../utils/constants.js";
 import bcrypt  from "bcrypt";
 import jwt from "jsonwebtoken";
+import '../utils/dotenv.config.js'
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 

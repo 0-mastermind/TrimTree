@@ -4,7 +4,9 @@ import {
   attendanceStatus,
   attendanceType,
   EnumAttendanceType,
+  EnumPunchOutStatus,
   EnumWorkingHour,
+  punchOutStatus,
   WorkingHour,
 } from "../utils/constants.js";
 
@@ -12,15 +14,20 @@ const AttendanceSchema = new Schema<IAttendance>(
   {
     staffId: {
       type: Schema.Types.ObjectId,
-      ref: "Staff",
+      ref: "User",
       required: true,
+    },
+    branch: {
+      type : Schema.Types.ObjectId,
+      ref : "Branch",
+      required : true
     },
     date: {
       type: Date,
       required: true,
     },
     type: {
-      type: String,
+      type: String, 
       enum: EnumAttendanceType,
       required: true,
       default: attendanceType.ATTENDANCE,
@@ -46,6 +53,11 @@ const AttendanceSchema = new Schema<IAttendance>(
       isApproved : {
         type: Boolean,
         default: false,
+      },
+       status : {
+        type : String,
+        enum : EnumPunchOutStatus,
+        default : punchOutStatus.NOT_APPLIED,
       }
     },
     status: {
