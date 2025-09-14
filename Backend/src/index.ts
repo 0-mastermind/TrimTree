@@ -1,14 +1,16 @@
-import "./utils/dotenv.config.js"
+import "./utils/dotenv.config.js";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import http from "http"; 
 import dbConnect from "./config/database.js";
 import authRouter from "./routes/auth.routes.js";
-import { ApiError } from "./utils/ApiError.js"; 
+import { ApiError } from "./utils/ApiError.js";
 import managerRouter from "./routes/manager.routes.js";
 import staffRouter from "./routes/staff.routes.js";
 import adminRouter from "./routes/admin.routes.js";
+import { initSocket } from "./socketio.js"; 
 
 async function startServer() {
   const app = express();
@@ -45,7 +47,7 @@ async function startServer() {
   app.use("/api/staff", staffRouter);
   app.use("/api/admin", adminRouter);
 
-  // Global error handler 
+  // Global error handler
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApiError) {
       return res.status(err.statusCode).json({
@@ -55,14 +57,18 @@ async function startServer() {
       });
     }
 
-    console.error(err); 
+    console.error(err);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
     });
   });
 
-  app.listen(PORT, () => {
+  // Create HTTP server and init socket.io
+  const server = http.createServer(app);
+  initSocket(server);
+
+  server.listen(PORT, () => {
     console.log(
       `Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`
     );

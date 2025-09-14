@@ -13,6 +13,12 @@ import {
 } from "../utils/constants.js";
 import UserModel from "../models/user.model.js";
 import LeaveModel from "../models/leave.model.js";
+import {
+  emitAttendanceRequest,
+  emitLeaveRequest,
+  emitPunchOutRequest,
+  getIO,
+} from "../socketio.js";
 
 export const applyForAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -21,20 +27,37 @@ export const applyForAttendance = asyncErrorHandler(
     const { workingHour } = req.body;
 
     const user = await UserModel.findById(userId);
-    if (!user) {
-      throw new ApiError(404, "User not found");
-    }
+    if (!user) throw new ApiError(404, "User not found");
 
-    // today's start & end
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    const now = new Date(); // current UTC timestamp
+    const startOfDayUTC = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+    const endOfDayUTC = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        23,
+        59,
+        59,
+        999
+      )
+    );
 
-    // check existing attendance entry
+    // check existing attendance
     const existingAttendance = await AttendanceModel.findOne({
       staffId: userId,
       branch: branchId,
-      date: { $gte: startOfDay, $lte: endOfDay },
+      date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
     });
 
     if (existingAttendance) {
@@ -45,35 +68,34 @@ export const applyForAttendance = asyncErrorHandler(
         throw new ApiError(400, "Attendance already applied for today");
       }
 
-      if (
-        existingAttendance.status === attendanceStatus.REJECTED_LEAVE ||
-        existingAttendance.status === attendanceStatus.DISMISSED
-      ) {
-        existingAttendance.type = attendanceType.ATTENDANCE;
-        existingAttendance.status = attendanceStatus.PENDING;
-        existingAttendance.workingHour = workingHour || WorkingHour.FULL_DAY;
-        existingAttendance.leaveDescription = "";
-        existingAttendance.punchIn = { time: new Date(), isApproved: false };
-        await existingAttendance.save();
+      existingAttendance.type = attendanceType.ATTENDANCE;
+      existingAttendance.status = attendanceStatus.PENDING;
+      existingAttendance.workingHour = workingHour || WorkingHour.FULL_DAY;
+      existingAttendance.leaveDescription = "";
+      existingAttendance.punchIn = { time: now, isApproved: false };
+      existingAttendance.date = now;
+      await existingAttendance.save();
 
-        return new ApiResponse({
-          statusCode: 200,
-          message: "Attendance applied successfully",
-        }).send(res);
-      }
+      emitAttendanceRequest(existingAttendance);
+
+      return new ApiResponse({
+        statusCode: 200,
+        message: "Attendance applied successfully",
+      }).send(res);
     }
 
-    // create fresh attendance if nothing exists
-    await AttendanceModel.create({
+    const attendance = await AttendanceModel.create({
       staffId: userId,
       branch: branchId,
       type: attendanceType.ATTENDANCE,
-      date: today,
+      date: now,
       workingHour: workingHour || WorkingHour.FULL_DAY,
       leaveDescription: "",
       status: attendanceStatus.PENDING,
-      punchIn: { time: new Date(), isApproved: false },
+      punchIn: { time: now, isApproved: false },
     });
+
+    emitAttendanceRequest(attendance);
 
     return new ApiResponse({
       statusCode: 201,
@@ -110,8 +132,29 @@ export const applyForLeave = asyncErrorHandler(
       $or: [{ startDate: { $lte: end }, endDate: { $gte: start } }],
     });
 
-    if (overlappingLeave)
+    if (overlappingLeave?.status == leaveStatus.APPROVED)
       throw new ApiError(400, "Leave already exists for the given dates");
+
+    else if (overlappingLeave?.status == leaveStatus.PENDING)
+      throw new ApiError(
+        400,
+        "You have a pending leave request for the given dates"
+      );
+
+    //  Check for conflicting ATTENDANCE entries
+    const conflictingAttendance = await AttendanceModel.findOne({
+      staffId,
+      branch: branchId,
+      date: { $gte: start, $lte: end },
+    });
+
+    if (conflictingAttendance) {
+      const conflictDate = conflictingAttendance.date.toISOString().split("T")[0];
+      throw new ApiError(
+        400,
+        `You have already applied for attendance on ${conflictDate}. Leave request cannot overlap.`
+      );
+    }
 
     // Create leave request
     const leave = await LeaveModel.create({
@@ -124,24 +167,24 @@ export const applyForLeave = asyncErrorHandler(
       status: leaveStatus.PENDING,
     });
 
-    // Create attendance entries for each day
+    // Create attendance entries for each day in UTC
     const createdAttendances = [];
-    let currentDate = new Date(start);
+    let currentDate = new Date(start.getTime());
 
     while (currentDate <= end) {
-      const dayStart = new Date(currentDate);
-      dayStart.setHours(0, 0, 0, 0);
+      const utcDayStart = new Date(Date.UTC(
+        currentDate.getUTCFullYear(),
+        currentDate.getUTCMonth(),
+        currentDate.getUTCDate(),
+        0, 0, 0, 0
+      ));
 
-      const dayEnd = new Date(currentDate);
-      dayEnd.setHours(23, 59, 59, 999);
-
-      // Upsert attendance
       const attendance = await AttendanceModel.findOneAndUpdate(
         {
           staffId,
           branch: branchId,
           type: attendanceType.LEAVE,
-          date: { $gte: dayStart, $lte: dayEnd },
+          date: { $gte: utcDayStart, $lte: new Date(utcDayStart.getTime() + 86399999) },
         },
         {
           staffId,
@@ -149,17 +192,17 @@ export const applyForLeave = asyncErrorHandler(
           type: attendanceType.LEAVE,
           status: attendanceStatus.PENDING,
           leaveDescription: reason || "",
-          date: dayStart,
+          date: utcDayStart,
           workingHour: "FULL_DAY",
         },
         { upsert: true, new: true }
       );
 
       createdAttendances.push(attendance);
-
-      // Move to next day
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
     }
+
+    emitLeaveRequest(leave);
 
     return new ApiResponse({
       statusCode: 201,
@@ -168,12 +211,11 @@ export const applyForLeave = asyncErrorHandler(
   }
 );
 
+
 export const getMonthlyAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const staffId = req.userId;
-    console.log("logging staff id: ", staffId);
-
-    const { month, year } = req.query; // month: 1-12, year: YYYY
+    const { month, year } = req.query;
 
     if (!staffId) throw new ApiError(400, "User Not Logged In");
     if (!month || !year)
@@ -182,15 +224,18 @@ export const getMonthlyAttendance = asyncErrorHandler(
     const monthNum = parseInt(month as string);
     const yearNum = parseInt(year as string);
 
-    const startOfMonth = new Date(yearNum, monthNum - 1, 1, 0, 0, 0, 0);
-    const endOfMonth = new Date(yearNum, monthNum, 0, 23, 59, 59, 999);
+    const startOfMonthUTC = new Date(
+      Date.UTC(yearNum, monthNum - 1, 1, 0, 0, 0, 0)
+    );
+    const endOfMonthUTC = new Date(
+      Date.UTC(yearNum, monthNum, 0, 23, 59, 59, 999)
+    );
 
     const attendance = await AttendanceModel.find({
       staffId,
-      date: { $gte: startOfMonth, $lte: endOfMonth },
+      date: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
     })
-      .sort({ date: 1 }) // ascending by day
-      .select("date status type workingHour");
+      .sort({ date: 1 });
 
     return new ApiResponse({
       statusCode: 200,
@@ -204,41 +249,63 @@ export const applyForPunchOut = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const staffId = req.userId;
 
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    const now = new Date();
+    const startOfDayUTC = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+    const endOfDayUTC = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        23,
+        59,
+        59,
+        999
+      )
+    );
 
     const attendance = await AttendanceModel.findOne({
       staffId,
-      date: { $gte: startOfDay, $lte: endOfDay },
+      date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
       type: attendanceType.ATTENDANCE,
     });
 
     if (!attendance) throw new ApiError(404, "No attendance found for today");
 
     if (
-      attendance.punchOut.status === punchOutStatus.PENDING ||
-      attendance.punchOut.status === punchOutStatus.APPROVED
+      attendance.punchOut &&
+      (attendance.punchOut.status === punchOutStatus.PENDING ||
+        attendance.punchOut.status === punchOutStatus.APPROVED)
     ) {
       throw new ApiError(400, "Punch-out already applied for today");
     }
 
-    if (attendance.punchIn.isApproved === false) {
+    if (!attendance.punchIn || attendance.punchIn.isApproved === false) {
       throw new ApiError(400, "Punch-in not approved yet");
     }
 
     attendance.punchOut = {
-      time: new Date(),
+      time: now,
       isApproved: false,
       status: punchOutStatus.PENDING,
     };
 
     await attendance.save();
 
+    emitPunchOutRequest(attendance);
+
     return new ApiResponse({
       statusCode: 200,
       message: "Punch-out applied successfully, pending approval",
-      data: attendance.punchOut,
     }).send(res);
   }
 );
@@ -247,19 +314,39 @@ export const getTodayAttendanceStatus = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const staffId = req.userId;
 
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    const now = new Date();
+    const startOfDayUTC = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+    const endOfDayUTC = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        23,
+        59,
+        59,
+        999
+      )
+    );
 
     const record = await AttendanceModel.findOne({
       staffId,
-      date: { $gte: startOfDay, $lte: endOfDay },
+      date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
     }).select("type status workingHour punchIn punchOut leaveDescription");
 
     return new ApiResponse({
       statusCode: 200,
       message: "Today's attendance status fetched successfully",
-      data: record || { status: "NOT_APPLIED" },
+      data: record,
     }).send(res);
   }
 );

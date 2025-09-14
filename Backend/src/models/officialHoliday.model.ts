@@ -25,6 +25,6 @@ const OfficialHolidaySchema = new Schema<IOfficialHoliday>(
 );
 
 
-const OfficalHolidayModel: Model<IOfficialHoliday> =
-  mongoose.models.OfficalHoliday || model<IOfficialHoliday>("OfficalHoliday", OfficialHolidaySchema);
-export default OfficalHolidayModel;
+const OfficialHolidayModel: Model<IOfficialHoliday> =
+  mongoose.models.OfficalHoliday || model<IOfficialHoliday>("OfficialHoliday", OfficialHolidaySchema);
+export default OfficialHolidayModel;
