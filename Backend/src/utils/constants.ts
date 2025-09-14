@@ -8,6 +8,7 @@ export const EnumUserRoles = Object.values(userRoles);
 
 export enum attendanceStatus {
   PENDING="PENDING",
+  DISMISSED="DISMISSED",
   PRESENT="PRESENT",
   ABSENT="ABSENT",
   HOLIDAY="HOLIDAY",
@@ -18,6 +19,32 @@ export enum attendanceStatus {
 }
 
 export const EnumAttendanceStatus = Object.values(attendanceStatus);
+
+export enum leaveStatus {
+  PENDING="PENDING",
+  APPROVED="APPROVED",
+  REJECTED="REJECTED"
+}
+
+export const EnumLeaveStatus = Object.values(leaveStatus);
+
+export enum punchOutStatus {
+  NOT_APPLIED="NOT APPLIED",
+  PENDING="PENDING",
+  APPROVED="APPROVED",
+  REJECTED="REJECTED"
+}
+
+export const EnumPunchOutStatus = Object.values(punchOutStatus);
+
+
+
+export enum leaveType {
+ LEAVE_PAID='LEAVE PAID',
+ LEAVE_UNPAID='LEAVE UNPAID'
+}
+
+export const EnumLeaveType = Object.values(leaveType);
 
 export enum WorkingHour {
   FULL_DAY="FULL_DAY",
@@ -32,12 +59,3 @@ export enum attendanceType {
 }
 
 export const EnumAttendanceType = Object.values(attendanceType);
-
-
-export enum Branch {
-  BRANCH1 = "BRANCH1",
-  BRANCH2 = "BRANCH2",
-  BRANCH3 = "BRANCH3",
-}
-
-export const EnumBranch = Object.values(attendanceType);
