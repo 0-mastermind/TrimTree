@@ -43,7 +43,7 @@ async function startServer() {
   app.use("/api/auth", authRouter);
   app.use("/api/manager", managerRouter);
   app.use("/api/staff", staffRouter);
-  app.use("/api/branches", adminRouter);
+  app.use("/api/admin", adminRouter);
 
   // Global error handler 
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
