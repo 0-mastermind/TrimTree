@@ -3,7 +3,6 @@ import { storesData } from "@/data/data";
 import { StoreData } from "@/types/global";
 import { Store } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -20,9 +19,9 @@ const page = () => {
           <button
             className="text-xs mt-4 cursor-pointer transition-all bg-green-600 text-white px-6 py-2 rounded-lg border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center"
             onClick={() =>
-              redirectToURI("/dashboard/admin/branches/add-branch")
+              redirectToURI("/dashboard/admin/create-branch")
             }>
-            <Store className="h-4 w-4 md:h-5 md:w-5" /> Add an employee
+            <Store className="h-4 w-4 md:h-5 md:w-5" /> Add a branch
           </button>
         </div>
       </div>
