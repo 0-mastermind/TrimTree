@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authMiddleware , staffMiddleware } from "../middleware/auth.middleware.js";
-import { applyForAttendance, applyForLeave, applyForPunchOut, getMonthlyAttendance, getTodayAttendanceStatus } from "../controllers/staff.controller.js";
+import { adminMiddleware, authMiddleware , generalAdminMiddleware, managerMiddleware, staffMiddleware } from "../middleware/auth.middleware.js";
+import { applyForAttendance, applyForLeave, applyForPunchOut, getMonthlyAttendance, getStaffDetails, getStaffList, getStaffListByBranch, getStaffListByManager, getTodayAttendanceStatus } from "../controllers/staff.controller.js";
 
 const staffRouter = Router();
 
@@ -14,6 +14,12 @@ staffRouter.get("/attendance/monthly", authMiddleware , staffMiddleware , getMon
 
 staffRouter.get("/attendance/today", authMiddleware , staffMiddleware , getTodayAttendanceStatus);
 
+staffRouter.get("/get-all-staff-members", authMiddleware, generalAdminMiddleware, getStaffList);
 
+staffRouter.get("/get-staff-by-manager", authMiddleware, managerMiddleware, getStaffListByManager);
+
+staffRouter.get("/get-staff-by-branch", authMiddleware, generalAdminMiddleware, getStaffListByBranch);
+
+staffRouter.get("/get-staff-details", authMiddleware, adminMiddleware, getStaffDetails);
 
 export default staffRouter;

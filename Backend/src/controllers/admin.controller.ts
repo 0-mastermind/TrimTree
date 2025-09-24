@@ -38,10 +38,21 @@ export const createBranch = asyncErrorHandler(
       throw new ApiError(500, "Error while storing branch data");
     }
 
-   
-      return new ApiResponse({
-        statusCode: 201,
-        message: "Branch created successfully!",
-      }).send(res);
+    return new ApiResponse({
+      statusCode: 201,
+      message: "Branch created successfully!",
+    }).send(res);
+  }
+);
+
+export const getAllBranches = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const branchesList = await branchModel.find();
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Branches fetched successfully!",
+      data: branchesList,
+    }).send(res);
   }
 );
