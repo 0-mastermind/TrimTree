@@ -56,7 +56,6 @@ const LoginPage = () => {
       const res: boolean = await dispatch(
         login(formData.username, formData.password)
       );
-      console.log(res);
 
       if (res) {
         navigate("/dashboard", { replace: true });
