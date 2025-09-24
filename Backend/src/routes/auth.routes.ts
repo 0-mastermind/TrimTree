@@ -1,12 +1,14 @@
-import { Router } from "express";
-import { getUserProfile, loginUser, logout, registerUser } from "../controllers/auth.controller.js";
+import { Router, type NextFunction } from "express";
+import { getUserProfile, loginStaff, loginAdminManager , logout, registerUser } from "../controllers/auth.controller.js";
 import { admin_managerMiddleware, adminMiddleware, authMiddleware, managerMiddleware } from "../middleware/auth.middleware.js";
 
 const authRouter = Router();
 
 authRouter.post("/register", authMiddleware ,admin_managerMiddleware,registerUser);  
 
-authRouter.post("/login" , loginUser);  
+authRouter.post("/login/staff" , loginStaff); 
+
+authRouter.post("/login/admin" , loginAdminManager);  
 
 authRouter.post("/logout", authMiddleware , logout); 
 
