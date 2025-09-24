@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema, model } from "mongoose";
 import type { IUser } from "../types/type.js";
-import { EnumBranch, EnumUserRoles } from "../utils/constants.js";
+import { EnumBranch, EnumUserRoles, userRoles } from "../utils/constants.js";
 import bcrypt  from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -45,7 +45,9 @@ const UserSchema = new Schema<IUser>(
     branch: {
       type : Schema.Types.ObjectId,
       ref: 'Branch',
-      required: true,
+      required: function () {
+        return this.role !== userRoles.ADMIN; // required if role is not admin
+      },
     }
   },
   { timestamps: true }

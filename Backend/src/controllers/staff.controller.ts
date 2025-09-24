@@ -9,6 +9,7 @@ import {
   WorkingHour,
   attendanceStatus,
 } from "../utils/constants.js";
+import mongoose from "mongoose";
 
 export const applyForAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -101,7 +102,6 @@ export const applyForLeave = asyncErrorHandler(
     if (createdLeaves.length === 0)
       throw new ApiError(400, "Leave already applied for all given dates");
 
-
     return new ApiResponse({
       statusCode: 201,
       message: "Leave applied successfully",
@@ -115,7 +115,8 @@ export const getMonthlyAttendance = asyncErrorHandler(
     const { month, year } = req.query; // month: 1-12, year: YYYY
 
     if (!staffId) throw new ApiError(400, "User Not Logged In");
-    if (!month || !year) throw new ApiError(400, "Please provide month and year");
+    if (!month || !year)
+      throw new ApiError(400, "Please provide month and year");
 
     const monthNum = parseInt(month as string);
     const yearNum = parseInt(year as string);
@@ -159,7 +160,7 @@ export const applyForPunchOut = asyncErrorHandler(
 
     attendance.punchOut = {
       time: new Date(),
-      isApproved: false, 
+      isApproved: false,
     };
 
     await attendance.save();
@@ -192,3 +193,86 @@ export const getTodayAttendanceStatus = asyncErrorHandler(
     }).send(res);
   }
 );
+
+export const getStaffList = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffList = await StaffModel.find().populate("userId", "name username role").select("designation");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "All staff members fetched successfully!",
+      data: staffList,
+    }).send(res);
+  }
+);
+
+export const getStaffListByManager = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId = req.userId;
+
+    const staffList = await StaffModel.find({
+      manager: managerId,
+    }).populate("userId", "name username role").select("designation");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "All staff members fetched successfully!",
+      data: staffList,
+    }).send(res);
+  }
+);
+
+export const getStaffListByBranch = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const branchId = req.query.branchId as string;
+
+    const staffList = await StaffModel.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $match: {
+          "user.branch": new mongoose.Types.ObjectId(branchId),
+        },
+      },
+      {
+        $project: {
+          "user.name": 1,
+          "user.username": 1,
+          "user.role": 1,
+          "user._id": 1,
+          "designation": 1,
+        }
+      }
+    ]);
+
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "All staff members fetched successfully!",
+      data: staffList,
+    }).send(res);
+  }
+);
+
+export const getStaffDetails = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.query.staffId;
+    
+    const staffDetails = await StaffModel.findById(staffId).populate("userId", "-password");
+    
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Staff details fetched successfully!",
+      data: staffDetails,
+    }).send(res);
+  }
+)

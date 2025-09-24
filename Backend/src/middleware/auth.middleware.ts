@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { ApiError } from "../utils/ApiError.js";
+import { userRoles } from "../utils/constants.js";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -26,7 +27,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
 
 export const staffMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if (req.role !== "STAFF") {
+  if (req.role !== userRoles.STAFF) {
     throw new ApiError(403, "Access denied: Staff only");
   }
   next();
@@ -34,7 +35,7 @@ export const staffMiddleware = (req: Request, res: Response, next: NextFunction)
 
 
 export const managerMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if (req.role !== "MANAGER") {
+  if (req.role !== userRoles.MANAGER) {
     throw new ApiError(403, "Access denied: Manager only");
   }
   next();
@@ -42,8 +43,16 @@ export const managerMiddleware = (req: Request, res: Response, next: NextFunctio
 
 
 export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if (req.role !== "ADMIN") {
+  if (req.role !== userRoles.ADMIN) {
     throw new ApiError(403, "Access denied: Admin only");
   }
   next();
 };
+
+// for genral routes only accessible to manager and admin 
+export const generalAdminMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  if (req.role !== userRoles.ADMIN && req.role !== userRoles.MANAGER) {
+    throw new ApiError(403, "Access denied: Manager and Admin Only");
+  }
+  next();
+}
