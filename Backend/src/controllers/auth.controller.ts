@@ -8,7 +8,16 @@ import { ApiError } from "../utils/ApiError.js";
 
 export const registerUser = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { name, username, password, role, salary, designation, manager , branch } = req.body;
+    const {
+      name,
+      username,
+      password,
+      role,
+      salary,
+      designation,
+      manager,
+      branch,
+    } = req.body;
 
     if (!username || !password || !role || !branch) {
       throw new ApiError(400, "Fill All the Required Fields");
@@ -50,22 +59,20 @@ export const registerUser = asyncErrorHandler(
   }
 );
 
-export const loginUser = asyncErrorHandler(
+export const loginStaff = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const { username, password } = req.body;
-
-    if (!username || !password) {
-      throw new ApiError(400, "Fill All the Required Fields");
-    }
-
+    
     const user = await UserModel.findOne({ username });
-    if (!user) {
-      throw new ApiError(404, "User not found");
-    }
+    if (!user) throw new ApiError(404, "User not found");
 
+    // Check password
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return new ApiError(401, "Invalid credentials");
+    if (!isMatch) throw new ApiError(401, "Invalid credentials");
+
+    // Check role
+    if (user.role !== userRoles.STAFF) {
+      throw new ApiError(403, "Access denied");
     }
 
     const token = user.generateJWT();
@@ -78,50 +85,56 @@ export const loginUser = asyncErrorHandler(
       maxAge: 6 * 60 * 60 * 1000, // 6 hours
     });
 
- 
-    let redirectUrl: string;
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Logged In",
+      data: user,
+    }).send(res);
+  }
+);
 
-    switch (user.role) {
-      case userRoles.ADMIN:
-        redirectUrl =
-          process.env.ADMIN_DASHBOARD_URL ||
-          `http://localhost:3000/dashboard/admin`;
-        break;
-      case userRoles.MANAGER:
-        redirectUrl =
-          process.env.MANAGER_DASHBOARD_URL ||
-          `http://localhost:3000/dashboard/manager`;
-        break;
-      case userRoles.STAFF:
-        redirectUrl =
-          process.env.STAFF_DASHBOARD_URL ||
-          `http://localhost:3000/dashboard/staff`;
-        break;
+export const loginAdminManager = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+
+    const user = await UserModel.findOne({ username });
+    if (!user) throw new ApiError(404, "User not found");
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) throw new ApiError(401, "Invalid credentials");
+
+    if (user.role !== userRoles.ADMIN && user.role !== userRoles.MANAGER) {
+      throw new ApiError(403, "Access Denied");
     }
 
+    const token = user.generateJWT();
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 6 * 60 * 60 * 1000, // 6 hours
+      });
+
     return new ApiResponse({
       statusCode: 200,
-      message: "User Logged In Successfully",
-      data: { redirectUrl },
+      message: "Logged In",
+      data : user,
     }).send(res);
   }
 );
 
+export const logout = asyncErrorHandler(async (req: Request, res: Response) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
 
-export const logout = asyncErrorHandler(
-  async (req: Request, res: Response) => {
-    res.clearCookie("token", {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Logged out successfully",
-    }).send(res);
-  }
-);
+  return new ApiResponse({
+    statusCode: 200,
+    message: "Logged out successfully",
+  }).send(res);
+});
 
 export const getUserProfile = asyncErrorHandler(
   async (req: Request, res: Response) => {
