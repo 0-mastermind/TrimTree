@@ -73,3 +73,18 @@ export interface Attendance  {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type leaveType = 'LEAVE PAID' | 'LEAVE UNPAID';
+export type leaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface Leave {
+  staffId: string;
+  branch: string;
+  startDate: Date;
+  endDate: Date;
+  type: leaveType;
+  status: leaveStatus;
+  reason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

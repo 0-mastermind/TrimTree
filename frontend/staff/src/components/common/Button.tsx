@@ -22,12 +22,12 @@ const Button: React.FC<ButtonProps> = ({
     transition-all duration-200 ease-in-out
     focus:outline-none focus:ring-2 focus:ring-offset-2
     disabled:opacity-50 disabled:cursor-not-allowed
-    transform hover:scale-105 active:scale-95
+    transform hover:scale-105 active:scale-95 cursor-pointer
   `;
 
   const variants = {
     primary: `
-      bg-gradient-to-r from-yellow-200 to-amber-300 text-gray-800
+      bg-gradient-to-r from-yellow-300 to-amber-400 text-gray-800
       hover:from-yellow-300 hover:to-amber-400
       focus:ring-yellow-400 shadow-lg hover:shadow-xl
     `,

@@ -9,7 +9,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ activeItem, onChange, children }) => {
   return (
-    <div className="flex  h-screen bg-gray-50">
+    <div className="flex  h-screen">
       {/* Sidebar stays fixed */}
       <div className="h-full fixed">
         <Sidebar activeItem={activeItem} onItemClick={onChange} />

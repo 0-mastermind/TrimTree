@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Layout from '@/components/common/Layout';
-import AttendanceDemo from '@/components/dashboard/home/home';
+import Home from '@/components/dashboard/home/home';
 
 
 // Example tab components
@@ -12,9 +12,9 @@ export default function Dashboard() {
   const [activeItem, setActiveItem] = useState('home');
 
   let content;
-  switch (activeItem) {
+  switch (activeItem) { 
     case 'home':
-      content = <AttendanceDemo />;
+      content = <Home />;
       break;
     case 'settings':
       content = <Settings />;
@@ -26,7 +26,7 @@ export default function Dashboard() {
       content = <Profile />;
       break;
     default:
-      content = <AttendanceDemo />;
+      content = <Home />;
   }
 
   return (

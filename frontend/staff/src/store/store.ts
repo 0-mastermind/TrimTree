@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import loadingReducer from './features/loader.slice';
 import authReducer from './features/user.slice';
+import attendanceReducer from './features/attendance.slice';
 export const store = configureStore({
   reducer: {
-    loading: loadingReducer,
     auth: authReducer,
+    attendance : attendanceReducer,
   },
 });
 
