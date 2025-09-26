@@ -34,7 +34,10 @@ export const registerUser = asyncErrorHandler(
     let imageData = undefined;
     if (req.file) {
       const localPath = req.file.path;
-      const uploaded = await uploadOnCloudinary(localPath, `profileImage/${username}`);
+      const uploaded = await uploadOnCloudinary(
+        localPath,
+        `profileImage/${username}`
+      );
 
       if (!uploaded) {
         fs.unlinkSync(localPath);
@@ -81,11 +84,10 @@ export const registerUser = asyncErrorHandler(
   }
 );
 
-
 export const loginStaff = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const { username, password } = req.body;
-    
+
     const user = await UserModel.findOne({ username });
     if (!user) throw new ApiError(404, "User not found");
 
@@ -132,16 +134,16 @@ export const loginAdminManager = asyncErrorHandler(
 
     const token = user.generateJWT();
     res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 6 * 60 * 60 * 1000, // 6 hours
-      });
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours
+    });
 
     return new ApiResponse({
       statusCode: 200,
       message: "Logged In",
-      data : user,
+      data: user,
     }).send(res);
   }
 );
@@ -186,109 +188,119 @@ export const getUserProfile = asyncErrorHandler(
   }
 );
 
-export const updateStaff = asyncErrorHandler(async (req: Request, res: Response) => {
-  const {
-    userId,
-    name,
-    username,
-    email,
-    password,
-    branch,
-    designation,
-    manager,
-    salary,
-  } = req.body;
+export const updateStaff = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const {
+      userId,
+      name,
+      username,
+      email,
+      password,
+      branch,
+      designation,
+      manager,
+      salary,
+    } = req.body;
 
-
-
-  const staff = await StaffModel.findOne({ userId }).populate("userId");
-  if (!staff) {
-    throw new ApiError(404, "Staff not found");
-  }
-
-  const user = await UserModel.findById(userId);
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
-
-  if (name && name !== user.name) user.name = name;
-  if (username && username !== user.username) user.username = username;
-  if (email && email !== user.email) user.email = email;
-  if (branch && branch !== user.branch?.toString()) user.branch = branch;
-  if (password) user.password = password;
-
-  if (req.file) {
-    if (user.image?.publicId) {
-      await cloudinary.uploader.destroy(user.image.publicId);
-    }
-    const result = await uploadOnCloudinary(req.file.path, `profileImage/${user.username}`);
-    user.image = { url: result.secure_url, publicId: result.public_id };
-    fs.unlinkSync(req.file.path);
-  }
-
-  await user.save();
-
-  if (designation && designation !== staff.designation) staff.designation = designation;
-  if (manager && manager !== staff.manager.toString()) staff.manager = manager;
-  if (salary && salary !== staff.salary) staff.salary = salary;
-
-  await staff.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Staff updated successfully",
-  });
-});
-
-export const updateManager = asyncErrorHandler(async (req: Request, res: Response) => {
-
-  const { userId, name, username, email, password, role } = req.body;
-
-  const user = await UserModel.findById(userId);
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
-
-  if (name && name !== user.name) user.name = name;
-  if (username && username !== user.username) user.username = username;
-  if (email && email !== user.email) user.email = email;
-  if (role && role !== user.role) user.role = role;
-  if (password) user.password = password;
-
-  if (req.file) {
-    if (user.image?.publicId) {
-      await cloudinary.uploader.destroy(user.image.publicId);
-    }
-
-    const result = await uploadOnCloudinary(req.file.path, `profileImage/${user.username}`);
-    user.image = { url: result.secure_url, publicId: result.public_id };
-    fs.unlinkSync(req.file.path);
-  }
-
-  await user.save();
-
-  res.status(200).json({
-    success: true,
-    message: "Manager updated successfully",
-  });
-});
-
-export const authenticateUser = asyncErrorHandler(
-  async (req, res) => {
-    const { password } = req.body;
-    const userId = req.userId;
-
-    if (!password) {
-      return res.status(400).json({ success: false, message: "Password is required." });
+    const staff = await StaffModel.findOne({ userId }).populate("userId");
+    if (!staff) {
+      throw new ApiError(404, "Staff not found");
     }
 
     const user = await UserModel.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found." });
+      throw new ApiError(404, "User not found");
     }
 
+    if (name && name !== user.name) user.name = name;
+    if (username && username !== user.username) user.username = username;
+    if (email && email !== user.email) user.email = email;
+    if (branch && branch !== user.branch?.toString()) user.branch = branch;
+    if (password) user.password = password;
 
-    const isMatch = await user.comparePassword(password);
-    return res.json({ authenticated: isMatch });
+    if (req.file) {
+      if (user.image?.publicId) {
+        await cloudinary.uploader.destroy(user.image.publicId);
+      }
+      const result = await uploadOnCloudinary(
+        req.file.path,
+        `profileImage/${user.username}`
+      );
+      user.image = { url: result.secure_url, publicId: result.public_id };
+      fs.unlinkSync(req.file.path);
+    }
+
+    await user.save();
+
+    if (designation && designation !== staff.designation)
+      staff.designation = designation;
+    if (manager && manager !== staff.manager.toString())
+      staff.manager = manager;
+    if (salary && salary !== staff.salary) staff.salary = salary;
+
+    await staff.save();
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Staff updated successfully",
+    }).send(res);
   }
 );
+
+export const updateManager = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const { userId, name, username, email, password, role } = req.body;
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    if (name && name !== user.name) user.name = name;
+    if (username && username !== user.username) user.username = username;
+    if (email && email !== user.email) user.email = email;
+    if (role && role !== user.role) user.role = role;
+    if (password) user.password = password;
+
+    if (req.file) {
+      if (user.image?.publicId) {
+        await cloudinary.uploader.destroy(user.image.publicId);
+      }
+
+      const result = await uploadOnCloudinary(
+        req.file.path,
+        `profileImage/${user.username}`
+      );
+      user.image = { url: result.secure_url, publicId: result.public_id };
+      fs.unlinkSync(req.file.path);
+    }
+
+    await user.save();
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Manager updated successfully",
+    }).send(res);
+  }
+);
+
+export const authenticateUser = asyncErrorHandler(async (req, res) => {
+  const { password } = req.body;
+  const userId = req.userId;
+
+  if (!password) {
+    throw new ApiError(400, "Password is required.");
+  }
+
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found.");
+  }
+
+  const isMatch = await user.comparePassword(password);
+  return new ApiResponse({
+    statusCode: 200,
+    message: "Password matched",
+    data: { isMatch },
+  }).send(res);
+});
