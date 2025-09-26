@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import Layout from '@/components/common/Layout';
 import Home from '@/components/dashboard/home/home';
+import StaffAnalytics from '@/components/dashboard/analytics/Analytics';
 
 
 // Example tab components
 const Profile = () => <div>Profile content goes here</div>;
 const Settings = () => <div>Settings content goes here</div>;
-const Analytics = () => <div>Analytics content goes here</div>;
 
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState('home');
@@ -20,7 +20,7 @@ export default function Dashboard() {
       content = <Settings />;
       break;
     case 'analytics':
-      content = <Analytics />;
+      content = <StaffAnalytics />;
       break;
     case 'profile':
       content = <Profile />;
