@@ -500,7 +500,7 @@ export const getStaffListByBranch = asyncErrorHandler(
         $project: {
           _id: 1,
           designation: 1,
-          userId: [
+          userId:
             {
               _id: "$userId._id",
               name: "$userId.name",
@@ -510,7 +510,6 @@ export const getStaffListByBranch = asyncErrorHandler(
                 name: "$branchData.name"
               }
             }
-          ]
         }
       }
     ]);
