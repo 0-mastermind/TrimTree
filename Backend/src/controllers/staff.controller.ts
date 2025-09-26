@@ -21,6 +21,7 @@ import {
 } from "../socketio.js";
 import StaffModel from "../models/staff.model.js";
 import mongoose from "mongoose";
+import branchModel from "../models/branch.model.js";
 
 
 export const applyForAttendance = asyncErrorHandler(
@@ -414,7 +415,16 @@ export const getTodayAttendanceStatus = asyncErrorHandler(
 
 export const getStaffList = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const staffList = await StaffModel.find().populate("userId", "name username role").select("designation");
+    const staffList = await StaffModel.find()
+      .populate({
+        path: "userId",
+        select: "name username role branch", 
+        populate: {
+          path: "branch",
+          select: "name",
+        },
+      })
+      .select("designation");
 
     return new ApiResponse({
       statusCode: 200,
@@ -428,9 +438,16 @@ export const getStaffListByManager = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const managerId = req.userId;
 
-    const staffList = await StaffModel.find({
-      manager: managerId,
-    }).populate("userId", "name username role").select("designation");
+    const staffList = await StaffModel.find({ manager: managerId })
+      .populate({
+        path: "userId",
+        select: "name username role branch",
+        populate: {
+          path: "branch",
+          select: "name",
+        },
+      })
+      .select("designation");
 
     return new ApiResponse({
       statusCode: 200,
@@ -440,9 +457,20 @@ export const getStaffListByManager = asyncErrorHandler(
   }
 );
 
+
 export const getStaffListByBranch = asyncErrorHandler(
-  async (req: Request, res: Response) => {
+  async (req, res) => {
     const branchId = req.query.branchId as string;
+
+    if (!branchId) throw new ApiError(400, "Branch ID is required");
+
+    const branchDoc = await branchModel.findById(branchId, { name: 1 });
+    if (!branchDoc) {
+      return new ApiResponse({
+        statusCode: 404,
+        message: "Branch not found",
+      }).send(res);
+    }
 
     const staffList = await StaffModel.aggregate([
       {
@@ -450,28 +478,42 @@ export const getStaffListByBranch = asyncErrorHandler(
           from: "users",
           localField: "userId",
           foreignField: "_id",
-          as: "user",
+          as: "userId",
         },
       },
-      {
-        $unwind: "$user",
-      },
+      { $unwind: "$userId" },
       {
         $match: {
-          "user.branch": new mongoose.Types.ObjectId(branchId),
+          "userId.branch": new mongoose.Types.ObjectId(branchId),
         },
       },
       {
+        $lookup: {
+          from: "branches", 
+          localField: "userId.branch",
+          foreignField: "_id",
+          as: "branchData",
+        },
+      },
+      { $unwind: "$branchData" },
+      {
         $project: {
-          "user.name": 1,
-          "user.username": 1,
-          "user.role": 1,
-          "user._id": 1,
-          "designation": 1,
+          _id: 1,
+          designation: 1,
+          userId: [
+            {
+              _id: "$userId._id",
+              name: "$userId.name",
+              username: "$userId.username",
+              role: "$userId.role",
+              branch: {
+                name: "$branchData.name"
+              }
+            }
+          ]
         }
       }
     ]);
-
 
     return new ApiResponse({
       statusCode: 200,
@@ -480,7 +522,6 @@ export const getStaffListByBranch = asyncErrorHandler(
     }).send(res);
   }
 );
-
 export const getStaffDetails = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const staffId = req.query.staffId;
