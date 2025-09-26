@@ -5,6 +5,8 @@ import StaffModel from "../models/staff.model.js";
 import { userRoles } from "../utils/constants.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import fs from "fs";
 
 export const registerUser = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -20,12 +22,30 @@ export const registerUser = asyncErrorHandler(
     } = req.body;
 
     if (!username || !password || !role || !branch) {
-      throw new ApiError(400, "Fill All the Required Fields");
+      throw new ApiError(400, "Fill all the required fields");
     }
 
     const existingUser = await UserModel.findOne({ username });
     if (existingUser) {
       throw new ApiError(409, "User with this username already exists");
+    }
+
+    let imageData = undefined;
+    if (req.file) {
+      const localPath = req.file.path;
+      const uploaded = await uploadOnCloudinary(localPath, `profileImage/${username}`);
+
+      if (!uploaded) {
+        fs.unlinkSync(localPath);
+        throw new ApiError(500, "Image upload failed");
+      }
+
+      imageData = {
+        url: uploaded.secure_url,
+        publicId: uploaded.public_id,
+      };
+
+      fs.unlinkSync(localPath);
     }
 
     const user = await UserModel.create({
@@ -34,6 +54,7 @@ export const registerUser = asyncErrorHandler(
       password,
       role,
       branch,
+      image: imageData,
     });
 
     if (role === userRoles.STAFF) {
@@ -53,11 +74,12 @@ export const registerUser = asyncErrorHandler(
     }
 
     return new ApiResponse({
-      statusCode: 201,
+      statusCode: 200,
       message: "User registered successfully",
     }).send(res);
   }
 );
+
 
 export const loginStaff = asyncErrorHandler(
   async (req: Request, res: Response) => {

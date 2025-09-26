@@ -9,20 +9,20 @@ cloudinary.config({
 const uploadOnCloudinary = async (
   localFilePath: string,
   folderName: string
-): Promise<UploadApiResponse | null> => {
-  try {
-    const response: UploadApiResponse = await cloudinary.uploader.upload(
-      localFilePath,
-      {
-        resource_type: "auto",
-        folder: folderName,
-      }
-    );
+): Promise<UploadApiResponse> => {
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    throw new Error("Cloudinary is not configured");
+  }
 
+  try {
+    const response: UploadApiResponse = await cloudinary.uploader.upload(localFilePath, {
+      resource_type: "auto",
+      folder: folderName,
+    });
     return response;
   } catch (error) {
-    console.log("Error in cloudinary upload: ", error);
-    return null;
+    console.error("Error in Cloudinary upload:", error);
+    throw new Error("Cloudinary upload failed");
   }
 };
 
