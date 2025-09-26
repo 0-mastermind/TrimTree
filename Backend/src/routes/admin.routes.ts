@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBranch, getAllBranches } from "../controllers/admin.controller.js";
+import { createBranch, deleteStaff, getAllBranches, getBranchManagers } from "../controllers/admin.controller.js";
 import { multerUpload } from "../middleware/multer.middleware.js";
 import { adminMiddleware, authMiddleware } from "../middleware/auth.middleware.js";
 
@@ -15,5 +15,9 @@ const adminFiles = multerUpload.fields([
 adminRouter.post("/create-branch", adminFiles, authMiddleware , adminMiddleware , createBranch);
 
 adminRouter.get("/branches", authMiddleware, adminMiddleware, getAllBranches);
+
+adminRouter.get("/managers" , authMiddleware, adminMiddleware, getBranchManagers);
+
+adminRouter.delete("/delete/staff" , authMiddleware, adminMiddleware, deleteStaff);
 
 export default adminRouter
