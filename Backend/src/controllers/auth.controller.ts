@@ -7,6 +7,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
+import { v2 as cloudinary } from "cloudinary";
 
 export const registerUser = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -182,5 +183,112 @@ export const getUserProfile = asyncErrorHandler(
       data: { user, staffData },
       message: "Profile fetched successfully",
     }).send(res);
+  }
+);
+
+export const updateStaff = asyncErrorHandler(async (req: Request, res: Response) => {
+  const {
+    userId,
+    name,
+    username,
+    email,
+    password,
+    branch,
+    designation,
+    manager,
+    salary,
+  } = req.body;
+
+
+
+  const staff = await StaffModel.findOne({ userId }).populate("userId");
+  if (!staff) {
+    throw new ApiError(404, "Staff not found");
+  }
+
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (name && name !== user.name) user.name = name;
+  if (username && username !== user.username) user.username = username;
+  if (email && email !== user.email) user.email = email;
+  if (branch && branch !== user.branch?.toString()) user.branch = branch;
+  if (password) user.password = password;
+
+  if (req.file) {
+    if (user.image?.publicId) {
+      await cloudinary.uploader.destroy(user.image.publicId);
+    }
+    const result = await uploadOnCloudinary(req.file.path, `profileImage/${user.username}`);
+    user.image = { url: result.secure_url, publicId: result.public_id };
+    fs.unlinkSync(req.file.path);
+  }
+
+  await user.save();
+
+  if (designation && designation !== staff.designation) staff.designation = designation;
+  if (manager && manager !== staff.manager.toString()) staff.manager = manager;
+  if (salary && salary !== staff.salary) staff.salary = salary;
+
+  await staff.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Staff updated successfully",
+  });
+});
+
+export const updateManager = asyncErrorHandler(async (req: Request, res: Response) => {
+
+  const { userId, name, username, email, password, role } = req.body;
+
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (name && name !== user.name) user.name = name;
+  if (username && username !== user.username) user.username = username;
+  if (email && email !== user.email) user.email = email;
+  if (role && role !== user.role) user.role = role;
+  if (password) user.password = password;
+
+  if (req.file) {
+    if (user.image?.publicId) {
+      await cloudinary.uploader.destroy(user.image.publicId);
+    }
+
+    const result = await uploadOnCloudinary(req.file.path, `profileImage/${user.username}`);
+    user.image = { url: result.secure_url, publicId: result.public_id };
+    fs.unlinkSync(req.file.path);
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Manager updated successfully",
+  });
+});
+
+export const authenticateUser = asyncErrorHandler(
+  async (req, res) => {
+    const { password } = req.body;
+    const userId = req.userId;
+
+    if (!password) {
+      return res.status(400).json({ success: false, message: "Password is required." });
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+
+    const isMatch = await user.comparePassword(password);
+    return res.json({ authenticated: isMatch });
   }
 );
