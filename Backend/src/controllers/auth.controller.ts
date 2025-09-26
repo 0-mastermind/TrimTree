@@ -249,7 +249,7 @@ export const updateStaff = asyncErrorHandler(
 
 export const updateManager = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { userId, name, username, email, password, role } = req.body;
+    const { userId, name, username, email, password } = req.body;
 
     const user = await UserModel.findById(userId);
     if (!user) {
@@ -259,7 +259,6 @@ export const updateManager = asyncErrorHandler(
     if (name && name !== user.name) user.name = name;
     if (username && username !== user.username) user.username = username;
     if (email && email !== user.email) user.email = email;
-    if (role && role !== user.role) user.role = role;
     if (password) user.password = password;
 
     if (req.file) {
