@@ -33,7 +33,6 @@ export const initSocket = (httpServer: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
 
     // staff or manager joins a room
     socket.on("joinRoom", (room) => {
@@ -72,24 +71,24 @@ export const emitPunchOutRequest = (attendance: any) => {
 export const emitAttendanceUpdated = (attendance: any) => {
   const userRoom = `branch:${attendance.branch}:staffs:${attendance.staffId}`;
   io.to(userRoom).emit("attendanceUpdated", {
-    data: attendance.status,
-    message: "Your attendance was updated by manager",
+    data: attendance,
+    message: `Attendance ${attendance.status}`,
   });
 };
 
 export const emitLeaveUpdated = (leave: any) => {
   const userRoom = `branch:${leave.branch}:staffs:${leave.staffId}`;
   io.to(userRoom).emit("leaveUpdated", {
-    data: leave.status,
-    message: "Your leave request was updated by manager",
+    data: leave,
+    message: "Leave" + leave.status,
   });
 };
 
 export const emitPunchOutUpdated = (attendance: any) => {
   const userRoom = `branch:${attendance.branch}:staffs:${attendance.staffId}`;
   io.to(userRoom).emit("punchOutUpdated", {
-    data: attendance.punchOut.status,
-    message: "Your punch-out request was updated by manager",
+    data: attendance,
+    message: `Punch-out ${attendance.punchOut.status}`,
   });
 };
 

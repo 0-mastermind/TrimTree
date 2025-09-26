@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema, model } from "mongoose";
 import type { IUser } from "../types/type.js";
-import { EnumBranch, EnumUserRoles } from "../utils/constants.js";
+import {  EnumUserRoles, userRoles } from "../utils/constants.js";
 import bcrypt  from "bcrypt";
 import jwt from "jsonwebtoken";
 import '../utils/dotenv.config.js'

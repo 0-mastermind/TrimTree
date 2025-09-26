@@ -207,13 +207,6 @@ export const approveLeaves = asyncErrorHandler(async (req: Request, res: Respons
     const startOfDayUTC = getUTCStartOfDay(new Date(leave.startDate));
     const endOfDayUTC = getUTCEndOfDay(new Date(leave.endDate));
 
-    const updatedAttendances = await AttendanceModel.find({
-      staffId: leave.staffId,
-      branch: leave.branch,
-      type: attendanceType.LEAVE,
-      date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
-    }).session(session);
-
     await AttendanceModel.updateMany(
       {
         staffId: leave.staffId,
@@ -231,7 +224,16 @@ export const approveLeaves = asyncErrorHandler(async (req: Request, res: Respons
     await session.commitTransaction();
     session.endSession();
 
-    updatedAttendances.forEach((attendance) => emitAttendanceUpdated(attendance));
+    if (leave.startDate === leave.endDate) {
+      const attendance = await AttendanceModel.findOne({
+        staffId: leave.staffId,
+        branch: leave.branch,
+        type: attendanceType.LEAVE,
+        date: getUTCStartOfDay(new Date(leave.startDate)),
+      });
+      if (attendance) emitAttendanceUpdated(attendance);
+    }
+
     emitLeaveUpdated(leave);
 
     return new ApiResponse({
@@ -259,13 +261,6 @@ export const rejectLeaves = asyncErrorHandler(async (req: Request, res: Response
     const startOfDayUTC = getUTCStartOfDay(new Date(leave.startDate));
     const endOfDayUTC = getUTCEndOfDay(new Date(leave.endDate));
 
-    const updatedAttendances = await AttendanceModel.find({
-      staffId: leave.staffId,
-      branch: leave.branch,
-      type: attendanceType.LEAVE,
-      date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
-    }).session(session);
-
     await AttendanceModel.updateMany(
       {
         staffId: leave.staffId,
@@ -283,7 +278,19 @@ export const rejectLeaves = asyncErrorHandler(async (req: Request, res: Response
     await session.commitTransaction();
     session.endSession();
 
-    updatedAttendances.forEach((attendance) => emitAttendanceUpdated(attendance));
+    // Always emit attendance for each affected day (not just same day)
+    const affectedAttendances = await AttendanceModel.find({
+      staffId: leave.staffId,
+      branch: leave.branch,
+      type: attendanceType.LEAVE,
+      date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
+      status: attendanceStatus.REJECTED_LEAVE
+    });
+
+    affectedAttendances.forEach(attendance => {
+      emitAttendanceUpdated(attendance);
+    });
+
     emitLeaveUpdated(leave);
 
     return new ApiResponse({

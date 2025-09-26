@@ -23,7 +23,6 @@ import StaffModel from "../models/staff.model.js";
 import mongoose from "mongoose";
 
 
-
 export const applyForAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const userId = req.userId;
@@ -85,6 +84,7 @@ export const applyForAttendance = asyncErrorHandler(
       return new ApiResponse({
         statusCode: 200,
         message: "Attendance applied successfully",
+        data: existingAttendance,
       }).send(res);
     }
 
@@ -104,114 +104,169 @@ export const applyForAttendance = asyncErrorHandler(
     return new ApiResponse({
       statusCode: 201,
       message: "Attendance applied successfully",
+      data: attendance,
     }).send(res);
   }
 );
 
 export const applyForLeave = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const staffId = req.userId;
+    const userId = req.userId;
     const branchId = req.branchId;
     const { startDate, endDate, type, reason } = req.body;
 
-    if (!staffId) throw new ApiError(400, "User Not Logged In");
+    if (!userId) throw new ApiError(400, "User Not Logged In");
 
-    const staff = await UserModel.findById(staffId);
-    if (!staff) throw new ApiError(404, "Staff not found");
+    const user = await UserModel.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
 
-    if (!startDate || !endDate)
+    const staffDoc = await StaffModel.findOne({ userId: user._id }).select("_id");
+    if (!staffDoc) throw new ApiError(404, "Staff not found");
+    const staffId = user._id;
+
+    if (!startDate || !endDate) {
       throw new ApiError(400, "Please provide both startDate and endDate");
+    }
 
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    if (start > end)
+    if (start > end) {
       throw new ApiError(400, "startDate cannot be after endDate");
+    }
 
-    // Check overlapping leaves
-    const overlappingLeave = await LeaveModel.findOne({
+    // Find any leave in the same range
+    const leaveDoc = await LeaveModel.findOne({
       staffId,
       branch: branchId,
-      status: { $in: [leaveStatus.PENDING, leaveStatus.APPROVED] },
       $or: [{ startDate: { $lte: end }, endDate: { $gte: start } }],
     });
 
-    if (overlappingLeave?.status == leaveStatus.APPROVED)
+    if (leaveDoc?.status === leaveStatus.APPROVED) {
       throw new ApiError(400, "Leave already exists for the given dates");
-
-    else if (overlappingLeave?.status == leaveStatus.PENDING)
+    } else if (leaveDoc?.status === leaveStatus.PENDING) {
       throw new ApiError(
         400,
         "You have a pending leave request for the given dates"
       );
-
-    //  Check for conflicting ATTENDANCE entries
-    const conflictingAttendance = await AttendanceModel.findOne({
-      staffId,
-      branch: branchId,
-      date: { $gte: start, $lte: end },
-    });
-
-    if (conflictingAttendance) {
-      const conflictDate = conflictingAttendance.date.toISOString().split("T")[0];
-      throw new ApiError(
-        400,
-        `You have already applied for attendance on ${conflictDate}. Leave request cannot overlap.`
-      );
     }
 
-    // Create leave request
-    const leave = await LeaveModel.create({
-      staffId,
-      branch: branchId,
-      startDate: start,
-      endDate: end,
-      type: type || leaveType.LEAVE_PAID,
-      reason: reason || "",
-      status: leaveStatus.PENDING,
-    });
-
-    // Create attendance entries for each day in UTC
-    const createdAttendances = [];
-    let currentDate = new Date(start.getTime());
-
-    while (currentDate <= end) {
-      const utcDayStart = new Date(Date.UTC(
-        currentDate.getUTCFullYear(),
-        currentDate.getUTCMonth(),
-        currentDate.getUTCDate(),
-        0, 0, 0, 0
-      ));
-
-      const attendance = await AttendanceModel.findOneAndUpdate(
-        {
-          staffId,
-          branch: branchId,
-          type: attendanceType.LEAVE,
-          date: { $gte: utcDayStart, $lte: new Date(utcDayStart.getTime() + 86399999) },
-        },
-        {
-          staffId,
-          branch: branchId,
-          type: attendanceType.LEAVE,
-          status: attendanceStatus.PENDING,
-          leaveDescription: reason || "",
-          date: utcDayStart,
-          workingHour: "FULL_DAY",
-        },
-        { upsert: true, new: true }
-      );
-
-      createdAttendances.push(attendance);
-      currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
+    // If REJECTED, update instead of creating new
+    let leaveDocToProcess: any = null;
+    let isUpdate = false;
+    if (leaveDoc?.status === leaveStatus.REJECTED) {
+      isUpdate = true;
+      leaveDocToProcess = leaveDoc;
     }
 
-    emitLeaveRequest(leave);
 
-    return new ApiResponse({
-      statusCode: 201,
-      message: "Leave applied successfully",
-    }).send(res);
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      let leaveDocResult;
+      if (isUpdate) {
+        leaveDocToProcess.set({
+          startDate: start,
+          endDate: end,
+          type: type || leaveType.LEAVE_PAID,
+          reason: reason || "",
+          status: leaveStatus.PENDING,
+        });
+        leaveDocResult = await leaveDocToProcess.save({ session });
+      } else {
+        [leaveDocResult] = await LeaveModel.create(
+          [
+            {
+              staffId,
+              branch: branchId,
+              startDate: start,
+              endDate: end,
+              type: type || leaveType.LEAVE_PAID,
+              reason: reason || "",
+              status: leaveStatus.PENDING,
+            },
+          ],
+          { session }
+        );
+      }
+
+      // Loop through each date in leave range
+      let currentDate = new Date(start.getTime());
+      while (currentDate <= end) {
+        const utcDayStart = new Date(
+          Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate(),
+            0, 0, 0, 0
+          )
+        );
+
+        // Find any attendance entry for this date
+        const attendanceEntry = await AttendanceModel.findOne({
+          staffId,
+          branch: branchId,
+          date: {
+            $gte: utcDayStart,
+            $lte: new Date(utcDayStart.getTime() + 86399999),
+          },
+        }).session(session);
+
+        if (attendanceEntry) {
+          // If status is not dismissed or rejected leave, block leave application
+          if (
+            attendanceEntry.status !== attendanceStatus.DISMISSED &&
+            attendanceEntry.status !== attendanceStatus.REJECTED_LEAVE
+          ) {
+            throw new ApiError(
+              400,
+              `Cannot apply for leave: attendance entry with status '${attendanceEntry.status}' exists for ${utcDayStart.toISOString().split("T")[0]}`
+            );
+          }
+          // Otherwise, update the existing attendance entry
+          attendanceEntry.set({
+            type: attendanceType.LEAVE,
+            status: attendanceStatus.PENDING,
+            leaveDescription: reason || "",
+            workingHour: WorkingHour.FULL_DAY,
+          });
+          await attendanceEntry.save({ session });
+        } else {
+          // No entry: create new
+          await AttendanceModel.create(
+            [{
+              staffId,
+              branch: branchId,
+              type: attendanceType.LEAVE,
+              status: attendanceStatus.PENDING,
+              leaveDescription: reason || "",
+              date: utcDayStart,
+              workingHour: WorkingHour.FULL_DAY,
+            }],
+            { session }
+          );
+        }
+
+        currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      emitLeaveRequest(leaveDocResult);
+
+      return new ApiResponse({
+        statusCode: 201,
+        message: isUpdate
+          ? "Leave request updated successfully"
+          : "Leave applied successfully",
+      }).send(res);
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw err;
+    }
   }
 );
 
@@ -311,6 +366,7 @@ export const applyForPunchOut = asyncErrorHandler(
     return new ApiResponse({
       statusCode: 200,
       message: "Punch-out applied successfully, pending approval",
+      data: attendance,
     }).send(res);
   }
 );
@@ -346,7 +402,7 @@ export const getTodayAttendanceStatus = asyncErrorHandler(
     const record = await AttendanceModel.findOne({
       staffId,
       date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
-    }).select("type status workingHour punchIn punchOut leaveDescription");
+    });
 
     return new ApiResponse({
       statusCode: 200,
