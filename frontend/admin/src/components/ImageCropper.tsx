@@ -1,13 +1,19 @@
 "use client";
 import React, { useState } from "react";
 import CropModal from "./CropModal";
+import { Trash2 } from "lucide-react";
 
 type ImageCropperProps = {
-  imageSrc?: string;  
+  imageSrc?: string;
   aspect?: number;
+  onImageCropped?: (file: File, url: string) => void;
 };
 
-export default function ImageCropper({ imageSrc, aspect = 3 / 2 }: ImageCropperProps) {
+export default function ImageCropper({
+  imageSrc,
+  aspect = 3 / 2,
+  onImageCropped,
+}: ImageCropperProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [croppedUrl, setCroppedUrl] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,6 +26,8 @@ export default function ImageCropper({ imageSrc, aspect = 3 / 2 }: ImageCropperP
       const url = URL.createObjectURL(file);
       setTempImage(url);
       setModalOpen(true);
+
+      e.target.value = "";
     }
   };
 
@@ -27,23 +35,41 @@ export default function ImageCropper({ imageSrc, aspect = 3 / 2 }: ImageCropperP
   const handleCropComplete = (file: File, url: string) => {
     setSelectedFile(file);
     setCroppedUrl(url);
+    // setTempImage(null);
+
+    if (onImageCropped) {
+      onImageCropped(file, url);
+    }
+  };
+
+  const handleImageRemove = () => {
+    setCroppedUrl(null);
   };
 
   return (
     <div className="space-y-4">
       {/* Image preview */}
       {croppedUrl ? (
-        <img
-          src={croppedUrl}
-          alt="Cropped"
-          className="w-70 h-70 md:w-90 md:h-90 object-cover rounded-lg border border-black/40"
-        />
+        <div className="relative w-70 h-70 md:w-90 md:h-90 rounded-lg border border-black/40 overflow-hidden">
+          <img src={croppedUrl} alt="Cropped" className="object-cover" />
+          <span
+            className="absolute right-2 bottom-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 cursor-pointer"
+            title="click to remove image"
+            onClick={handleImageRemove}>
+            <Trash2 size={18} />
+          </span>
+        </div>
       ) : imageSrc ? (
-        <img
-          src={imageSrc}
-          alt="Default"
-          className="w-70 h-70 md:w-90 md:h-90 object-contacoverin rounded-lg border border-black/40"
-        />
+        <div className="relative w-70 h-70 md:w-90 md:h-90 rounded-lg border border-black/40 overflow-hidden">
+          <img src={imageSrc} alt="Cropped" className="object-cover" />
+          <span
+            className="absolute right-2 bottom-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 cursor-pointer"
+            title="click to remove image"
+            onClick={handleImageRemove}
+            >
+            <Trash2 size={18} />
+          </span>
+        </div>
       ) : (
         <div className="w-70 h-70 md:w-90 md:h-90 flex items-center justify-center border rounded-lg text-gray-400">
           No image selected
