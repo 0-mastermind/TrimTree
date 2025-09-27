@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import Calendar from "react-calendar";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Calendar  from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import "./calendar.css"; // Custom styles for calendar
-import { 
-  User, 
-  CalendarDays, 
-  TrendingUp, 
-  Clock, 
-  Award, 
+import "./calendar.css";
+import {
+  CalendarDays,
+  TrendingUp,
+  Clock,
   BarChart3,
   Users,
   Calendar as CalendarIcon,
@@ -16,152 +14,240 @@ import {
   Coffee,
   Plane,
   MapPin,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 import clsx from "clsx";
+import type { Attendance, attendanceStatus } from "@/types/type";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/store/store";
+import { getMonthlyAttendance } from "@/api/analytics";
+import { attendanceStatuses } from "@/constants/constants";
+import Loader from "@/components/common/Loader";
+import type { Value } from "react-calendar/dist/shared/types.js";
 
-type AttendanceStatus =
-  | "Pending"
-  | "Present"
-  | "Absent"
-  | "Paid Leave"
-  | "Unpaid Leave"
-  | "Holiday"
-  | "Working Holiday";
-
-type AttendanceRecord = {
-  date: string; // ISO date
-  status: AttendanceStatus;
-  checkIn?: string;
-  checkOut?: string;
-  hours?: number;
+type StatusMeta = {
+  label: string;
+  color: string;
+  bgColor: string;
+  textColor: string;
+  icon: React.ReactNode;
 };
 
-// Enhanced mock data with more details
-const attendanceData: AttendanceRecord[] = [
-  { date: "2025-09-01", status: "Present", checkIn: "9:00 AM", checkOut: "6:00 PM", hours: 8 },
-  { date: "2025-09-02", status: "Present", checkIn: "9:15 AM", checkOut: "6:15 PM", hours: 8 },
-  { date: "2025-09-03", status: "Paid Leave" },
-  { date: "2025-09-04", status: "Present", checkIn: "8:45 AM", checkOut: "5:45 PM", hours: 8 },
-  { date: "2025-09-05", status: "Absent" },
-  { date: "2025-09-06", status: "Holiday" },
-  { date: "2025-09-07", status: "Working Holiday", checkIn: "10:00 AM", checkOut: "4:00 PM", hours: 6 },
-  { date: "2025-09-08", status: "Unpaid Leave" },
-  { date: "2025-09-09", status: "Pending" },
-  { date: "2025-09-10", status: "Present", checkIn: "9:05 AM", checkOut: "6:05 PM", hours: 8 },
-  { date: "2025-09-11", status: "Present", checkIn: "9:10 AM", checkOut: "6:10 PM", hours: 8 },
-  { date: "2025-09-12", status: "Paid Leave" },
-  { date: "2025-09-13", status: "Holiday" },
-  { date: "2025-09-14", status: "Holiday" },
-  { date: "2025-09-15", status: "Present", checkIn: "9:00 AM", checkOut: "6:00 PM", hours: 8 },
-  { date: "2025-09-16", status: "Present", checkIn: "8:50 AM", checkOut: "5:50 PM", hours: 8 },
-  { date: "2025-09-17", status: "Absent" },
-  { date: "2025-09-18", status: "Present", checkIn: "9:20 AM", checkOut: "6:20 PM", hours: 8 },
-  { date: "2025-09-19", status: "Present", checkIn: "9:00 AM", checkOut: "6:00 PM", hours: 8 },
-  { date: "2025-09-20", status: "Holiday" },
-  { date: "2025-09-21", status: "Holiday" },
-  { date: "2025-09-22", status: "Present", checkIn: "9:05 AM", checkOut: "6:05 PM", hours: 8 },
-  { date: "2025-09-23", status: "Present", checkIn: "9:00 AM", checkOut: "6:00 PM", hours: 8 },
-  { date: "2025-09-24", status: "Paid Leave" },
-  { date: "2025-09-25", status: "Present", checkIn: "8:55 AM", checkOut: "5:55 PM", hours: 8 },
-  { date: "2025-09-26", status: "Present", checkIn: "9:00 AM", checkOut: "6:00 PM", hours: 8 }
-];
-
-const statusMeta: Record<
-  AttendanceStatus,
-  { label: string; color: string; bgColor: string; icon: React.ReactNode; textColor: string }
-> = {
-  Pending: { 
-    label: "Pending", 
-    color: "bg-gray-500", 
+const statusMeta: Record<attendanceStatus, StatusMeta> = {
+  PENDING: {
+    label: "Pending",
+    color: "bg-gray-500",
     bgColor: "bg-gray-50",
     textColor: "text-gray-700",
-    icon: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
+    icon: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  Present: { 
-    label: "Present", 
-    color: "bg-emerald-500", 
+  PRESENT: {
+    label: "Present",
+    color: "bg-emerald-500",
     bgColor: "bg-emerald-50",
     textColor: "text-emerald-700",
-    icon: <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
+    icon: <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  Absent: { 
-    label: "Absent", 
-    color: "bg-red-500", 
+  ABSENT: {
+    label: "Absent",
+    color: "bg-red-500",
     bgColor: "bg-red-50",
     textColor: "text-red-700",
-    icon: <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+    icon: <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  "Paid Leave": { 
-    label: "Paid Leave", 
-    color: "bg-blue-500", 
+  "LEAVE PAID": {
+    label: "Paid Leave",
+    color: "bg-blue-500",
     bgColor: "bg-blue-50",
     textColor: "text-blue-700",
-    icon: <Coffee className="w-4 h-4 sm:w-5 sm:h-5" />
+    icon: <Coffee className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  "Unpaid Leave": { 
-    label: "Unpaid Leave", 
-    color: "bg-orange-500", 
+  "LEAVE UNPAID": {
+    label: "Unpaid Leave",
+    color: "bg-orange-500",
     bgColor: "bg-orange-50",
     textColor: "text-orange-700",
-    icon: <Coffee className="w-4 h-4 sm:w-5 sm:h-5" />
+    icon: <Coffee className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  Holiday: { 
-    label: "Holiday", 
-    color: "bg-purple-500", 
+  HOLIDAY: {
+    label: "Holiday",
+    color: "bg-purple-500",
     bgColor: "bg-purple-50",
     textColor: "text-purple-700",
-    icon: <Plane className="w-4 h-4 sm:w-5 sm:h-5" />
+    icon: <Plane className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  "Working Holiday": { 
-    label: "Working Holiday", 
-    color: "bg-indigo-500", 
+  "WORKING HOLIDAY": {
+    label: "Working Holiday",
+    color: "bg-indigo-500",
     bgColor: "bg-indigo-50",
     textColor: "text-indigo-700",
-    icon: <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
+    icon: <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />,
+  },
+  "REJECTED LEAVE": {
+    label: "Rejected Leave",
+    color: "bg-pink-500",
+    bgColor: "bg-pink-50",
+    textColor: "text-pink-700",
+    icon: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />,
+  },
+  DISMISSED: {
+    label: "Dismissed",
+    color: "bg-gray-400",
+    bgColor: "bg-gray-100",
+    textColor: "text-gray-600",
+    icon: <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
 };
 
-const getMonthlySummary = (data: AttendanceRecord[]) => {
-  const summary: Record<AttendanceStatus, number> = {
-    Pending: 0,
-    Present: 0,
-    Absent: 0,
-    "Paid Leave": 0,
-    "Unpaid Leave": 0,
-    Holiday: 0,
-    "Working Holiday": 0,
-  };
-  
-  data.forEach((d) => summary[d.status]++);
-  
-  const totalHours = data.reduce((sum, record) => sum + (record.hours || 0), 0);
-  const workingDays = data.filter(d => d.status === "Present" || d.status === "Working Holiday").length;
-  const totalDays = data.length;
-  const attendanceRate = ((summary.Present + summary["Working Holiday"]) / totalDays * 100).toFixed(1);
-  
-  return { summary, totalHours, workingDays, totalDays, attendanceRate };
+type AttendanceSummary = {
+  summary: Record<attendanceStatus, number>;
+  totalHours: number;
+  workingDays: number;
+  totalDays: number;
+  attendanceRate: string;
 };
 
+const toISODate = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
+
 const StaffAnalytics: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date("2025-09-01"));
-  const { summary, totalHours, workingDays, totalDays, attendanceRate } = getMonthlySummary(attendanceData);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const selectedDateString = selectedDate.toISOString().slice(0, 10);
-  const selectedRecord = attendanceData.find(record => record.date === selectedDateString);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
-  const StatCard = ({ icon, title, value, subtitle, color = "bg-white" }: {
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const month = useMemo(
+    () => String(currentMonthDate.getMonth() + 1).padStart(2, "0"),
+    [currentMonthDate]
+  );
+  const year = useMemo(() => String(currentMonthDate.getFullYear()), [currentMonthDate]);
+
+  const attendanceData: Attendance[] = useSelector(
+    (state: RootState) => state.attendance.monthlyAttendance || []
+  );
+
+  useEffect(() => {
+    let isActive = true;
+    const fetchAttendance = async () => {
+      setLoading(true);
+      try {
+        await dispatch(getMonthlyAttendance(month, year));
+      } finally {
+        if (isActive) setLoading(false);
+      }
+    };
+    fetchAttendance();
+    return () => {
+      isActive = false;
+    };
+  }, [dispatch, month, year]);
+
+  const attendanceMap = useMemo(() => {
+    const map: Record<string, Attendance> = {};
+    attendanceData.forEach((record) => {
+      if (!record.date) return;
+      const key = toISODate(new Date(record.date));
+      map[key] = record;
+    });
+    return map;
+  }, [attendanceData]);
+
+  const selectedDateKey = useMemo(() => toISODate(selectedDate), [selectedDate]);
+  const selectedRecord = useMemo(
+    () => attendanceMap[selectedDateKey],
+    [attendanceMap, selectedDateKey]
+  );
+
+  const { summary, totalHours, workingDays, totalDays, attendanceRate }: AttendanceSummary =
+    useMemo(() => {
+      const base: Record<attendanceStatus, number> = Object.fromEntries(
+        attendanceStatuses.map((s) => [s, 0])
+      ) as Record<attendanceStatus, number>;
+
+      let workedHours = 0;
+      let workingCount = 0;
+
+      attendanceData.forEach((record) => {
+        if (!record.status) return;
+        base[record.status] = (base[record.status] || 0) + 1;
+
+        if (record.status === "PRESENT" || record.status === "WORKING HOLIDAY") {
+          const punchIn = record.punchIn?.time ? new Date(record.punchIn.time) : null;
+            const punchOut = record.punchOut?.time ? new Date(record.punchOut.time) : null;
+          if (punchIn && punchOut) {
+            const diffHrs = (punchOut.getTime() - punchIn.getTime()) / 36e5;
+            if (diffHrs > 0) workedHours += diffHrs;
+          }
+          workingCount++;
+        }
+      });
+
+      const total = attendanceData.length;
+      const rate =
+        total > 0 ? (((base.PRESENT + base["WORKING HOLIDAY"]) / total) * 100).toFixed(1) : "0.0";
+
+      return {
+        summary: base,
+        totalHours: workedHours,
+        workingDays: workingCount,
+        totalDays: total,
+        attendanceRate: rate,
+      };
+    }, [attendanceData]);
+
+  const handleDateChange = useCallback((value: Value) => {
+    if (!value || Array.isArray(value)) return;
+    const date = value as Date;
+    setSelectedDate(date);
+    if (
+      date.getMonth() !== currentMonthDate.getMonth() ||
+      date.getFullYear() !== currentMonthDate.getFullYear()
+    ) {
+      setCurrentMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
+    }
+  }, [currentMonthDate]);
+
+  const handleActiveStartDateChange = useCallback(
+    ({ activeStartDate }: { activeStartDate: Date | null }) => {
+      if (!activeStartDate) return;
+      setCurrentMonthDate(activeStartDate);
+
+      if (
+        activeStartDate.getMonth() !== selectedDate.getMonth() ||
+        activeStartDate.getFullYear() !== selectedDate.getFullYear()
+      ) {
+        setSelectedDate(activeStartDate);
+      }
+    },
+    [selectedDate]
+  );
+
+  const StatCard = ({
+    icon,
+    title,
+    value,
+    subtitle,
+    color = "bg-white",
+  }: {
     icon: React.ReactNode;
     title: string;
     value: string | number;
     subtitle?: string;
     color?: string;
   }) => (
-    <div className={`${color} rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:scale-105`}>
+    <div
+      className={`${color} rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-gray-600 text-xs sm:text-sm font-medium mb-1">{title}</p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{value}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
+            {value}
+          </p>
           {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
         </div>
         <div className="ml-2 sm:ml-4 p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white">
@@ -171,8 +257,12 @@ const StaffAnalytics: React.FC = () => {
     </div>
   );
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-3 sm:p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen p-3 sm:p-4 md:p-6 lg:p-8 z-0">
       <div className="max-w-7xl mx-auto">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
@@ -191,36 +281,50 @@ const StaffAnalytics: React.FC = () => {
           <StatCard
             icon={<Clock className="w-5 h-5 sm:w-6 sm:h-6" />}
             title="Total Hours"
-            value={totalHours}
-            subtitle={`Avg: ${(totalHours / workingDays || 0).toFixed(1)}h/day`}
+            value={totalHours.toFixed(1)}
+            subtitle={`Avg: ${(totalHours / (workingDays || 1)).toFixed(1)}h/day`}
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {/* Calendar Section */}
-          <div className="lg:col-span-2">
+            <div className="lg:col-span-2">
             <div className="bg-white rounded-3xl shadow-lg p-4 sm:p-6 md:p-8 border border-gray-100">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
                 <div className="flex items-center space-x-3 mb-4 sm:mb-0">
                   <CalendarDays className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                   <div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Monthly Attendance</h2>
-                    <p className="text-gray-500 text-xs sm:text-sm">September 2025</p>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+                      Monthly Attendance
+                    </h2>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      {currentMonthDate.toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-center mb-6 sm:mb-8">
                 <div className="w-full">
-                  
                   <Calendar
                     value={selectedDate}
-                    onChange={(date) => setSelectedDate(date as Date)}
+                    onChange={handleDateChange}
+                    onActiveStartDateChange={handleActiveStartDateChange}
+                    locale="en-US"
+                    calendarType="gregory"
+                    showWeekNumbers={false}
+                    showNeighboringMonth={true}
+                    formatShortWeekday={(_, date) => {
+                      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                      return days[date.getDay()];
+                    }}
                     tileContent={({ date, view }) => {
                       if (view === "month") {
-                        const record = attendanceData.find(
-                          (r) => r.date === date.toISOString().slice(0, 10)
-                        );
+                        const key = toISODate(date);
+                        const record = attendanceMap[key];
                         return record ? (
                           <div className="flex justify-center absolute bottom-1 left-1/2 transform -translate-x-1/2">
                             <span
@@ -241,13 +345,26 @@ const StaffAnalytics: React.FC = () => {
               </div>
 
               {/* Legend */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3">
-                {Object.entries(statusMeta).map(([status, meta]) => (
-                  <div key={status} className="flex items-center space-x-2 p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <span className={clsx("w-3 h-3 rounded-full shadow-sm flex-shrink-0", meta.color)} />
-                    <span className="text-xs sm:text-sm text-gray-700 font-medium truncate">{meta.label}</span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-3">
+                {attendanceStatuses.map((status) => {
+                  const meta = statusMeta[status];
+                  return (
+                    <div
+                      key={status}
+                      className="flex items-center space-x-2 p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <span
+                        className={clsx(
+                          "w-3 h-3 rounded-full shadow-sm flex-shrink-0",
+                          meta?.color
+                        )}
+                      />
+                      <span className="text-xs sm:text-sm text-gray-700 font-medium">
+                        {meta?.label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -263,45 +380,79 @@ const StaffAnalytics: React.FC = () => {
 
               <div className="space-y-4">
                 <div className="text-xs sm:text-sm text-gray-500 font-medium">
-                  {selectedDate.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                  {selectedDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </div>
 
                 {selectedRecord ? (
                   <div className="space-y-3 sm:space-y-4">
-                    <div className={clsx(
-                      "flex items-center space-x-3 p-3 sm:p-4 rounded-2xl border-2",
-                      statusMeta[selectedRecord.status].bgColor,
-                      statusMeta[selectedRecord.status].textColor
-                    )}>
-                      {statusMeta[selectedRecord.status].icon}
-                      <span className="font-bold text-sm sm:text-base lg:text-lg">{selectedRecord.status}</span>
+                    <div
+                      className={clsx(
+                        "flex items-center space-x-3 p-3 sm:p-4 rounded-2xl border-2",
+                        statusMeta[selectedRecord.status]?.bgColor,
+                        statusMeta[selectedRecord.status]?.textColor
+                      )}
+                    >
+                      {statusMeta[selectedRecord.status]?.icon}
+                      <span className="font-bold text-sm sm:text-base lg:text-lg">
+                        {statusMeta[selectedRecord.status]?.label}
+                      </span>
                     </div>
 
-                    {selectedRecord.checkIn && (
+                    {(selectedRecord.punchIn?.time || selectedRecord.punchOut?.time) && (
                       <div className="space-y-2 sm:space-y-3">
-                        <div className="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-xl">
-                          <span className="text-gray-600 font-medium text-xs sm:text-sm">Check In</span>
-                          <span className="font-bold text-gray-900 text-xs sm:text-sm">{selectedRecord.checkIn}</span>
-                        </div>
-                        
-                        {selectedRecord.checkOut && (
+                        {selectedRecord.punchIn?.time && (
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-xl">
-                            <span className="text-gray-600 font-medium text-xs sm:text-sm">Check Out</span>
-                            <span className="font-bold text-gray-900 text-xs sm:text-sm">{selectedRecord.checkOut}</span>
+                            <span className="text-gray-600 font-medium text-xs sm:text-sm">
+                              Check In
+                            </span>
+                            <span className="font-bold text-gray-900 text-xs sm:text-sm">
+                              {new Date(selectedRecord.punchIn.time).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
                           </div>
                         )}
-                        
-                        {selectedRecord.hours && (
+                        {selectedRecord.punchOut?.time && (
+                          <div className="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-xl">
+                            <span className="text-gray-600 font-medium text-xs sm:text-sm">
+                              Check Out
+                            </span>
+                            <span className="font-bold text-gray-900 text-xs sm:text-sm">
+                              {new Date(selectedRecord.punchOut.time).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                        )}
+                        {selectedRecord.punchIn?.time && selectedRecord.punchOut?.time && (
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-blue-50 rounded-xl">
-                            <span className="text-blue-600 font-medium text-xs sm:text-sm">Hours Worked</span>
-                            <span className="font-bold text-blue-900 text-xs sm:text-sm">{selectedRecord.hours}h</span>
+                            <span className="text-blue-600 font-medium text-xs sm:text-sm">
+                              Hours Worked
+                            </span>
+                            <span className="font-bold text-blue-900 text-xs sm:text-sm">
+                              {(
+                                (new Date(selectedRecord.punchOut.time).getTime() -
+                                  new Date(selectedRecord.punchIn.time).getTime()) /
+                                36e5
+                              ).toFixed(2)}
+                              h
+                            </span>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {selectedRecord.leaveDescription && (
+                      <div className="mt-2 text-xs sm:text-sm bg-yellow-50 rounded-lg p-2">
+                        <span className="text-yellow-700 font-medium">Leave Reason: </span>
+                        {selectedRecord.leaveDescription}
                       </div>
                     )}
                   </div>
@@ -320,23 +471,47 @@ const StaffAnalytics: React.FC = () => {
             <div className="bg-white rounded-3xl shadow-lg p-4 sm:p-6 border border-gray-100">
               <div className="flex items-center space-x-3 mb-4 sm:mb-6">
                 <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">Monthly Breakdown</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                  Monthly Breakdown
+                </h3>
               </div>
 
               <div className="space-y-2 sm:space-y-3">
-                {Object.entries(statusMeta).map(([status, meta]) => (
-                  <div key={status} className={clsx("flex items-center justify-between p-2 sm:p-3 rounded-xl", meta.bgColor)}>
-                    <div className="flex items-center space-x-2 sm:space-x-3">
-                      <div className={clsx("p-1 sm:p-2 rounded-lg", meta.color, "bg-opacity-20")}>
-                        {meta.icon}
+                {attendanceStatuses.map((status) => {
+                  const meta = statusMeta[status];
+                  return (
+                    <div
+                      key={status}
+                      className={clsx(
+                        "flex items-center justify-between p-2 sm:p-3 rounded-xl",
+                        meta?.bgColor
+                      )}
+                    >
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <div
+                          className={clsx(
+                            "p-1 sm:p-2 rounded-lg",
+                            meta?.color,
+                            "bg-opacity-20"
+                          )}
+                        >
+                          {meta?.icon}
+                        </div>
+                        <span className={clsx("font-medium text-xs sm:text-sm", meta?.textColor)}>
+                          {meta?.label}
+                        </span>
                       </div>
-                      <span className={clsx("font-medium text-xs sm:text-sm", meta.textColor)}>{meta.label}</span>
+                      <span
+                        className={clsx(
+                          "font-bold text-sm sm:text-base lg:text-lg",
+                          meta?.textColor
+                        )}
+                      >
+                        {summary[status]}
+                      </span>
                     </div>
-                    <span className={clsx("font-bold text-sm sm:text-base lg:text-lg", meta.textColor)}>
-                      {summary[status as AttendanceStatus]}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

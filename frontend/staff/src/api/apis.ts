@@ -10,9 +10,12 @@ export const AuthEndpoints = {
 // ATTENDANCE ENDPOINTS
 export const AttendanceEndpoints = {
   TODAY_STATUS_API: BASE_URL + "/staff/attendance/today",
-  ATTENDANCE_MONTHLY_API: BASE_URL + "/staff/attendance/monthly",
   APPLY_FOR_ATTENDANCE_API: BASE_URL + "/staff/apply-attendance",
   APPLY_FOR_LEAVE_API: BASE_URL + "/staff/apply-leave",
   APPLY_FOR_PUNCH_OUT_API: BASE_URL + "/staff/apply-punch-out",
 }
 
+// ANALYTICS ENDPOINTS
+export const AnalyticsEndpoints = {
+  GET_MONTHLY_ATTENDANCE_API: BASE_URL + "/staff/attendance/monthly",
+}

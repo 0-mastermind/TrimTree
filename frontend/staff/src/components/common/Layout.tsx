@@ -9,15 +9,14 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ activeItem, onChange, children }) => {
   return (
-    <div className="flex  h-screen">
-      {/* Sidebar stays fixed */}
-      <div className="h-full fixed">
-        <Sidebar activeItem={activeItem} onItemClick={onChange} />
-      </div>
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar - fixed positioning */}
+      <Sidebar activeItem={activeItem} onItemClick={onChange} />
 
-      {/* Main content scrolls independently */}
-      <main className="w-full min-h-screen">
-        {children}
+      <main className="flex-1 overflow-y-auto">
+        <div>
+          {children}
+        </div>
       </main>
     </div>
   );
