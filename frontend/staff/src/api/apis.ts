@@ -5,6 +5,7 @@ export const AuthEndpoints = {
   LOGIN_API: BASE_URL + "/auth/login/staff",
   LOGOUT_API: BASE_URL + "/auth/logout",
   PROFILE_API: BASE_URL + "/auth/profile",
+  UPDATE_PROFILE_API: BASE_URL + "/auth/update/staff",
 };
 
 // ATTENDANCE ENDPOINTS

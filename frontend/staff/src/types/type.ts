@@ -20,7 +20,15 @@ export interface User {
   }
   email?: string;
   role: UserRole;
-  branch: string;
+  branch: {
+    _id: string;
+    name: string;
+    address: string;
+    image : {
+      url: string;
+      public_id: string;
+    }
+  };
   createdAt?: string;
   updatedAt?: string;
 }
@@ -29,7 +37,7 @@ export interface Staff {
   _id: string;         
   userId: User;       
   designation?: string;
-  manager: string;
+  manager: User;
   salary: number;
   createdAt?: string;
   updatedAt?: string;

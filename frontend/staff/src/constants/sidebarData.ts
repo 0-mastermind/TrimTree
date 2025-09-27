@@ -1,4 +1,4 @@
-import {  Home, Settings, BarChart3, Bell, LogOut } from 'lucide-react';
+import {  Home, Settings, BarChart3, LogOut, User, Plane } from 'lucide-react';
 
 export interface SidebarItem {
   id: string;
@@ -9,33 +9,33 @@ export interface SidebarItem {
 
 export const sidebarData: SidebarItem[] = [
   {
+    id: 'profile',
+    label: 'Profile',
+    icon: User,
+  },
+  {
     id: 'home',
     label: 'Home',
     icon: Home,
-    path: '/home'
+  },
+  {
+    id: 'leaves',
+    label: 'Leaves',
+    icon: Plane,
   },
   {
     id: 'analytics',
     label: 'Analytics',
     icon: BarChart3,
-    path: '/analytics'
-  },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    icon: Bell,
-    path: '/notifications'
   },
   {
     id: 'settings',
     label: 'Settings',
     icon: Settings,
-    path: '/settings'
   },
   {
     id: 'logout',
     label: 'Logout',
     icon: LogOut,
-    path: '/logout'
   }
 ];

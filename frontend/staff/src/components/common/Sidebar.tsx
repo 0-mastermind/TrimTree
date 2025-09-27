@@ -1,15 +1,20 @@
 import React from 'react';
 import { Menu, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { sidebarData, type SidebarItem } from '../../constants/sidebarData';
+import { useAppDispatch } from '@/store/hook';
+import { logout } from '@/api/auth';
 
 interface SidebarProps {
   activeItem: string;
   onItemClick: (id: string) => void;
+  onLogout?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const dispatch = useAppDispatch();
 
   const handleClick = (itemId: string) => {
     onItemClick(itemId);
@@ -18,6 +23,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick }) => {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(o => !o);
   const toggleExpansion = () => setIsExpanded(o => !o);
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+  };
 
   return (
     <>
@@ -77,8 +86,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick }) => {
           <button
             onClick={toggleExpansion}
             className={`
-              hidden md:flex items-center justify-center p-1 text-gray-400 hover:text-white
-              transition-colors duration-200
+              hidden md:flex items-center justify-center p-1 text-gray-400 hover:text-white cursor-pointer
+              transition-colors duration-200 
               ${isExpanded ? 'md:block' : 'md:block'}
             `}
             aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
@@ -97,17 +106,42 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick }) => {
             const IconComponent = item.icon;
             const isActive = activeItem === item.id;
             
+            if (item.label === 'Logout') {
+              return (
+                <button
+                  key={item.id}
+                  onClick={handleLogout}
+                  className={`
+                    flex items-center gap-3 w-full px-4 py-3 text-sm transition-colors duration-200
+                    text-gray-300 hover:text-white hover:bg-gray-800 cursor-pointer
+                    ${!isMobileMenuOpen ? 'md:justify-center' : ''}
+                    ${!isExpanded ? 'md:justify-center lg:justify-center' : 'md:justify-start lg:justify-start'}
+                  `}
+                  title={(!isMobileMenuOpen && !isExpanded) ? item.label : undefined}
+                >
+                  <IconComponent className="h-5 w-5 flex-shrink-0" />
+                  <span className={`
+                    font-medium whitespace-nowrap
+                    ${isMobileMenuOpen ? 'inline' : 'hidden'}
+                    ${isExpanded ? 'md:inline' : 'md:hidden'}
+                  `}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            }
+
+            // Normal navigation items
             return (
               <button
                 key={item.id}
                 onClick={() => handleClick(item.id)}
                 className={`
-                  flex items-center gap-3 w-full px-4 py-3 text-sm transition-colors duration-200
+                  flex items-center gap-3 w-full px-4 py-3 text-sm transition-colors duration-200 cursor-pointer
                   ${isActive
                     ? 'bg-[#3D2A01] text-[#FFD60A] border-l-4 border-amber-400'
                     : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }
-                  
                   ${!isMobileMenuOpen ? 'md:justify-center' : ''}
                   ${!isExpanded ? 'md:justify-center lg:justify-center' : 'md:justify-start lg:justify-start'}
                 `}

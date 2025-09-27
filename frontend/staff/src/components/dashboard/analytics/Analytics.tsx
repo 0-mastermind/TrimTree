@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import Calendar  from "react-calendar";
+import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./calendar.css";
 import {
@@ -108,9 +108,10 @@ type AttendanceSummary = {
 };
 
 const toISODate = (date: Date) =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-    date.getDate()
-  ).padStart(2, "0")}`;
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(date.getDate()).padStart(2, "0")}`;
 
 const StaffAnalytics: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -124,7 +125,10 @@ const StaffAnalytics: React.FC = () => {
     () => String(currentMonthDate.getMonth() + 1).padStart(2, "0"),
     [currentMonthDate]
   );
-  const year = useMemo(() => String(currentMonthDate.getFullYear()), [currentMonthDate]);
+  const year = useMemo(
+    () => String(currentMonthDate.getFullYear()),
+    [currentMonthDate]
+  );
 
   const attendanceData: Attendance[] = useSelector(
     (state: RootState) => state.attendance.monthlyAttendance || []
@@ -156,60 +160,77 @@ const StaffAnalytics: React.FC = () => {
     return map;
   }, [attendanceData]);
 
-  const selectedDateKey = useMemo(() => toISODate(selectedDate), [selectedDate]);
+  const selectedDateKey = useMemo(
+    () => toISODate(selectedDate),
+    [selectedDate]
+  );
   const selectedRecord = useMemo(
     () => attendanceMap[selectedDateKey],
     [attendanceMap, selectedDateKey]
   );
 
-  const { summary, totalHours, workingDays, totalDays, attendanceRate }: AttendanceSummary =
-    useMemo(() => {
-      const base: Record<attendanceStatus, number> = Object.fromEntries(
-        attendanceStatuses.map((s) => [s, 0])
-      ) as Record<attendanceStatus, number>;
+  const {
+    summary,
+    totalHours,
+    workingDays,
+    totalDays,
+    attendanceRate,
+  }: AttendanceSummary = useMemo(() => {
+    const base: Record<attendanceStatus, number> = Object.fromEntries(
+      attendanceStatuses.map((s) => [s, 0])
+    ) as Record<attendanceStatus, number>;
 
-      let workedHours = 0;
-      let workingCount = 0;
+    let workedHours = 0;
+    let workingCount = 0;
 
-      attendanceData.forEach((record) => {
-        if (!record.status) return;
-        base[record.status] = (base[record.status] || 0) + 1;
+    attendanceData.forEach((record) => {
+      if (!record.status) return;
+      base[record.status] = (base[record.status] || 0) + 1;
 
-        if (record.status === "PRESENT" || record.status === "WORKING HOLIDAY") {
-          const punchIn = record.punchIn?.time ? new Date(record.punchIn.time) : null;
-            const punchOut = record.punchOut?.time ? new Date(record.punchOut.time) : null;
-          if (punchIn && punchOut) {
-            const diffHrs = (punchOut.getTime() - punchIn.getTime()) / 36e5;
-            if (diffHrs > 0) workedHours += diffHrs;
-          }
-          workingCount++;
+      if (record.status === "PRESENT" || record.status === "WORKING HOLIDAY") {
+        const punchIn = record.punchIn?.time
+          ? new Date(record.punchIn.time)
+          : null;
+        const punchOut = record.punchOut?.time
+          ? new Date(record.punchOut.time)
+          : null;
+        if (punchIn && punchOut) {
+          const diffHrs = (punchOut.getTime() - punchIn.getTime()) / 36e5;
+          if (diffHrs > 0) workedHours += diffHrs;
         }
-      });
+        workingCount++;
+      }
+    });
 
-      const total = attendanceData.length;
-      const rate =
-        total > 0 ? (((base.PRESENT + base["WORKING HOLIDAY"]) / total) * 100).toFixed(1) : "0.0";
+    const total = attendanceData.length;
+    const rate =
+      total > 0
+        ? (((base.PRESENT + base["WORKING HOLIDAY"]) / total) * 100).toFixed(1)
+        : "0.0";
 
-      return {
-        summary: base,
-        totalHours: workedHours,
-        workingDays: workingCount,
-        totalDays: total,
-        attendanceRate: rate,
-      };
-    }, [attendanceData]);
+    return {
+      summary: base,
+      totalHours: workedHours,
+      workingDays: workingCount,
+      totalDays: total,
+      attendanceRate: rate,
+    };
+  }, [attendanceData]);
 
-  const handleDateChange = useCallback((value: Value) => {
-    if (!value || Array.isArray(value)) return;
-    const date = value as Date;
-    setSelectedDate(date);
-    if (
-      date.getMonth() !== currentMonthDate.getMonth() ||
-      date.getFullYear() !== currentMonthDate.getFullYear()
-    ) {
-      setCurrentMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
-    }
-  }, [currentMonthDate]);
+  const handleDateChange = useCallback(
+    (value: Value) => {
+      if (!value || Array.isArray(value)) return;
+      const date = value as Date;
+      setSelectedDate(date);
+      if (
+        date.getMonth() !== currentMonthDate.getMonth() ||
+        date.getFullYear() !== currentMonthDate.getFullYear()
+      ) {
+        setCurrentMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
+      }
+    },
+    [currentMonthDate]
+  );
 
   const handleActiveStartDateChange = useCallback(
     ({ activeStartDate }: { activeStartDate: Date | null }) => {
@@ -244,7 +265,9 @@ const StaffAnalytics: React.FC = () => {
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-gray-600 text-xs sm:text-sm font-medium mb-1">{title}</p>
+          <p className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
+            {title}
+          </p>
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
             {value}
           </p>
@@ -257,12 +280,15 @@ const StaffAnalytics: React.FC = () => {
     </div>
   );
 
+  console.log(attendanceData)
+  
+
   if (loading) {
     return <Loader />;
   }
 
   return (
-    <div className="min-h-screen p-3 sm:p-4 md:p-6 lg:p-8 z-0">
+    <div className="min-h-screen p-3 mt-15 sm:p-4 md:p-6 lg:p-8 z-0">
       <div className="max-w-7xl mx-auto">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
@@ -282,13 +308,15 @@ const StaffAnalytics: React.FC = () => {
             icon={<Clock className="w-5 h-5 sm:w-6 sm:h-6" />}
             title="Total Hours"
             value={totalHours.toFixed(1)}
-            subtitle={`Avg: ${(totalHours / (workingDays || 1)).toFixed(1)}h/day`}
+            subtitle={`Avg: ${(totalHours / (workingDays || 1)).toFixed(
+              1
+            )}h/day`}
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {/* Calendar Section */}
-            <div className="lg:col-span-2">
+          <div className="lg:col-span-2">
             <div className="bg-white rounded-3xl shadow-lg p-4 sm:p-6 md:p-8 border border-gray-100">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
                 <div className="flex items-center space-x-3 mb-4 sm:mb-0">
@@ -318,7 +346,15 @@ const StaffAnalytics: React.FC = () => {
                     showWeekNumbers={false}
                     showNeighboringMonth={true}
                     formatShortWeekday={(_, date) => {
-                      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                      const days = [
+                        "Sun",
+                        "Mon",
+                        "Tue",
+                        "Wed",
+                        "Thu",
+                        "Fri",
+                        "Sat",
+                      ];
                       return days[date.getDay()];
                     }}
                     tileContent={({ date, view }) => {
@@ -375,7 +411,9 @@ const StaffAnalytics: React.FC = () => {
             <div className="bg-white rounded-3xl shadow-lg p-4 sm:p-6 border border-gray-100">
               <div className="flex items-center space-x-3 mb-4 sm:mb-6">
                 <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">Selected Date</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                  Selected Date
+                </h3>
               </div>
 
               <div className="space-y-4">
@@ -403,7 +441,8 @@ const StaffAnalytics: React.FC = () => {
                       </span>
                     </div>
 
-                    {(selectedRecord.punchIn?.time || selectedRecord.punchOut?.time) && (
+                    {(selectedRecord.punchIn?.time ||
+                      selectedRecord.punchOut?.time) && (
                       <div className="space-y-2 sm:space-y-3">
                         {selectedRecord.punchIn?.time && (
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-xl">
@@ -411,7 +450,9 @@ const StaffAnalytics: React.FC = () => {
                               Check In
                             </span>
                             <span className="font-bold text-gray-900 text-xs sm:text-sm">
-                              {new Date(selectedRecord.punchIn.time).toLocaleTimeString([], {
+                              {new Date(
+                                selectedRecord.punchIn.time
+                              ).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
@@ -424,35 +465,45 @@ const StaffAnalytics: React.FC = () => {
                               Check Out
                             </span>
                             <span className="font-bold text-gray-900 text-xs sm:text-sm">
-                              {new Date(selectedRecord.punchOut.time).toLocaleTimeString([], {
+                              {new Date(
+                                selectedRecord.punchOut.time
+                              ).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
                             </span>
                           </div>
                         )}
-                        {selectedRecord.punchIn?.time && selectedRecord.punchOut?.time && (
-                          <div className="flex justify-between items-center p-2 sm:p-3 bg-blue-50 rounded-xl">
-                            <span className="text-blue-600 font-medium text-xs sm:text-sm">
-                              Hours Worked
-                            </span>
-                            <span className="font-bold text-blue-900 text-xs sm:text-sm">
-                              {(
-                                (new Date(selectedRecord.punchOut.time).getTime() -
-                                  new Date(selectedRecord.punchIn.time).getTime()) /
-                                36e5
-                              ).toFixed(2)}
-                              h
-                            </span>
-                          </div>
-                        )}
+                        {selectedRecord.punchIn?.time &&
+                          selectedRecord.punchOut?.time && (
+                            <div className="flex justify-between items-center p-2 sm:p-3 bg-blue-50 rounded-xl">
+                              <span className="text-blue-600 font-medium text-xs sm:text-sm">
+                                Hours Worked
+                              </span>
+                              <span className="font-bold text-blue-900 text-xs sm:text-sm">
+                                {(
+                                  (new Date(
+                                    selectedRecord.punchOut.time
+                                  ).getTime() -
+                                    new Date(
+                                      selectedRecord.punchIn.time
+                                    ).getTime()) /
+                                  36e5
+                                ).toFixed(2)}
+                                h
+                              </span>
+                            </div>
+                          )}
                       </div>
                     )}
 
                     {selectedRecord.leaveDescription && (
                       <div className="mt-2 text-xs sm:text-sm bg-yellow-50 rounded-lg p-2">
-                        <span className="text-yellow-700 font-medium">Leave Reason: </span>
-                        {selectedRecord.leaveDescription}
+                        <span className="text-yellow-700 font-medium">
+                          {selectedRecord.type == "LEAVE" && "Reason:"}
+                        </span>
+                        {selectedRecord.type == "LEAVE" &&
+                          selectedRecord.leaveDescription}
                       </div>
                     )}
                   </div>
@@ -461,7 +512,9 @@ const StaffAnalytics: React.FC = () => {
                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                       <CalendarIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                     </div>
-                    <p className="text-gray-500 text-xs sm:text-sm">No data for selected date</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      No data for selected date
+                    </p>
                   </div>
                 )}
               </div>
@@ -497,7 +550,12 @@ const StaffAnalytics: React.FC = () => {
                         >
                           {meta?.icon}
                         </div>
-                        <span className={clsx("font-medium text-xs sm:text-sm", meta?.textColor)}>
+                        <span
+                          className={clsx(
+                            "font-medium text-xs sm:text-sm",
+                            meta?.textColor
+                          )}
+                        >
                           {meta?.label}
                         </span>
                       </div>
