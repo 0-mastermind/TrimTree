@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createBranch, deleteStaff, getAllBranches, getBranchManagers } from "../controllers/admin.controller.js";
 import { multerUpload } from "../middleware/multer.middleware.js";
 import { adminMiddleware, authMiddleware } from "../middleware/auth.middleware.js";
+import { getManagerNameByBranch } from "../controllers/manager.controller.js";
 
 const adminRouter = Router();
 
@@ -19,5 +20,9 @@ adminRouter.get("/branches", authMiddleware, adminMiddleware, getAllBranches);
 adminRouter.get("/managers" , authMiddleware, adminMiddleware, getBranchManagers);
 
 adminRouter.delete("/delete/staff" , authMiddleware, adminMiddleware, deleteStaff);
+
+adminRouter.delete("/delete/staff" , authMiddleware, adminMiddleware, deleteStaff);
+
+adminRouter.get("/getManagerNameByBranch", authMiddleware , adminMiddleware , getManagerNameByBranch);
 
 export default adminRouter
