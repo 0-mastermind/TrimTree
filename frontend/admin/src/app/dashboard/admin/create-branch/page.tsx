@@ -1,4 +1,5 @@
 "use client";
+import WarningMessage from "@/components/common/WarningMessage";
 import ImageCropper from "@/components/ImageCropper";
 import { useAppDispatch } from "@/store/store";
 import { createBranch } from "@/utils/api/branches";
@@ -82,6 +83,9 @@ const page = () => {
           <Store className="h-4 w-4 md:h-5 md:w-5" /> View branches
         </button>
       </div>
+      
+      <WarningMessage message="All fields are required" />
+      
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-8">

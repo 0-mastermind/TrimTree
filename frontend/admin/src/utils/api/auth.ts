@@ -34,6 +34,34 @@ export const login =
     }
   };
 
+export const createUser =
+  (formData: FormData) => async (): Promise<boolean> => {
+    const toastId = toast.loading("Creating");
+    try {
+      const res = await apiConnector(
+        "POST",
+        AuthEndpoints.CREATE_USER_API,
+        formData
+      );
+      
+      console.log(res);
+      if (res.success) {
+        toast.dismiss(toastId);
+        toast.success("Employee added successfully!");
+
+        return true;
+      } else {
+        toast.dismiss(toastId);
+        toast.error(res.message || "Failed to create user");
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error! while creating a user", error);
+      return false;
+    }
+  };
+
 export const getProfile =
   () =>
   async (dispatch: AppDispatch): Promise<boolean> => {
@@ -61,7 +89,7 @@ export const logout =
     try {
       const res = await apiConnector("POST", AuthEndpoints.LOGOUT_API);
       const toastId = toast.loading("Logging Out...");
-      
+
       if (res.success) {
         toast.dismiss(toastId);
         toast.success("Logged Out Successfully!");
@@ -72,7 +100,6 @@ export const logout =
         toast.error("Failed to logout!");
         return false;
       }
-      
     } catch (error) {
       console.error("Error while logging out", error);
       return false;

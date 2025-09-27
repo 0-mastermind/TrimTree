@@ -5,6 +5,7 @@ export const AuthEndpoints = {
   LOGIN_API: BASE_URL + "/auth/login/admin",
   LOGOUT_API: BASE_URL + "/auth/logout",
   PROFILE_API: BASE_URL + "/auth/profile",
+  CREATE_USER_API: BASE_URL + "/auth/register",
 };
 
 export const BranchEndpoints = {
@@ -14,4 +15,8 @@ export const BranchEndpoints = {
 
 export const EmployeeEndpoints = {
   GET_BRANCH_EMPLOYEES_API: BASE_URL + "/staff/get-staff-by-branch",
+}
+
+export const ManagerEndpoints = {
+  GET_MANAGER_BY_BRANCH_NAME: BASE_URL + "/admin/getManagerNameByBranch",
 }

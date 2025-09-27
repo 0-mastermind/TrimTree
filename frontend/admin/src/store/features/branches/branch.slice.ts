@@ -1,16 +1,19 @@
-import { Branch, Staff } from "@/types/global";
+import { Branch, BranchManagerByNameState, Staff } from "@/types/global";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+
 
 interface BranchState {
   branches: Branch[] | [];
   selectedBranch: Branch | null;
   branchStaff: Staff[] | [];
+  branchManagerName: BranchManagerByNameState[] | [];
 }
 
 const initialState: BranchState = {
   branches: [],
   selectedBranch: null,
   branchStaff: [],
+  branchManagerName: [],
 };
 
 const branchSlice = createSlice({
@@ -28,9 +31,12 @@ const branchSlice = createSlice({
     },
     setBranchStaff: (state: BranchState, action: PayloadAction<Staff[]>) => {
       state.branchStaff = action.payload;
+    },
+    setBranchManagersByBranchName: (state: BranchState, action: PayloadAction<BranchManagerByNameState[]>) => {
+      state.branchManagerName = action.payload;
     }
   },
 });
 
-export const { setBranches, setSelectedBranch, clearSelectedBranch, setBranchStaff } = branchSlice.actions;
+export const { setBranches, setSelectedBranch, clearSelectedBranch, setBranchStaff, setBranchManagersByBranchName } = branchSlice.actions;
 export default branchSlice.reducer;

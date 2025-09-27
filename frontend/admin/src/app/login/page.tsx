@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Eye, EyeOff, Loader2, User, Lock } from "lucide-react";
 import { login } from "@/utils/api/auth";
-import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
+import { useAppDispatch, useAppSelector } from "@/store/store";
 import Button from "@/components/common/Button";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/common/Loader";
@@ -42,7 +42,7 @@ const LoginPage = () => {
       return;
     }
 
-    router.push("/dashboard");
+    // router.push("/dashboard");
   }, [auth.isLoggedIn, router, setIsLoading]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

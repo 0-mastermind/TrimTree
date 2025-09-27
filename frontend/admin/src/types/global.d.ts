@@ -36,6 +36,16 @@ export interface Staff {
   updatedAt?: string;
 }
 
+export interface BranchManagerByNameState {
+  _id: string,
+  name: string,
+  branch: {
+    _id: string,
+    name: string,
+  }
+}
+
+
 export type attendanceType = "LEAVE" | "ATTENDANCE";
 
 export type WorkingHour = "FULL_DAY" | "HALF_DAY";

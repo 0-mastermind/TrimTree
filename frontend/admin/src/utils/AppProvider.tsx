@@ -39,9 +39,9 @@ export default function AppProvider({
 
   useEffect(() => {
     if (!auth.isLoggedIn && !auth.user) {
-      router.push("/login");
+      // router.push("/login");
     }
-  }, [auth]);
+  }, [auth.isLoggedIn, auth.user]);
 
   if (
     typeof window !== "undefined" &&
