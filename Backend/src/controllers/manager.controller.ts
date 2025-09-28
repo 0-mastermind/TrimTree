@@ -9,11 +9,13 @@ import {
   attendanceType,
   leaveStatus,
   punchOutStatus,
+  userRoles,
 } from "../utils/constants.js";
 import UserModel from "../models/user.model.js";
 import LeaveModel from "../models/leave.model.js";
 import { emitAttendanceUpdated, emitLeaveUpdated, emitPunchOutUpdated } from "../socketio.js";
 import mongoose, { Types } from "mongoose";
+import StaffModel from "../models/staff.model.js";
 
 const getUTCStartOfDay = (date: Date) =>
   new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0));
@@ -245,6 +247,26 @@ export const rejectAttendance = asyncErrorHandler(async (req: Request, res: Resp
     throw new ApiError(400, "Only pending attendance can be rejected");
   }
 
+  const isHoliday = await OfficialHolidayModel.findOne({
+    branch: attendance.branch,
+    date: {
+      $gte: getUTCStartOfDay(new Date(attendance.date)),
+      $lte: getUTCEndOfDay(new Date(attendance.date)),
+    },
+    employees: attendance.userId,
+  });
+
+  if (isHoliday) {
+    attendance.status = attendanceStatus.HOLIDAY;
+    attendance.leaveDescription = isHoliday.name || "";
+    await attendance.save();
+    emitAttendanceUpdated(attendance);
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Attendance rejected",
+    }).send(res);
+  }
+
   attendance.status = attendanceStatus.ABSENT;
   await attendance.save();
 
@@ -367,20 +389,36 @@ export const rejectLeaves = asyncErrorHandler(async (req: Request, res: Response
   }
 });
 
-export const getAllPendingAttendance = asyncErrorHandler(async (req: Request, res: Response) => {
-  const branchId = req.branchId;
-  const pendingAttendance = await AttendanceModel.find({
-    status: attendanceStatus.PENDING,
-    type: attendanceType.ATTENDANCE,
-    manager: branchId,
-  }).sort({ date: -1 });
+export const getAllPendingAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId  = req.userId;
 
-  return new ApiResponse({
-    statusCode: 200,
-    message: "Pending attendance fetched successfully",
-    data: pendingAttendance,
-  }).send(res);
-});
+    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    if (!staffUnderManager || staffUnderManager.length === 0) {
+      return new ApiResponse({
+        statusCode: 404,
+        message: "No employees found under this manager",
+        data: [],
+      }).send(res);
+    }
+
+    const employeeIds = staffUnderManager.map(staff => staff.userId);
+
+    const pendingAttendance = await AttendanceModel.find({
+      userId: { $in: employeeIds },
+      status: attendanceStatus.PENDING,
+      type: attendanceType.ATTENDANCE,
+    })
+      .populate("userId", "name username email image").sort({ date: -1 });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Pending attendance fetched successfully",
+      data: pendingAttendance,
+    }).send(res);
+  }
+);
+
 
 export const getAllPendingLeaves = asyncErrorHandler(async (req, res) => {
   const branchId = req.branchId;
