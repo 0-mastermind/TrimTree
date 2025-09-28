@@ -34,7 +34,7 @@ const adminRoutes = [
     icon: <Home className="h-5 w-5" />,
   },
   {
-    href: "/dashboard/staff-list",
+    href: "/dashboard/admin/staff-list",
     label: "Staff Management",
     icon: <UserRound className="h-5 w-5" />,
   },
@@ -49,12 +49,12 @@ const managerRoutes = [
   },
   {
     href: "/dashboard/manager/staff-list",
-    label: "Team Overview",
+    label: "Staff Members",
     icon: <UserRound className="h-5 w-5" />,
   },
   {
     href: "/dashboard/manager/set-holiday",
-    label: "Request Leave",
+    label: "Set Holiday",
     icon: <CalendarClock className="h-5 w-5" />,
   },
   {
@@ -340,7 +340,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
                         )}
                         {isLast ? (
                           <span className="capitalize font-semibold text-gray-900 px-3 py-1 bg-gray-100 rounded-lg">
-                            {item.replace("%20", " ")}
+                            {item.replace(/%20|-/g, " ")}
                           </span>
                         ) : (
                           <Link

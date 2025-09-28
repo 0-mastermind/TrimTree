@@ -15,6 +15,7 @@ export const BranchEndpoints = {
 
 export const EmployeeEndpoints = {
   GET_BRANCH_EMPLOYEES_API: BASE_URL + "/staff/get-staff-by-branch",
+  GET_EMPLOYEES_BY_MANAGER_API: BASE_URL + "/staff/get-staff-by-manager",
   GET_ALL_EMPLOYEES_API: BASE_URL + "/staff/get-all-staff-members",
 }
 

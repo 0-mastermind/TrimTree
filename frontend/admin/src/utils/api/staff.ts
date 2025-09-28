@@ -36,3 +36,19 @@ export const getAllEmployees = () => async (dispatch: AppDispatch): Promise<bool
     return false;
   }
 }
+
+export const getEmployeesByManager = () => async (dispatch: AppDispatch): Promise<boolean> => {
+  try {
+    const res = await apiConnector("GET", EmployeeEndpoints.GET_EMPLOYEES_BY_MANAGER_API);
+        
+    if (res.success && res.data) {
+      dispatch(setEmployees(res.data as Staff[]));
+      return false;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error("Error! while getting employees list", error);
+    return false;
+  }
+}

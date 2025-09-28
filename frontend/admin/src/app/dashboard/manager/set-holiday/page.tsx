@@ -15,9 +15,7 @@ const HolidayForm = () => {
   ];
 
   return (
-    <div className=" p-4">
-      <h1 className="text-2xl font-bold text-base-content mb-6">Set Holiday</h1>
-      
+    <div className=" p-4">      
       <div className="card bg-base-100 shadow-md rounded-box p-6">
         <form>
           {/* Date Selection */}
