@@ -1,11 +1,11 @@
 import { Router, type NextFunction } from "express";
 import { getUserProfile, loginStaff, loginAdminManager , logout, registerUser, updateStaff, updateManager, authenticateUser } from "../controllers/auth.controller.js";
-import { admin_managerMiddleware, authMiddleware, } from "../middleware/auth.middleware.js";
+import { admin_managerMiddleware, adminMiddleware, authMiddleware, } from "../middleware/auth.middleware.js";
 import { multerUpload } from "../middleware/multer.middleware.js";
 
 const authRouter = Router();
 
-authRouter.post("/register", authMiddleware ,admin_managerMiddleware, multerUpload.single("image"),registerUser);  
+authRouter.post("/register", authMiddleware , admin_managerMiddleware , multerUpload.single("image"),registerUser);  
 
 authRouter.post("/login/staff" , loginStaff); 
 
@@ -18,6 +18,8 @@ authRouter.get("/profile" , authMiddleware , getUserProfile);
 authRouter.patch("/update/staff" , authMiddleware , multerUpload.single("image"), updateStaff);
 
 authRouter.patch("/update/manager" , authMiddleware , multerUpload.single("image"), updateManager);
+
+authRouter.patch("/update/admin" , authMiddleware , adminMiddleware , multerUpload.single("image"), updateManager);
 
 authRouter.get("/authenticate", authMiddleware, authenticateUser);
 

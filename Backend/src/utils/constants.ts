@@ -14,8 +14,7 @@ export enum attendanceStatus {
   HOLIDAY="HOLIDAY",
   WORKING_HOLIDAY="WORKING HOLIDAY",
   REJECTED_LEAVE="REJECTED LEAVE",
-  LEAVE_PAID="LEAVE PAID",
-  LEAVE_UNPAID="LEAVE UNPAID"
+  LEAVE="LEAVE",
 }
 
 export const EnumAttendanceStatus = Object.values(attendanceStatus);
@@ -37,14 +36,6 @@ export enum punchOutStatus {
 
 export const EnumPunchOutStatus = Object.values(punchOutStatus);
 
-
-
-export enum leaveType {
- LEAVE_PAID='LEAVE PAID',
- LEAVE_UNPAID='LEAVE UNPAID'
-}
-
-export const EnumLeaveType = Object.values(leaveType);
 
 export enum WorkingHour {
   FULL_DAY="FULL_DAY",

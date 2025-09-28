@@ -1,10 +1,10 @@
 import mongoose, { Schema, Model, model } from "mongoose";
-import { EnumLeaveStatus, EnumLeaveType, leaveStatus } from "../utils/constants.js";
+import { EnumLeaveStatus, leaveStatus } from "../utils/constants.js";
 import type { ILeave } from "../types/type.js";
 
 const LeaveSchema = new Schema<ILeave>(
   {
-    staffId: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -20,11 +20,6 @@ const LeaveSchema = new Schema<ILeave>(
     },
     endDate: {
       type: Date,
-      required: true,
-    },
-    type: {
-      type: String,
-      enum: EnumLeaveType,
       required: true,
     },
     status: {

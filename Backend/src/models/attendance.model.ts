@@ -12,7 +12,7 @@ import {
 
 const AttendanceSchema = new Schema<IAttendance>(
   {
-    staffId: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,

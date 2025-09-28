@@ -7,7 +7,6 @@ import {
   attendanceType,
   WorkingHour,
   attendanceStatus,
-  leaveType,
   leaveStatus,
   punchOutStatus,
 } from "../utils/constants.js";
@@ -59,7 +58,7 @@ export const applyForAttendance = asyncErrorHandler(
 
     // check existing attendance
     const existingAttendance = await AttendanceModel.findOne({
-      staffId: userId,
+      userId: userId,
       branch: branchId,
       date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
     });
@@ -90,7 +89,7 @@ export const applyForAttendance = asyncErrorHandler(
     }
 
     const attendance = await AttendanceModel.create({
-      staffId: userId,
+      userId: userId,
       branch: branchId,
       type: attendanceType.ATTENDANCE,
       date: now,
@@ -114,7 +113,7 @@ export const applyForLeave = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const userId = req.userId;
     const branchId = req.branchId;
-    const { startDate, endDate, type, reason } = req.body;
+    const { startDate, endDate, reason } = req.body;
 
     if (!userId) throw new ApiError(400, "User Not Logged In");
 
@@ -123,7 +122,6 @@ export const applyForLeave = asyncErrorHandler(
 
     const staffDoc = await StaffModel.findOne({ userId: user._id }).select("_id");
     if (!staffDoc) throw new ApiError(404, "Staff not found");
-    const staffId = user._id;
 
     if (!startDate || !endDate) {
       throw new ApiError(400, "Please provide both startDate and endDate");
@@ -138,7 +136,7 @@ export const applyForLeave = asyncErrorHandler(
 
     // Find any leave in the same range
     const leaveDoc = await LeaveModel.findOne({
-      staffId,
+      userId,
       branch: branchId,
       $or: [{ startDate: { $lte: end }, endDate: { $gte: start } }],
     });
@@ -170,7 +168,6 @@ export const applyForLeave = asyncErrorHandler(
         leaveDocToProcess.set({
           startDate: start,
           endDate: end,
-          type: type || leaveType.LEAVE_PAID,
           reason: reason || "",
           status: leaveStatus.PENDING,
         });
@@ -179,11 +176,10 @@ export const applyForLeave = asyncErrorHandler(
         [leaveDocResult] = await LeaveModel.create(
           [
             {
-              staffId,
+              userId,
               branch: branchId,
               startDate: start,
               endDate: end,
-              type: type || leaveType.LEAVE_PAID,
               reason: reason || "",
               status: leaveStatus.PENDING,
             },
@@ -206,7 +202,7 @@ export const applyForLeave = asyncErrorHandler(
 
         // Find any attendance entry for this date
         const attendanceEntry = await AttendanceModel.findOne({
-          staffId,
+          userId,
           branch: branchId,
           date: {
             $gte: utcDayStart,
@@ -237,7 +233,7 @@ export const applyForLeave = asyncErrorHandler(
           // No entry: create new
           await AttendanceModel.create(
             [{
-              staffId,
+              userId,
               branch: branchId,
               type: attendanceType.LEAVE,
               status: attendanceStatus.PENDING,
@@ -274,10 +270,10 @@ export const applyForLeave = asyncErrorHandler(
 
 export const getMonthlyAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const staffId = req.userId;
+    const userId = req.userId;
     const { month, year } = req.query;
 
-    if (!staffId) throw new ApiError(400, "User Not Logged In");
+    if (!userId) throw new ApiError(400, "User Not Logged In");
     if (!month || !year)
       throw new ApiError(400, "Please provide month and year");
 
@@ -292,7 +288,7 @@ export const getMonthlyAttendance = asyncErrorHandler(
     );
 
     const attendance = await AttendanceModel.find({
-      staffId,
+      userId,
       date: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
     })
       .sort({ date: 1 });
@@ -307,7 +303,7 @@ export const getMonthlyAttendance = asyncErrorHandler(
 
 export const applyForPunchOut = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const staffId = req.userId;
+    const userId = req.userId;
 
     const now = new Date();
     const startOfDayUTC = new Date(
@@ -334,7 +330,7 @@ export const applyForPunchOut = asyncErrorHandler(
     );
 
     const attendance = await AttendanceModel.findOne({
-      staffId,
+      userId,
       date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
       type: attendanceType.ATTENDANCE,
     });
@@ -374,7 +370,7 @@ export const applyForPunchOut = asyncErrorHandler(
 
 export const getTodayAttendanceStatus = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const staffId = req.userId;
+    const userId = req.userId;
 
     const now = new Date();
     const startOfDayUTC = new Date(
@@ -401,7 +397,7 @@ export const getTodayAttendanceStatus = asyncErrorHandler(
     );
 
     const record = await AttendanceModel.findOne({
-      staffId,
+      userId,
       date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
     });
 
@@ -534,3 +530,19 @@ export const getStaffDetails = asyncErrorHandler(
     }).send(res);
   }
 )
+
+export const getLeaveHistory = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.userId;
+
+    if (!userId) throw new ApiError(400, "User Not Logged In");
+    
+    const leaveHistory = await LeaveModel.find({ userId })
+      .sort({ createdAt: -1 }); 
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Leave history fetched successfully",
+      data: leaveHistory,
+    }).send(res);
+  } 
+);

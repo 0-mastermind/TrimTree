@@ -11,6 +11,10 @@ const OfficialHolidaySchema = new Schema<IOfficialHoliday>(
       type: Date, 
       required: true
     },
+    employees: [{ 
+      type: Schema.Types.ObjectId, 
+      ref: "User" 
+    }],
     description: {
       type: String, 
       required: true 
@@ -26,5 +30,5 @@ const OfficialHolidaySchema = new Schema<IOfficialHoliday>(
 
 
 const OfficialHolidayModel: Model<IOfficialHoliday> =
-  mongoose.models.OfficalHoliday || model<IOfficialHoliday>("OfficialHoliday", OfficialHolidaySchema);
+  mongoose.models.OfficialHoliday || model<IOfficialHoliday>("OfficialHoliday", OfficialHolidaySchema);
 export default OfficialHolidayModel;
