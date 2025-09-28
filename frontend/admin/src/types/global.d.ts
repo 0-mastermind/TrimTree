@@ -1,3 +1,4 @@
+declare module "*.css";
 export interface DemoState {
   message: string;
 }

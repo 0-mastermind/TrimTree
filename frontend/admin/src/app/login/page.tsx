@@ -59,8 +59,6 @@ const LoginPage = () => {
 
     if (!formData.username.trim()) newErrors.username = "Username is required";
     if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -88,123 +86,140 @@ const LoginPage = () => {
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-  const isFormValid = formData.username.trim() && formData.password.length >= 6;
+  const isFormValid = formData.username.trim() && formData.password;
 
   return (
     <>
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 lg:p-8 bg-white">
-          <div className="w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 lg:p-8 bg-gradient-to-br from-base-200 via-base-100 to-primary/10">
+          {/* Background decoration */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl opacity-70"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl opacity-70"></div>
+          </div>
+
+          <div className="relative w-full max-w-md">
             {/* Header */}
             <div className="text-center mb-6 sm:mb-8">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
+              <div className="mb-4">
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-xl">
+                  <span className="text-white font-bold text-2xl">T</span>
+                </div>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-base-content mb-2">
                 Welcome Back
               </h1>
-              <p className="text-sm sm:text-base text-slate-600">
+              <p className="text-base-content/70 text-lg">
                 Log in to your account to continue
               </p>
             </div>
 
             {/* Login Form */}
-            <form
-              onSubmit={handleSubmit}
-              className="bg-white rounded-2xl shadow-xl border border-slate-200 p-5 sm:p-8 space-y-5 sm:space-y-6">
-              {/* Username */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-slate-700">
-                  Username
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-slate-400" />
+            <div className="card bg-base-100 shadow-2xl border border-base-300/50 backdrop-blur-sm">
+              <div className="card-body p-6 sm:p-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Username */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-semibold text-base-content">Username</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                        <User className="h-5 w-5 text-gray-500" />
+                      </div>
+                      <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        className={`input w-full pl-12 pr-4 bg-gray-50 border-2 focus:outline-none focus:ring-0 ${
+                          errors.username
+                            ? "border-red-400 bg-red-50"
+                            : "border-gray-200 focus:border-primary focus:bg-white"
+                        }`}
+                        placeholder="Enter your username"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    {errors.username && (
+                      <label className="label">
+                        <span className="label-text-alt text-error flex items-center gap-2">
+                          <span className="w-1 h-1 bg-error rounded-full"></span>
+                          {errors.username}
+                        </span>
+                      </label>
+                    )}
                   </div>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    className={`block w-full pl-10 pr-3 py-2.5 sm:py-3 border rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base ${
-                      errors.username
-                        ? "border-red-300 bg-red-50"
-                        : "border-slate-300 bg-slate-50 hover:bg-white focus:bg-white"
-                    }`}
-                    placeholder="Enter your username"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                {errors.username && (
-                  <p className="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-600 rounded-full"></span>
-                    {errors.username}
-                  </p>
-                )}
-              </div>
 
-              {/* Password */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-slate-700">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-slate-400" />
+                  {/* Password */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-semibold text-base-content">Password</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                        <Lock className="h-5 w-5 text-gray-500" />
+                      </div>
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className={`input w-full pl-12 pr-12 bg-gray-50 border-2 focus:outline-none focus:ring-0 ${
+                          errors.password
+                            ? "border-red-400 bg-red-50"
+                            : "border-gray-200 focus:border-primary focus:bg-white"
+                        }`}
+                        placeholder="Enter your password"
+                        disabled={isSubmitting}
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-primary z-10"
+                        disabled={isSubmitting}>
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-500 hover:text-primary" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-500 hover:text-primary" />
+                        )}
+                      </button>
+                    </div>
+                    {errors.password && (
+                      <label className="label">
+                        <span className="label-text-alt text-error flex items-center gap-2">
+                          <span className="w-1 h-1 bg-error rounded-full"></span>
+                          {errors.password}
+                        </span>
+                      </label>
+                    )}
                   </div>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className={`block w-full pl-10 pr-12 py-2.5 sm:py-3 border rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base ${
-                      errors.password
-                        ? "border-red-300 bg-red-50"
-                        : "border-slate-300 bg-slate-50 hover:bg-white focus:bg-white"
-                    }`}
-                    placeholder="Enter your password"
-                    disabled={isSubmitting}
-                  />
+
+                  {/* Submit */}
                   <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-slate-100 rounded-r-xl transition-colors duration-200"
-                    disabled={isSubmitting}>
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-slate-400 hover:text-slate-600" />
+                    type="submit"
+                    disabled={!isFormValid || isSubmitting}
+                    className={`btn w-full py-3 text-lg font-semibold transition-all duration-300 transform rounded-md ${
+                      !isFormValid || isSubmitting
+                        ? "btn-disabled"
+                        : "btn-primary hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    }`}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin mr-3" />
+                        <span>Logging in</span>
+                      </>
                     ) : (
-                      <Eye className="h-5 w-5 text-slate-400 hover:text-slate-600" />
+                      <span>Log In</span>
                     )}
                   </button>
-                </div>
-                {errors.password && (
-                  <p className="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-600 rounded-full"></span>
-                    {errors.password}
-                  </p>
-                )}
+                </form>
               </div>
-
-              {/* Submit */}
-              <Button
-                variant="primary"
-                disabled={!isFormValid || isSubmitting}
-                className="w-full">
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2 sm:mr-4" />
-                    <span>Logging in</span>
-                  </>
-                ) : (
-                  <span>Log In</span>
-                )}
-              </Button>
-            </form>
+            </div>
           </div>
         </div>
       )}

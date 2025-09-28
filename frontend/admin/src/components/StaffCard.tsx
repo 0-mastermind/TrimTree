@@ -1,37 +1,44 @@
-import { CircleX } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-const StaffList = () => {
-  return (
-    <div>
-      <div className="w-full rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4 flex items-center gap-4">
-        {/* Avatar */}
-        <div className="flex-shrink-0">
-          <Image
-            src="/user.png"
-            height={80}
-            width={80}
-            alt="User Avatar"
-            className="rounded-full border border-gray-200"
-          />
-        </div>
+interface StaffCardProps {
+  imageUrl: string;
+  name: string;
+  designation: string;
+  branchName: string;
+}
 
-        {/* Content */}
-        <div className="flex flex-col flex-grow gap-2">
-          {/* Staff info */}
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-lg font-semibold text-gray-800">
-                Staff Name
-              </h1>
-              <p className="text-sm text-gray-600">Hairstylist</p>
-            </div>
-          </div>
-        </div>
+const StaffCard = ({ imageUrl, name, designation, branchName }: StaffCardProps) => {
+  return (
+    <div className="w-full rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-5 flex items-center gap-5">
+      {/* Avatar */}
+      <div className="flex-shrink-0">
+        <Image
+          src={imageUrl || "/user.png"}
+          alt={`${name} Avatar`}
+          height={90}
+          width={90}
+          className="rounded-xl object-cover border"
+          priority
+        />
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col flex-grow">
+        {/* Staff Info */}
+        <h1 className="text-lg font-semibold text-gray-800">{name}</h1>
+        <p className="text-sm text-gray-600 capitalize">{designation}</p>
+
+        {/* Divider */}
+        <div className="my-2 h-[1px] w-12 bg-gray-200"></div>
+
+        {/* Branch Info */}
+        <p className="text-sm font-medium text-gray-700 capitalize">
+          {branchName}
+        </p>
       </div>
     </div>
   );
 };
 
-export default StaffList;
+export default StaffCard;

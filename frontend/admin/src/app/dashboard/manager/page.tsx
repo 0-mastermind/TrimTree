@@ -10,11 +10,11 @@ const page = () => {
   const router = useRouter();
     
   useLayoutEffect(() => {
-    if (!auth.isLoggedIn) return;
+    // if (!auth.isLoggedIn) return;
     
-    if (auth.isLoggedIn && auth.user?.role !== "MANAGER") {
-      router.push("/dashboard/admin");    
-    }
+    // if (auth.isLoggedIn && auth.user?.role !== "MANAGER") {
+    //   router.push("/dashboard/admin");    
+    // }
   });
 
   return (
