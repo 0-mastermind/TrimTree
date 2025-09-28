@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware, managerMiddleware } from "../middleware/auth.middleware.js";
+import { adminMiddleware, authMiddleware, managerMiddleware } from "../middleware/auth.middleware.js";
 import { approveAttendance, approveLeaves, approvePunchOut, createOfficialHoliday, dismissAttendance, getAllPendingAttendance, getAllPendingLeaves, getAllPendingPunchOuts, getMonthlyOfficialHolidays, rejectAttendance, rejectLeaves, rejectPunchOut } from "../controllers/manager.controller.js";
 
 const managerRouter = Router();
