@@ -485,3 +485,22 @@ export const getAllPendingPunchOuts = asyncErrorHandler(async (req: Request, res
     data: pendingPunchOuts,
   }).send(res);
 });
+
+export const getManagerNameByBranch = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const branchId = req.query.branchId as string;
+
+    const managers = await UserModel.find({
+      branch: branchId,
+      role: userRoles.MANAGER,
+    })
+      .populate("branch", "name _id")
+      .select("name _id");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Managers fetched successfully",
+      data: managers,
+    }).send(res);
+  }
+);
