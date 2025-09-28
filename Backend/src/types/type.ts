@@ -1,5 +1,5 @@
 import type { Types } from "mongoose";
-import type { attendanceStatus, attendanceType,  leaveStatus, leaveType, punchOutStatus, userRoles, WorkingHour } from "../utils/constants.js";
+import type { attendanceStatus, attendanceType,  leaveStatus, punchOutStatus, userRoles, WorkingHour } from "../utils/constants.js";
 
 export interface IUser  {
   name: string;
@@ -19,7 +19,7 @@ export interface IUser  {
 }
 
 export interface IAttendance  {
-  staffId: Types.ObjectId;
+  userId: Types.ObjectId;
   date: Date;
   branch: Types.ObjectId;
   type: attendanceType;
@@ -40,11 +40,10 @@ export interface IAttendance  {
 }
 
 export interface ILeave {
-  staffId: Types.ObjectId;
+  userId: Types.ObjectId;
   branch: Types.ObjectId;
   startDate: Date;
   endDate: Date;
-  type: leaveType;
   status: leaveStatus;
   reason?: string;
   createdAt: Date;
@@ -64,6 +63,7 @@ export interface IOfficialHoliday  {
   name: string;
   date: Date;
   branch: Types.ObjectId;
+  employees: Types.ObjectId[];
   description: string;
   createdAt: Date;
   updatedAt: Date;

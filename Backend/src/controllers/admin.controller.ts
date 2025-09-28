@@ -6,7 +6,7 @@ import branchModel from "../models/branch.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import StaffModel from "../models/staff.model.js";
 import UserModel from "../models/user.model.js";
-import { leaveStatus, userRoles } from "../utils/constants.js";
+import { userRoles } from "../utils/constants.js";
 import AttendanceModel from "../models/attendance.model.js";
 import LeaveModel from "../models/leave.model.js";
 import mongoose from "mongoose";
@@ -82,8 +82,8 @@ export const deleteStaff = asyncErrorHandler(
       }
 
       await StaffModel.findOneAndDelete({ userId: user._id }).session(session);
-      await AttendanceModel.deleteMany({ staffId: userId }).session(session);
-      await LeaveModel.deleteMany({ staffId: userId }).session(session);
+      await AttendanceModel.deleteMany({ userId: userId }).session(session);
+      await LeaveModel.deleteMany({ userId: userId }).session(session);
       await UserModel.findByIdAndDelete(userId).session(session);
 
       await session.commitTransaction();

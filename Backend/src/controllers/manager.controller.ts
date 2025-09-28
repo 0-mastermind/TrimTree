@@ -8,13 +8,12 @@ import {
   attendanceStatus,
   attendanceType,
   leaveStatus,
-  leaveType,
   punchOutStatus,
 } from "../utils/constants.js";
 import UserModel from "../models/user.model.js";
 import LeaveModel from "../models/leave.model.js";
 import { emitAttendanceUpdated, emitLeaveUpdated, emitPunchOutUpdated } from "../socketio.js";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const getUTCStartOfDay = (date: Date) =>
   new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0));
@@ -28,8 +27,21 @@ export const createOfficialHoliday = asyncErrorHandler(
     session.startTransaction();
 
     try {
-      const { name, date, description } = req.body;
+      const { name, date, description, employees } = req.body;
       const branchId = req.branchId;
+
+      if (!Array.isArray(employees) || employees.length === 0) {
+        throw new ApiError(400, "employees are required");
+      }
+
+      if (!name || !date || !description || !branchId) {
+        throw new ApiError(400, "All fields are required");
+      }
+
+      const employeeIdStrings: string[] = employees;
+      const employeeObjectIds: Types.ObjectId[] = employeeIdStrings.map(
+        (id: string) => new mongoose.Types.ObjectId(id)
+      );
 
       const holidayDate = new Date(date);
       const startOfDayUTC = getUTCStartOfDay(holidayDate);
@@ -38,47 +50,99 @@ export const createOfficialHoliday = asyncErrorHandler(
       const existingHoliday = await OfficialHolidayModel.findOne({
         branch: branchId,
         date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
-      }).session(session);
+      })
+        .session(session)
+        .exec();
 
       if (existingHoliday) {
-        throw new ApiError(400, "Holiday already exists for this branch on this date");
+        throw new ApiError(400, "An official holiday already exists for this date");
       }
 
       await OfficialHolidayModel.create(
-        [{ name, date: startOfDayUTC, branch: branchId, description }],
+        [
+          {
+            name,
+            date: startOfDayUTC,
+            branch: branchId,
+            description,
+            employees: employeeObjectIds,
+          },
+        ],
         { session }
       );
 
       await AttendanceModel.updateMany(
         {
+          userId: { $in: employeeObjectIds },
           branch: branchId,
           date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
           status: attendanceStatus.PRESENT,
         },
-        { $set: { status: attendanceStatus.WORKING_HOLIDAY, type: attendanceType.ATTENDANCE } },
+        {
+          $set: {
+            status: attendanceStatus.WORKING_HOLIDAY,
+            type: attendanceType.ATTENDANCE,
+          },
+        },
         { session }
       );
 
       await AttendanceModel.updateMany(
         {
+          userId: { $in: employeeObjectIds },
           branch: branchId,
           date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
           status: {
             $in: [
               attendanceStatus.PENDING,
-              attendanceStatus.LEAVE_PAID,
-              attendanceStatus.LEAVE_UNPAID,
+              attendanceStatus.LEAVE,
               attendanceStatus.ABSENT,
               attendanceStatus.REJECTED_LEAVE,
               attendanceStatus.DISMISSED,
             ],
           },
         },
-        { $set: { status: attendanceStatus.HOLIDAY, type: attendanceType.ATTENDANCE , leaveDescription: "" } },
+        {
+          $set: {
+            status: attendanceStatus.HOLIDAY,
+            type: attendanceType.ATTENDANCE,
+            leaveDescription: name,
+          },
+        },
         { session }
       );
 
+      const existingAttendanceUserIds = await AttendanceModel.find({
+        userId: { $in: employeeObjectIds },
+        branch: branchId,
+        date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
+      })
+        .distinct("userId")
+        .session(session);
+
+      const existingAttendanceUserIdStrings: string[] = (existingAttendanceUserIds as Types.ObjectId[]).map(
+        (oid) => oid.toString()
+      );
+
+      const newAttendanceUsers: string[] = employeeIdStrings.filter(
+        (id: string) => !existingAttendanceUserIdStrings.includes(id)
+      );
+
+      if (newAttendanceUsers.length > 0) {
+        const newAttendanceDocs = newAttendanceUsers.map((userId: string) => ({
+          userId: new mongoose.Types.ObjectId(userId),
+          branch: branchId,
+          date: startOfDayUTC,
+          status: attendanceStatus.HOLIDAY,
+          type: attendanceType.ATTENDANCE,
+          leaveDescription: name,
+        }));
+
+        await AttendanceModel.insertMany(newAttendanceDocs, { session });
+      }
+
       const updatedAttendances = await AttendanceModel.find({
+        userId: { $in: employeeObjectIds },
         branch: branchId,
         date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
       }).session(session);
@@ -86,11 +150,14 @@ export const createOfficialHoliday = asyncErrorHandler(
       await session.commitTransaction();
       session.endSession();
 
-      updatedAttendances.forEach((attendance) => emitAttendanceUpdated(attendance));
+      updatedAttendances.forEach((attendance) =>
+        emitAttendanceUpdated(attendance)
+      );
 
       return new ApiResponse({
         statusCode: 201,
-        message: "Official holiday created successfully and staff attendance updated",
+        message:
+          "Official holiday created successfully and attendance created/updated for selected staff",
       }).send(res);
     } catch (error) {
       await session.abortTransaction();
@@ -125,6 +192,7 @@ export const approveAttendance = asyncErrorHandler(async (req: Request, res: Res
   const holiday = await OfficialHolidayModel.findOne({
     branch: attendance.branch,
     date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
+    employees: attendance.userId,
   });
 
   attendance.status = holiday ? attendanceStatus.WORKING_HOLIDAY : attendanceStatus.PRESENT;
@@ -199,22 +267,17 @@ export const approveLeaves = asyncErrorHandler(async (req: Request, res: Respons
     const leave = await LeaveModel.findById(leaveId).session(session);
     if (!leave) throw new ApiError(404, "Leave request not found");
 
-    const attendanceUpdateStatus =
-      leave.type === leaveType.LEAVE_PAID
-        ? attendanceStatus.LEAVE_PAID
-        : attendanceStatus.LEAVE_UNPAID;
-
     const startOfDayUTC = getUTCStartOfDay(new Date(leave.startDate));
     const endOfDayUTC = getUTCEndOfDay(new Date(leave.endDate));
 
     await AttendanceModel.updateMany(
       {
-        staffId: leave.staffId,
+        userId: leave.userId,
         branch: leave.branch,
         type: attendanceType.LEAVE,
         date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
       },
-      { $set: { status: attendanceUpdateStatus, leaveDescription: leave.reason } },
+      { $set: { status: attendanceStatus.LEAVE, leaveDescription: leave.reason } },
       { session }
     );
 
@@ -226,7 +289,7 @@ export const approveLeaves = asyncErrorHandler(async (req: Request, res: Respons
 
     if (leave.startDate === leave.endDate) {
       const attendance = await AttendanceModel.findOne({
-        staffId: leave.staffId,
+        userId: leave.userId,
         branch: leave.branch,
         type: attendanceType.LEAVE,
         date: getUTCStartOfDay(new Date(leave.startDate)),
@@ -263,7 +326,7 @@ export const rejectLeaves = asyncErrorHandler(async (req: Request, res: Response
 
     await AttendanceModel.updateMany(
       {
-        staffId: leave.staffId,
+        userId: leave.userId,
         branch: leave.branch,
         type: attendanceType.LEAVE,
         date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
@@ -280,7 +343,7 @@ export const rejectLeaves = asyncErrorHandler(async (req: Request, res: Response
 
     // Always emit attendance for each affected day (not just same day)
     const affectedAttendances = await AttendanceModel.find({
-      staffId: leave.staffId,
+      userId: leave.userId,
       branch: leave.branch,
       type: attendanceType.LEAVE,
       date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
@@ -309,7 +372,7 @@ export const getAllPendingAttendance = asyncErrorHandler(async (req: Request, re
   const pendingAttendance = await AttendanceModel.find({
     status: attendanceStatus.PENDING,
     type: attendanceType.ATTENDANCE,
-    branch: branchId,
+    manager: branchId,
   }).sort({ date: -1 });
 
   return new ApiResponse({
@@ -327,7 +390,7 @@ export const getAllPendingLeaves = asyncErrorHandler(async (req, res) => {
     branch: branchId,
     status: leaveStatus.PENDING,
   })
-    .populate({ path: "staffId", select: "name username", model: UserModel })
+    .populate({ path: "userId", select: "name username", model: UserModel })
     .sort({ startDate: -1 });
 
   return new ApiResponse({
@@ -352,7 +415,7 @@ export const getMonthlyOfficialHolidays = asyncErrorHandler(async (req: Request,
   const officialHolidays = await OfficialHolidayModel.find({
     branch: branchId,
     date: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
-  }).sort({ date: 1 });
+  }).sort({ date: 1 }).populate('employees', 'name username image');
 
   return new ApiResponse({
     statusCode: 200,
@@ -413,8 +476,8 @@ export const getAllPendingPunchOuts = asyncErrorHandler(async (req: Request, res
     type: attendanceType.ATTENDANCE,
   })
     .sort({ date: -1 })
-    .populate("staffId", "name")
-    .select("date punchOut staffId");
+    .populate("userId", "name")
+    .select("date punchOut userId");
 
   return new ApiResponse({
     statusCode: 200,

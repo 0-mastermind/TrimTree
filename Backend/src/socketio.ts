@@ -37,7 +37,6 @@ export const initSocket = (httpServer: HttpServer) => {
     // staff or manager joins a room
     socket.on("joinRoom", (room) => {
       socket.join(room);
-      console.log(`${socket.id} joined room: ${room}`);
     });
   });
 
@@ -45,7 +44,7 @@ export const initSocket = (httpServer: HttpServer) => {
 };
 
 export const emitAttendanceRequest = (attendance: any) => {
-  const branchRoom = `branch:${attendance.branch}:managers`;
+  const branchRoom = `branch:${attendance.branch}:manager`;
   io.to(branchRoom).emit("attendanceRequest", {
     data: attendance,
     message: "New attendance request submitted",
@@ -69,7 +68,7 @@ export const emitPunchOutRequest = (attendance: any) => {
 };
 
 export const emitAttendanceUpdated = (attendance: any) => {
-  const userRoom = `branch:${attendance.branch}:staffs:${attendance.staffId}`;
+  const userRoom = `branch:${attendance.branch}:staffs:${attendance.userId}`;
   io.to(userRoom).emit("attendanceUpdated", {
     data: attendance,
     message: `Attendance ${attendance.status}`,
@@ -77,7 +76,7 @@ export const emitAttendanceUpdated = (attendance: any) => {
 };
 
 export const emitLeaveUpdated = (leave: any) => {
-  const userRoom = `branch:${leave.branch}:staffs:${leave.staffId}`;
+  const userRoom = `branch:${leave.branch}:staffs:${leave.userId}`;
   io.to(userRoom).emit("leaveUpdated", {
     data: leave,
     message: "Leave" + leave.status,
@@ -85,7 +84,7 @@ export const emitLeaveUpdated = (leave: any) => {
 };
 
 export const emitPunchOutUpdated = (attendance: any) => {
-  const userRoom = `branch:${attendance.branch}:staffs:${attendance.staffId}`;
+  const userRoom = `branch:${attendance.branch}:staffs:${attendance.userId}`;
   io.to(userRoom).emit("punchOutUpdated", {
     data: attendance,
     message: `Punch-out ${attendance.punchOut.status}`,
