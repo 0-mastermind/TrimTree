@@ -56,13 +56,12 @@ export type attendanceStatus =
   | 'ABSENT' 
   | 'HOLIDAY' 
   | 'REJECTED LEAVE' 
-  | 'LEAVE PAID' 
-  | 'LEAVE UNPAID' 
+  | 'LEAVE' 
   | 'WORKING HOLIDAY';
 
 export interface Attendance  {
   _id: string;
-  staffId: string;
+  userId: string;
   date: Date;
   branch: string;
   type: attendanceType;
@@ -82,15 +81,14 @@ export interface Attendance  {
   updatedAt: Date;
 }
 
-export type leaveType = 'LEAVE PAID' | 'LEAVE UNPAID';
 export type leaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export interface Leave {
-  staffId: string;
+  _id: string;
+  userId: string;
   branch: string;
   startDate: Date;
   endDate: Date;
-  type: leaveType;
   status: leaveStatus;
   reason?: string;
   createdAt: Date;

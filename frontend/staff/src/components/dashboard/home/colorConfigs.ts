@@ -1,5 +1,5 @@
   import type { attendanceStatus, punchOutStatus } from "@/types/type";
-  import { AlertCircle, AlertTriangle, Ban, Briefcase, Calendar, CheckCircle, CheckSquare, Clock, DollarSign, Timer, XCircle } from "lucide-react";
+  import { AlertCircle, AlertTriangle, Ban, Briefcase, Calendar, CheckCircle, CheckSquare, Clock,  Plane, Timer, XCircle } from "lucide-react";
 
   export const getStatusConfig = (status: attendanceStatus) => {
       const configs = {
@@ -45,19 +45,12 @@
           textColor: 'text-red-800',
           iconColor: 'text-red-600'
         },
-        'LEAVE PAID': {
-          icon: DollarSign,
-          label: 'Leave Paid',
+        'LEAVE': {
+          icon: Plane,
+          label: 'Leave',
           bgColor: 'bg-emerald-100',
           textColor: 'text-emerald-800',
           iconColor: 'text-emerald-600'
-        },
-        'LEAVE UNPAID': {
-          icon: XCircle,
-          label: 'Leave Unpaid',
-          bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
-          iconColor: 'text-gray-600'
         },
         'WORKING HOLIDAY': {
           icon: Briefcase,

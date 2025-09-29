@@ -4,107 +4,21 @@ import "react-calendar/dist/Calendar.css";
 import "./calendar.css";
 import {
   CalendarDays,
-  TrendingUp,
-  Clock,
   BarChart3,
-  Users,
   Calendar as CalendarIcon,
-  CheckCircle2,
-  XCircle,
-  Coffee,
-  Plane,
-  MapPin,
-  AlertTriangle,
 } from "lucide-react";
 import clsx from "clsx";
 import type { Attendance, attendanceStatus } from "@/types/type";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store/store";
 import { getMonthlyAttendance } from "@/api/analytics";
-import { attendanceStatuses } from "@/constants/constants";
 import Loader from "@/components/common/Loader";
 import type { Value } from "react-calendar/dist/shared/types.js";
-
-type StatusMeta = {
-  label: string;
-  color: string;
-  bgColor: string;
-  textColor: string;
-  icon: React.ReactNode;
-};
-
-const statusMeta: Record<attendanceStatus, StatusMeta> = {
-  PENDING: {
-    label: "Pending",
-    color: "bg-gray-500",
-    bgColor: "bg-gray-50",
-    textColor: "text-gray-700",
-    icon: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  PRESENT: {
-    label: "Present",
-    color: "bg-emerald-500",
-    bgColor: "bg-emerald-50",
-    textColor: "text-emerald-700",
-    icon: <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  ABSENT: {
-    label: "Absent",
-    color: "bg-red-500",
-    bgColor: "bg-red-50",
-    textColor: "text-red-700",
-    icon: <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  "LEAVE PAID": {
-    label: "Paid Leave",
-    color: "bg-blue-500",
-    bgColor: "bg-blue-50",
-    textColor: "text-blue-700",
-    icon: <Coffee className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  "LEAVE UNPAID": {
-    label: "Unpaid Leave",
-    color: "bg-orange-500",
-    bgColor: "bg-orange-50",
-    textColor: "text-orange-700",
-    icon: <Coffee className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  HOLIDAY: {
-    label: "Holiday",
-    color: "bg-purple-500",
-    bgColor: "bg-purple-50",
-    textColor: "text-purple-700",
-    icon: <Plane className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  "WORKING HOLIDAY": {
-    label: "Working Holiday",
-    color: "bg-indigo-500",
-    bgColor: "bg-indigo-50",
-    textColor: "text-indigo-700",
-    icon: <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  "REJECTED LEAVE": {
-    label: "Rejected Leave",
-    color: "bg-pink-500",
-    bgColor: "bg-pink-50",
-    textColor: "text-pink-700",
-    icon: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-  DISMISSED: {
-    label: "Dismissed",
-    color: "bg-gray-400",
-    bgColor: "bg-gray-100",
-    textColor: "text-gray-600",
-    icon: <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />,
-  },
-};
+import { attendanceStatuses } from "@/constants/constants";
+import { statusMeta } from "./config";
 
 type AttendanceSummary = {
   summary: Record<attendanceStatus, number>;
-  totalHours: number;
-  workingDays: number;
-  totalDays: number;
-  attendanceRate: string;
 };
 
 const toISODate = (date: Date) =>
@@ -132,8 +46,7 @@ const StaffAnalytics: React.FC = () => {
 
   const attendanceData: Attendance[] = useSelector(
     (state: RootState) => state.attendance.monthlyAttendance || []
-  );
-
+  );  
   useEffect(() => {
     let isActive = true;
     const fetchAttendance = async () => {
@@ -171,10 +84,6 @@ const StaffAnalytics: React.FC = () => {
 
   const {
     summary,
-    totalHours,
-    workingDays,
-    totalDays,
-    attendanceRate,
   }: AttendanceSummary = useMemo(() => {
     const base: Record<attendanceStatus, number> = Object.fromEntries(
       attendanceStatuses.map((s) => [s, 0])
@@ -200,20 +109,10 @@ const StaffAnalytics: React.FC = () => {
         }
         workingCount++;
       }
-    });
-
-    const total = attendanceData.length;
-    const rate =
-      total > 0
-        ? (((base.PRESENT + base["WORKING HOLIDAY"]) / total) * 100).toFixed(1)
-        : "0.0";
+    })
 
     return {
       summary: base,
-      totalHours: workedHours,
-      workingDays: workingCount,
-      totalDays: total,
-      attendanceRate: rate,
     };
   }, [attendanceData]);
 
@@ -247,42 +146,6 @@ const StaffAnalytics: React.FC = () => {
     [selectedDate]
   );
 
-  const StatCard = ({
-    icon,
-    title,
-    value,
-    subtitle,
-    color = "bg-white",
-  }: {
-    icon: React.ReactNode;
-    title: string;
-    value: string | number;
-    subtitle?: string;
-    color?: string;
-  }) => (
-    <div
-      className={`${color} rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
-            {title}
-          </p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
-            {value}
-          </p>
-          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
-        </div>
-        <div className="ml-2 sm:ml-4 p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white">
-          {icon}
-        </div>
-      </div>
-    </div>
-  );
-
-  console.log(attendanceData)
-  
-
   if (loading) {
     return <Loader />;
   }
@@ -290,30 +153,6 @@ const StaffAnalytics: React.FC = () => {
   return (
     <div className="min-h-screen p-3 mt-15 sm:p-4 md:p-6 lg:p-8 z-0">
       <div className="max-w-7xl mx-auto">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
-          <StatCard
-            icon={<TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />}
-            title="Attendance Rate"
-            value={`${attendanceRate}%`}
-            subtitle="This month"
-          />
-          <StatCard
-            icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
-            title="Working Days"
-            value={workingDays}
-            subtitle={`Out of ${totalDays} total days`}
-          />
-          <StatCard
-            icon={<Clock className="w-5 h-5 sm:w-6 sm:h-6" />}
-            title="Total Hours"
-            value={totalHours.toFixed(1)}
-            subtitle={`Avg: ${(totalHours / (workingDays || 1)).toFixed(
-              1
-            )}h/day`}
-          />
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {/* Calendar Section */}
           <div className="lg:col-span-2">
@@ -361,12 +200,15 @@ const StaffAnalytics: React.FC = () => {
                       if (view === "month") {
                         const key = toISODate(date);
                         const record = attendanceMap[key];
-                        return record ? (
+                        const meta = record
+                          ? statusMeta[record.status]
+                          : undefined;
+                        return record && meta ? (
                           <div className="flex justify-center absolute bottom-1 left-1/2 transform -translate-x-1/2">
                             <span
                               className={clsx(
                                 "block w-2 h-2 sm:w-3 sm:h-3 rounded-full shadow-sm",
-                                statusMeta[record.status].color
+                                meta.color
                               )}
                               title={record.status}
                             />
@@ -447,7 +289,7 @@ const StaffAnalytics: React.FC = () => {
                         {selectedRecord.punchIn?.time && (
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-xl">
                             <span className="text-gray-600 font-medium text-xs sm:text-sm">
-                              Check In
+                              Punch In
                             </span>
                             <span className="font-bold text-gray-900 text-xs sm:text-sm">
                               {new Date(
@@ -462,7 +304,7 @@ const StaffAnalytics: React.FC = () => {
                         {selectedRecord.punchOut?.time && (
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-xl">
                             <span className="text-gray-600 font-medium text-xs sm:text-sm">
-                              Check Out
+                              Punch Out
                             </span>
                             <span className="font-bold text-gray-900 text-xs sm:text-sm">
                               {new Date(

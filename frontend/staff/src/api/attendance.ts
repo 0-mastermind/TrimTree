@@ -1,8 +1,8 @@
 import type { AppDispatch } from "@/store/store";
 import { apiConnector } from "@/utils/apiConnector";
 import { AttendanceEndpoints } from "./apis";
-import { setTodayAttendance } from "@/store/features/attendance.slice";
-import type { Attendance, leaveType, WorkingHour } from "@/types/type";
+import { setLeaveHistory, setTodayAttendance } from "@/store/features/attendance.slice";
+import type { Attendance, Leave, WorkingHour } from "@/types/type";
 import toast from "react-hot-toast";
 
 export const getTodayAttendance =
@@ -54,13 +54,13 @@ export const applyForAttendance = (workingHour : WorkingHour) => async (dispatch
   }
 }
 
-export const applyForLeave = (reason : string , type : leaveType , startDate : string , endDate : string) => async (): Promise<boolean> => {
+export const applyForLeave = (reason : string ,  startDate : string , endDate : string) => async (): Promise<boolean> => {
   const toastId = toast.loading("Applying...");
   try {
     const res = await apiConnector(
       "POST",
       AttendanceEndpoints.APPLY_FOR_LEAVE_API,
-      {reason, type , startDate , endDate}
+      {reason, startDate , endDate}
     );
 
     if (res.success) {
@@ -113,3 +113,21 @@ export const applyForPunchOut = ( ) => async (dispatch : AppDispatch): Promise<b
     return false;
   }
 }
+
+export const getLeaveHistory =
+  () =>
+  async (dispatch: AppDispatch): Promise<boolean> => {
+    try {
+      const res = await apiConnector("GET", AttendanceEndpoints.GET_LEAVE_HISTORY_API);
+
+      if (res.success && res.data) {
+        dispatch(setLeaveHistory(res.data as Leave[]));
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error("Get leave history error:", error);
+      return false;
+    }
+  };

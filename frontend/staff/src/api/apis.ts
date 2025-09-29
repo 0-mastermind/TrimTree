@@ -14,9 +14,11 @@ export const AttendanceEndpoints = {
   APPLY_FOR_ATTENDANCE_API: BASE_URL + "/staff/apply-attendance",
   APPLY_FOR_LEAVE_API: BASE_URL + "/staff/apply-leave",
   APPLY_FOR_PUNCH_OUT_API: BASE_URL + "/staff/apply-punch-out",
+  GET_LEAVE_HISTORY_API: BASE_URL + "/staff/leave/history",
 }
 
 // ANALYTICS ENDPOINTS
 export const AnalyticsEndpoints = {
   GET_MONTHLY_ATTENDANCE_API: BASE_URL + "/staff/attendance/monthly",
 }
+

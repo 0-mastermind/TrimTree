@@ -7,6 +7,7 @@ import type { RootState } from '@/store/store';
 import toast from 'react-hot-toast';
 import { useAppDispatch } from '@/store/hook';
 import { updateProfile } from '@/api/auth';
+import Button from '@/components/common/Button';
 
 interface FormData {
   userId: string;
@@ -195,22 +196,21 @@ const UserSettingsPage: React.FC = () => {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                   Account Settings
                 </h1>
-                <p className="text-gray-600 mt-2 text-lg">
-                  Manage your profile information and preferences
-                </p>
+  
               </div>
               {!isEditing ? (
-                <button
-                  className="group flex items-center space-x-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                <Button
+                  variant='primary'
+                  className='group'
                   onClick={() => setIsEditing(true)}
                 >
-                  <Edit3 size={18} className="group-hover:rotate-12 transition-transform" />
+                  <Edit3 size={18} className="group-hover:rotate-12 transition-transform mr-4" />
                   <span className="font-medium">Edit Profile</span>
-                </button>
+                </Button>
               ) : (
                 <div className="flex gap-3">
-                  <button
-                    className="px-6 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200 font-medium"
+                  <Button
+                   variant='outline'
                     onClick={() => {
                       setIsEditing(false);
                       setFormData({ ...originalData });
@@ -220,9 +220,9 @@ const UserSettingsPage: React.FC = () => {
                     }}
                   >
                     Cancel
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                  variant='success'
                     onClick={handleSubmit}
                     disabled={!hasChanges || isLoading}
                     className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 transform ${
@@ -242,7 +242,7 @@ const UserSettingsPage: React.FC = () => {
                         <span>Save Changes</span>
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>

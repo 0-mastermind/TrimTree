@@ -1,11 +1,12 @@
-export const attendanceStatuses = [
+import type { attendanceStatus } from "@/types/type";
+
+export const attendanceStatuses: attendanceStatus[] = [
   "PENDING",
-  "DISMISSED",
   "PRESENT",
   "ABSENT",
+  "LEAVE",
   "HOLIDAY",
-  "REJECTED LEAVE",
-  "LEAVE PAID",
-  "LEAVE UNPAID",
   "WORKING HOLIDAY",
-] as const;
+  "REJECTED LEAVE",
+  "DISMISSED",
+];
