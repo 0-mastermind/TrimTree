@@ -12,8 +12,8 @@ export enum attendanceStatus {
   PRESENT="PRESENT",
   ABSENT="ABSENT",
   HOLIDAY="HOLIDAY",
-  WORKING_HOLIDAY="WORKING HOLIDAY",
-  REJECTED_LEAVE="REJECTED LEAVE",
+  WORKING_HOLIDAY="WORKING_HOLIDAY",
+  REJECTED_LEAVE="REJECTED_LEAVE",
   LEAVE="LEAVE",
 }
 
@@ -28,7 +28,7 @@ export enum leaveStatus {
 export const EnumLeaveStatus = Object.values(leaveStatus);
 
 export enum punchOutStatus {
-  NOT_APPLIED="NOT APPLIED",
+  NOT_APPLIED="NOT_APPLIED",
   PENDING="PENDING",
   APPROVED="APPROVED",
   REJECTED="REJECTED"

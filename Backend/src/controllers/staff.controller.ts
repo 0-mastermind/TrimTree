@@ -22,7 +22,6 @@ import StaffModel from "../models/staff.model.js";
 import mongoose from "mongoose";
 import branchModel from "../models/branch.model.js";
 
-
 export const applyForAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const userId = req.userId;
@@ -120,7 +119,9 @@ export const applyForLeave = asyncErrorHandler(
     const user = await UserModel.findById(userId);
     if (!user) throw new ApiError(404, "User not found");
 
-    const staffDoc = await StaffModel.findOne({ userId: user._id }).select("_id");
+    const staffDoc = await StaffModel.findOne({ userId: user._id }).select(
+      "_id"
+    );
     if (!staffDoc) throw new ApiError(404, "Staff not found");
 
     if (!startDate || !endDate) {
@@ -157,7 +158,6 @@ export const applyForLeave = asyncErrorHandler(
       isUpdate = true;
       leaveDocToProcess = leaveDoc;
     }
-
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -196,7 +196,10 @@ export const applyForLeave = asyncErrorHandler(
             currentDate.getUTCFullYear(),
             currentDate.getUTCMonth(),
             currentDate.getUTCDate(),
-            0, 0, 0, 0
+            0,
+            0,
+            0,
+            0
           )
         );
 
@@ -218,7 +221,9 @@ export const applyForLeave = asyncErrorHandler(
           ) {
             throw new ApiError(
               400,
-              `Cannot apply for leave: attendance entry with status '${attendanceEntry.status}' exists for ${utcDayStart.toISOString().split("T")[0]}`
+              `Cannot apply for leave: attendance entry with status '${
+                attendanceEntry.status
+              }' exists for ${utcDayStart.toISOString().split("T")[0]}`
             );
           }
           // Otherwise, update the existing attendance entry
@@ -232,15 +237,17 @@ export const applyForLeave = asyncErrorHandler(
         } else {
           // No entry: create new
           await AttendanceModel.create(
-            [{
-              userId,
-              branch: branchId,
-              type: attendanceType.LEAVE,
-              status: attendanceStatus.PENDING,
-              leaveDescription: reason || "",
-              date: utcDayStart,
-              workingHour: WorkingHour.FULL_DAY,
-            }],
+            [
+              {
+                userId,
+                branch: branchId,
+                type: attendanceType.LEAVE,
+                status: attendanceStatus.PENDING,
+                leaveDescription: reason || "",
+                date: utcDayStart,
+                workingHour: WorkingHour.FULL_DAY,
+              },
+            ],
             { session }
           );
         }
@@ -267,16 +274,18 @@ export const applyForLeave = asyncErrorHandler(
   }
 );
 
-
 export const getMonthlyAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const userId = req.userId;
+    const staffId = req.query.staffId;
     const { month, year } = req.query;
 
-    if (!userId) throw new ApiError(400, "User Not Logged In");
+    if (!staffId) throw new ApiError(400, "User Not Logged In");
     if (!month || !year)
       throw new ApiError(400, "Please provide month and year");
-
+    
+    const staff = await StaffModel.findById(staffId);
+    const userId = staff?.userId;
+    
     const monthNum = parseInt(month as string);
     const yearNum = parseInt(year as string);
 
@@ -290,8 +299,7 @@ export const getMonthlyAttendance = asyncErrorHandler(
     const attendance = await AttendanceModel.find({
       userId,
       date: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
-    })
-      .sort({ date: 1 });
+    }).sort({ date: 1 });
 
     return new ApiResponse({
       statusCode: 200,
@@ -353,7 +361,6 @@ export const applyForPunchOut = asyncErrorHandler(
       time: now,
       isApproved: false,
       status: punchOutStatus.PENDING,
-
     };
 
     await attendance.save();
@@ -414,7 +421,7 @@ export const getStaffList = asyncErrorHandler(
     const staffList = await StaffModel.find()
       .populate({
         path: "userId",
-        select: "name username role branch", 
+        select: "name username role branch",
         populate: {
           path: "branch",
           select: "name",
@@ -453,96 +460,259 @@ export const getStaffListByManager = asyncErrorHandler(
   }
 );
 
+export const getStaffListByBranch = asyncErrorHandler(async (req, res) => {
+  const branchId = req.query.branchId as string;
 
-export const getStaffListByBranch = asyncErrorHandler(
-  async (req, res) => {
-    const branchId = req.query.branchId as string;
+  if (!branchId) throw new ApiError(400, "Branch ID is required");
 
-    if (!branchId) throw new ApiError(400, "Branch ID is required");
-
-    const branchDoc = await branchModel.findById(branchId, { name: 1 });
-    if (!branchDoc) {
-      return new ApiResponse({
-        statusCode: 404,
-        message: "Branch not found",
-      }).send(res);
-    }
-
-    const staffList = await StaffModel.aggregate([
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userId",
-        },
-      },
-      { $unwind: "$userId" },
-      {
-        $match: {
-          "userId.branch": new mongoose.Types.ObjectId(branchId),
-        },
-      },
-      {
-        $lookup: {
-          from: "branches", 
-          localField: "userId.branch",
-          foreignField: "_id",
-          as: "branchData",
-        },
-      },
-      { $unwind: "$branchData" },
-      {
-        $project: {
-          _id: 1,
-          designation: 1,
-          userId:
-            {
-              _id: "$userId._id",
-              name: "$userId.name",
-              username: "$userId.username",
-              role: "$userId.role",
-              branch: {
-                name: "$branchData.name"
-              }
-            }
-        }
-      }
-    ]);
-
+  const branchDoc = await branchModel.findById(branchId, { name: 1 });
+  if (!branchDoc) {
     return new ApiResponse({
-      statusCode: 200,
-      message: "All staff members fetched successfully!",
-      data: staffList,
+      statusCode: 404,
+      message: "Branch not found",
     }).send(res);
   }
-);
+
+  const staffList = await StaffModel.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userId",
+      },
+    },
+    { $unwind: "$userId" },
+    {
+      $match: {
+        "userId.branch": new mongoose.Types.ObjectId(branchId),
+      },
+    },
+    {
+      $lookup: {
+        from: "branches",
+        localField: "userId.branch",
+        foreignField: "_id",
+        as: "branchData",
+      },
+    },
+    { $unwind: "$branchData" },
+    {
+      $project: {
+        _id: 1,
+        designation: 1,
+        userId: {
+          _id: "$userId._id",
+          name: "$userId.name",
+          username: "$userId.username",
+          role: "$userId.role",
+          branch: {
+            name: "$branchData.name",
+          },
+        },
+      },
+    },
+  ]);
+
+  return new ApiResponse({
+    statusCode: 200,
+    message: "All staff members fetched successfully!",
+    data: staffList,
+  }).send(res);
+});
+
 export const getStaffDetails = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const staffId = req.query.staffId;
-    
-    const staffDetails = await StaffModel.findById(staffId).populate("userId", "-password");
-    
+
+    const staffDetails = await StaffModel.findById(staffId).populate(
+      "userId",
+      "-password"
+    );
+
     return new ApiResponse({
       statusCode: 200,
       message: "Staff details fetched successfully!",
       data: staffDetails,
     }).send(res);
   }
-)
+);
 
 export const getLeaveHistory = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const userId = req.userId;
 
     if (!userId) throw new ApiError(400, "User Not Logged In");
-    
-    const leaveHistory = await LeaveModel.find({ userId })
-      .sort({ createdAt: -1 }); 
+
+    const leaveHistory = await LeaveModel.find({ userId }).sort({
+      createdAt: -1,
+    });
     return new ApiResponse({
       statusCode: 200,
       message: "Leave history fetched successfully",
       data: leaveHistory,
     }).send(res);
-  } 
+  }
+);
+
+export const getSpecificEmployeeAnalytics = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const employeeId = req.query.staffId as string; // staffId
+    const userId = req.query.userId as string; // userId
+    // const days = parseInt(req.query.day as string); // days
+    const startingDate = req.query.startingDate as string;
+
+    if (!employeeId || !userId) {
+      throw new ApiError(400, "Provide staff Id");
+    }
+
+    // Calculating analytics
+    const attendanceAnalytics = await AttendanceModel.aggregate([
+      {
+        // matching with corresponding user id
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          date: {
+            $gte: new Date(startingDate),
+            $lte: new Date(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$userId",
+          totalPresent: {
+            $sum: { $cond: [{ $eq: ["$status", "PRESENT"] }, 1, 0] }, // if found increment by one
+          },
+          totalHalfDayPresent: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ["$status", "PRESENT"] },
+                    { $eq: ["$workingHour", "HALF_DAY"] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalFullDayPresent: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ["$status", "PRESENT"] },
+                    { $eq: ["$workingHour", "FULL_DAY"] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalAbsent: {
+            $sum: { $cond: [{ $eq: ["$status", "ABSENT"] }, 1, 0] },
+          },
+          totalPaidHoliday: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "HOLIDAY"] }, 1, 0],
+            },
+          },
+          totalWorkingHoliday: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "WORKING HOLIDAY"] }, 1, 0],
+            },
+          },
+          totalLeave: {
+            $sum: { $cond: [{ $eq: ["$status", "LEAVE"] }, 1, 0] },
+          },
+          totalDays: {
+            $sum: {
+              $cond: [
+                {
+                  $not: {
+                    $in: [
+                      "$status",
+                      ["PENDING", "DISMISSED", "REJECTED_LEAVE"],
+                    ],
+                  },
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalPresent: 1,
+          totalHalfDayPresent: 1,
+          totalFullDayPresent: 1,
+          totalAbsent: 1,
+          totalPaidHoliday: 1,
+          totalLeave: 1,
+          totalWorkingHoliday: 1,
+          totalDays: 1,
+        },
+      },
+    ]);
+
+    // Fetching staff data
+    const staffMember = await StaffModel.findById(employeeId);
+
+    const totalBonus = staffMember?.bonus.reduce(
+      (sum, item) => sum + Number(item.amount),
+      0
+    ) || 0;  
+
+    const salary = staffMember?.salary! / 30; // daywise salary
+
+    // gross salary
+    const grossSalary = salary * attendanceAnalytics[0].totalDays;
+
+    // half day salary
+    const halfDayPresentSalary =
+      salary * 0.5 * attendanceAnalytics[0].totalHalfDayPresent;
+
+    // full day salary
+    const fullDaySalary = salary * attendanceAnalytics[0].totalFullDayPresent;
+
+    // total paid holidays
+    const paidHolidaySalary = salary * attendanceAnalytics[0].totalPaidHoliday;
+
+    // working holiday salary
+    const totalWorkingHolidaySalary =
+      salary * attendanceAnalytics[0].totalWorkingHoliday;
+
+    // bonus salary
+    const totalSalary =
+      halfDayPresentSalary +
+      fullDaySalary +
+      paidHolidaySalary +
+      totalWorkingHolidaySalary +
+      totalBonus;
+
+    const salaryAnalytics = {
+      grossSalary: grossSalary.toFixed(2),
+      halfDayPresentSalary: halfDayPresentSalary.toFixed(2),
+      fullDaySalary: fullDaySalary.toFixed(2),
+      paidHolidaySalary: paidHolidaySalary.toFixed(2),
+      totalWorkingHolidaySalary: totalWorkingHolidaySalary.toFixed(2),
+      totalSalary: totalSalary.toFixed(2),
+      totalBonus: totalBonus.toFixed(2),
+    };
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Analytics Fetched Successfully!",
+      data: {
+        attendance: attendanceAnalytics,
+        salary: salaryAnalytics,
+      },
+    }).send(res);
+  }
 );
