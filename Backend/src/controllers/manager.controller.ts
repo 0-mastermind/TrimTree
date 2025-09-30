@@ -283,9 +283,28 @@ export const rejectAttendance = asyncErrorHandler(
       throw new ApiError(400, "Only pending attendance can be rejected");
     }
 
-    attendance.status = attendanceStatus.ABSENT;
-    await attendance.save();
+  const isHoliday = await OfficialHolidayModel.findOne({
+    branch: attendance.branch,
+    date: {
+      $gte: getUTCStartOfDay(new Date(attendance.date)),
+      $lte: getUTCEndOfDay(new Date(attendance.date)),
+    },
+    employees: attendance.userId,
+  });
 
+  if (isHoliday) {
+    attendance.status = attendanceStatus.HOLIDAY;
+    attendance.leaveDescription = isHoliday.name || "";
+    await attendance.save();
+    emitAttendanceUpdated(attendance);
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Attendance rejected",
+    }).send(res);
+  }
+
+  attendance.status = attendanceStatus.ABSENT;
+  await attendance.save();
     emitAttendanceUpdated(attendance);
 
     return new ApiResponse({
@@ -428,6 +447,36 @@ export const getAllPendingAttendance = asyncErrorHandler(
       type: attendanceType.ATTENDANCE,
       manager: branchId,
     }).sort({ date: -1 });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Pending attendance fetched successfully",
+      data: pendingAttendance,
+    }).send(res);
+  }
+});
+
+export const getAllPendingAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId  = req.userId;
+
+    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    if (!staffUnderManager || staffUnderManager.length === 0) {
+      return new ApiResponse({
+        statusCode: 404,
+        message: "No employees found under this manager",
+        data: [],
+      }).send(res);
+    }
+
+    const employeeIds = staffUnderManager.map(staff => staff.userId);
+
+    const pendingAttendance = await AttendanceModel.find({
+      userId: { $in: employeeIds },
+      status: attendanceStatus.PENDING,
+      type: attendanceType.ATTENDANCE,
+    })
+      .populate("userId", "name username email image").sort({ date: -1 });
 
     return new ApiResponse({
       statusCode: 200,
