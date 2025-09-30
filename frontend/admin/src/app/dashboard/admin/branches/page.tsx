@@ -83,7 +83,7 @@ const page = () => {
                   <p className="text-sm text-gray-500 capitalize">{item.address}</p>
 
                   <button
-                    className="text-xs mt-4 cursor-pointer transition-all bg-black/75 text-white px-6 py-2 rounded-lg border-black border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                    className="text-xs mt-4 cursor-pointer transition-all bg-black/75 text-white px-6 py-2 rounded-lg border-black border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] max-w-[200px]"
                     onClick={() =>
                       redirectToURI(`/dashboard/admin/branches/${item._id}`)
                     }>

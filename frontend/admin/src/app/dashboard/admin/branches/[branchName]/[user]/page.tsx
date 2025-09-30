@@ -6,7 +6,7 @@ import "@/app/calendar.css";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { redirect, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   addEmployeeBonus,
   deleteStaffMember,
@@ -28,7 +28,7 @@ const User = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const dispatch = useAppDispatch();
   const staffId = useSearchParams().get("id");
-
+  const router = useRouter();
   const { selectedEmployee, employeeAnalytics } = useAppSelector(
     (state) => state.employees
   );
@@ -44,10 +44,11 @@ const User = () => {
   const fetchEmployeeAnalytics = useCallback(async () => {
     if (!selectedEmployee) return;
 
-    const payments = selectedEmployee.payments;
-    const previousPayments = payments[payments.length - 1];
-    const lastToDate = new Date(previousPayments?.to);
     try {
+      const payments = selectedEmployee.payments;
+      const previousPayments = payments[payments.length - 1];
+      const lastToDate = new Date(previousPayments?.to);
+
       await dispatch(
         getSpecificEmployeeAnalytics({
           userId: selectedEmployee.userId._id,
@@ -85,18 +86,17 @@ const User = () => {
       const isAuthenticated = await dispatch(authenticateUser(password));
 
       if (!isAuthenticated) return;
-      
+
       // deleting employee
-      const isDeleted = await dispatch(deleteStaffMember(staffId as string));
-      
+      const isDeleted = await dispatch(
+        deleteStaffMember(selectedEmployee?.userId._id as string)
+      );
+
       if (isDeleted) {
-        redirect("/dashboard/admin/branches");
+        router.push("/dashboard/admin/branches");
       }
     } catch (error) {
       console.error("Error deleting employee:", error);
-      alert(
-        "Failed to delete employee. Please check your password and try again."
-      );
     } finally {
       setIsDeleting(false);
       setIsDeleteDialogOpen(false);
@@ -250,7 +250,7 @@ const User = () => {
             />
           )}
         </div>
-        
+
         {/* User Attendance */}
         <StaffCalendarAnalytics staffId={staffId as string} />
 

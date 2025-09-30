@@ -3,7 +3,7 @@ import WarningMessage from "@/components/common/WarningMessage";
 import ImageCropper from "@/components/ImageCropper";
 import { useAppDispatch } from "@/store/store";
 import { createBranch } from "@/utils/api/branches";
-import { Store } from "lucide-react";
+import { Store, Loader2 } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -22,6 +22,7 @@ const page = () => {
     imageFile: null,
     imageUrl: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -32,7 +33,7 @@ const page = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const isDataValid = Object.values(formData).every(
@@ -41,7 +42,10 @@ const page = () => {
 
     if (!isDataValid) {
       toast.error("All fields are required!");
+      return;
     }
+
+    setIsSubmitting(true);
 
     const data = new FormData();
 
@@ -49,20 +53,20 @@ const page = () => {
     data.append("address", formData.address!);
     data.append("branchImage", formData.imageFile!);
 
-    const uploadForm = async () => {
-      try {
-        const res = await dispatch(createBranch(data));
+    try {
+      const res = await dispatch(createBranch(data));
 
-        if (res) {
-          console.log("success");
-          router.push("/dashboard/admin/branches");
-        }
-      } catch (error) {
-        console.error("Error! While uploading create branch file", error);
+      if (res) {
+        console.log("success");
+        toast.success("Branch created successfully!");
+        router.push("/dashboard/admin/branches");
       }
-    };
-
-    uploadForm();
+    } catch (error) {
+      console.error("Error! While uploading create branch file", error);
+      toast.error("Failed to create branch. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCroppedImage = (file: File, url: string) => {
@@ -105,6 +109,7 @@ const page = () => {
               className="input focus:outline-none w-full"
               placeholder="Branch One"
               onChange={handleInputChange}
+              disabled={isSubmitting}
             />
           </fieldset>
           <fieldset className="fieldset w-full">
@@ -115,14 +120,23 @@ const page = () => {
               className="input focus:outline-none w-full"
               placeholder="Durgacity"
               onChange={handleInputChange}
+              disabled={isSubmitting}
             />
           </fieldset>
 
           <div className="mt-2 mb-6">
             <button
-              className="text-xs font-semibold cursor-pointer transition-all bg-green-600 text-white py-3 md:px-8 md:py-2 rounded-lg border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center justify-center w-full md:w-auto"
-              type="submit">
-              Submit
+              className="text-xs font-semibold cursor-pointer transition-all bg-green-600 text-white py-3 md:px-8 md:py-2 rounded-lg border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center justify-center w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:translate-y-0 disabled:hover:border-b-[4px]"
+              type="submit"
+              disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </div>

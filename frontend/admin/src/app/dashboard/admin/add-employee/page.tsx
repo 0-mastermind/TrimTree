@@ -1,8 +1,8 @@
 "use client";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import ImageCropper from "@/components/ImageCropper";
-import { Store } from "lucide-react";
-import { redirect } from "next/navigation";
+import { Store, Loader2 } from "lucide-react";
+import { redirect, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { getAllBranches } from "@/utils/api/branches";
 import DropDown from "@/components/common/DropDown";
@@ -49,7 +49,9 @@ const page = () => {
     },
     image: null,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const branchData = useAppSelector((state) => state.branches.branches);
   const managersData = useAppSelector(
     (state) => state.branches.branchManagerName
@@ -73,7 +75,7 @@ const page = () => {
     };
 
     fetch();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const branchId = formData.branch.branchId;
@@ -89,7 +91,7 @@ const page = () => {
 
       fetchManagersName();
     }
-  }, [formData.branch.branchId]);
+  }, [formData.branch.branchId, dispatch]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -106,7 +108,7 @@ const page = () => {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // checking required element should not be empty
@@ -116,8 +118,8 @@ const page = () => {
       formData.password.trim() !== "" &&
       formData.branch.branchId.trim() !== "" &&
       formData.branch.name.trim() !== "" &&
-      formData.role.trim() !== "";
-    formData.designation.trim() !== "";
+      formData.role.trim() !== "" &&
+      formData.designation.trim() !== "";
 
     if (!isDataValid) {
       return toast.error("Please fill all required field!");
@@ -141,6 +143,8 @@ const page = () => {
       return toast.error("Please enter the valid manager!");
     }
 
+    setIsSubmitting(true);
+
     // Creating form for submission
     const data = new FormData();
 
@@ -161,15 +165,19 @@ const page = () => {
     if (formData.image) data.append("image", formData.image);
     if (formData.manager.id) data.append("managerId", formData.manager.id);
 
-    const uploadForm = async () => {
-      try {
-        await dispatch(createUser(data));
-      } catch (error) {
-        console.error("Erro while uploading form!", error);
+    try {
+      const res = await dispatch(createUser(data));
+      
+      if (res) {
+        toast.success("Employee created successfully!");
+        router.push("/dashboard/admin/branches");
       }
-    };
-
-    uploadForm();
+    } catch (error) {
+      console.error("Error while uploading form!", error);
+      toast.error("Failed to create employee. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -205,6 +213,7 @@ const page = () => {
               onChange={handleInputChange}
               className="input focus:outline-none w-full"
               placeholder="Abhishek Sharma"
+              disabled={isSubmitting}
             />
           </fieldset>
 
@@ -217,6 +226,7 @@ const page = () => {
               onChange={handleInputChange}
               className="input focus:outline-none w-full"
               placeholder="abhishek"
+              disabled={isSubmitting}
             />
           </fieldset>
 
@@ -229,6 +239,7 @@ const page = () => {
               onChange={handleInputChange}
               className="input focus:outline-none w-full"
               placeholder="password@123"
+              disabled={isSubmitting}
             />
           </fieldset>
 
@@ -241,6 +252,7 @@ const page = () => {
               onChange={handleInputChange}
               className="input focus:outline-none w-full"
               placeholder="Artist"
+              disabled={isSubmitting}
             />
           </fieldset>
 
@@ -253,6 +265,7 @@ const page = () => {
               onChange={handleInputChange}
               className="input focus:outline-none w-full"
               placeholder="abhishek@mail.com"
+              disabled={isSubmitting}
             />
           </fieldset>
 
@@ -261,42 +274,47 @@ const page = () => {
             <fieldset className="fieldset w-full">
               <legend className="fieldset-legend">Branch*</legend>
 
-              <DropDown
-                values={branchesName}
-                onItemSelected={(selectedBranch) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    branch: {
-                      branchId: selectedBranch.id,
-                      name: selectedBranch.name,
-                    },
-                  }));
-                }}
-                placeholder="Select a branch"
-              />
+              <div className={isSubmitting ? "opacity-50 pointer-events-none" : ""}>
+                <DropDown
+                  values={branchesName}
+                  onItemSelected={(selectedBranch) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      branch: {
+                        branchId: selectedBranch.id,
+                        name: selectedBranch.name,
+                      },
+                    }));
+                  }}
+                  placeholder="Select a branch"
+                />
+              </div>
             </fieldset>
 
             <fieldset className="fieldset w-full focus:outline-none">
               <legend className="fieldset-legend">Role*</legend>
-              <DropDown
-                values={[
-                  { name: "MANAGER", id: "MANAGER" },
-                  { name: "STAFF", id: "STAFF" },
-                ]}
-                onItemSelected={(selectedBranch) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    role: selectedBranch.name as "MANAGER" | "STAFF",
-                  }));
-                }}
-                placeholder="Select a role"
-              />
+              <div className={isSubmitting ? "opacity-50 pointer-events-none" : ""}>
+                <DropDown
+                  values={[
+                    { name: "MANAGER", id: "MANAGER" },
+                    { name: "STAFF", id: "STAFF" },
+                  ]}
+                  onItemSelected={(selectedBranch) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      role: selectedBranch.name as "MANAGER" | "STAFF",
+                    }));
+                  }}
+                  placeholder="Select a role"
+                />
+              </div>
             </fieldset>
 
             <fieldset className="fieldset w-full">
               <legend className="fieldset-legend">Manager</legend>
               <div
                 className={
+                  isSubmitting ||
                   !formData.branch.branchId ||
                   !formData.role ||
                   formData.role === "MANAGER"
@@ -346,7 +364,7 @@ const page = () => {
                     ? "Not Applicable"
                     : "Enter salary"
                 }
-                disabled={!formData.role || formData.role === "MANAGER"}
+                disabled={isSubmitting || !formData.role || formData.role === "MANAGER"}
               />
             </fieldset>
           </div>
@@ -354,8 +372,16 @@ const page = () => {
           <div className="mt-2 mb-6">
             <button
               type="submit"
-              className="text-xs font-semibold cursor-pointer transition-all bg-green-600 text-white py-3 md:px-8 md:py-2 rounded-lg border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center justify-center w-full md:w-auto">
-              Submit
+              disabled={isSubmitting}
+              className="text-xs font-semibold cursor-pointer transition-all bg-green-600 text-white py-3 md:px-8 md:py-2 rounded-lg border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center justify-center w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:translate-y-0 disabled:hover:border-b-[4px]">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
+                  Creating Employee...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </div>

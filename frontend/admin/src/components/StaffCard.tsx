@@ -18,7 +18,7 @@ const StaffCard = ({ imageUrl, name, designation, branchName }: StaffCardProps) 
           alt={`${name} Avatar`}
           height={90}
           width={90}
-          className="rounded-xl object-cover border"
+          className="rounded-xl object-cover border aspect-square"
           priority
         />
       </div>
