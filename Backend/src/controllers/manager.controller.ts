@@ -441,23 +441,6 @@ export const rejectLeaves = asyncErrorHandler(
 
 export const getAllPendingAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const branchId = req.branchId;
-    const pendingAttendance = await AttendanceModel.find({
-      status: attendanceStatus.PENDING,
-      type: attendanceType.ATTENDANCE,
-      manager: branchId,
-    }).sort({ date: -1 });
-
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Pending attendance fetched successfully",
-      data: pendingAttendance,
-    }).send(res);
-  }
-});
-
-export const getAllPendingAttendance = asyncErrorHandler(
-  async (req: Request, res: Response) => {
     const managerId  = req.userId;
 
     const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
