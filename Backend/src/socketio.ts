@@ -43,24 +43,24 @@ export const initSocket = (httpServer: HttpServer) => {
   return io;
 };
 
-export const emitAttendanceRequest = (attendance: any) => {
-  const branchRoom = `branch:${attendance.branch}:manager`;
+export const emitAttendanceRequest = (attendance: any , manager : string) => {
+  const branchRoom = `manager:${manager}`;
   io.to(branchRoom).emit("attendanceRequest", {
     data: attendance,
     message: "New attendance request submitted",
   });
 };
 
-export const emitLeaveRequest = (leave: any) => {
-  const branchRoom = `branch:${leave.branch}:managers`;
+export const emitLeaveRequest = (leave: any , manager : string) => {
+  const branchRoom = `manager:${manager}`;
   io.to(branchRoom).emit("leaveRequest", {
     data: leave,
     message: "New leave request submitted",
   });
 };
 
-export const emitPunchOutRequest = (attendance: any) => {
-  const branchRoom = `branch:${attendance.branch}:managers`;
+export const emitPunchOutRequest = (attendance: any , manager : string) => {
+  const branchRoom = `manager:${manager}`;
   io.to(branchRoom).emit("punchOutRequest", {
     data: attendance,
     message: "New punch-out request submitted",

@@ -31,6 +31,9 @@ export const applyForAttendance = asyncErrorHandler(
     const user = await UserModel.findById(userId);
     if (!user) throw new ApiError(404, "User not found");
 
+    const staff = await StaffModel.findOne({ userId: user._id });
+    if (!staff) throw new ApiError(404, "Staff not found");
+
     const now = new Date(); // current UTC timestamp
     const startOfDayUTC = new Date(
       Date.UTC(
@@ -78,7 +81,20 @@ export const applyForAttendance = asyncErrorHandler(
       existingAttendance.date = now;
       await existingAttendance.save();
 
-      emitAttendanceRequest(existingAttendance);
+      const attendanceReq = {
+        _id: existingAttendance._id,
+        staffId: staff._id,
+        date: existingAttendance.date,
+        workingHour: existingAttendance.workingHour,
+        punchIn: existingAttendance.punchIn,
+        userId: {
+          _id: user._id,
+          name: user.name,
+          image: user.image,
+        },
+      };
+
+      emitAttendanceRequest(attendanceReq, staff.manager.toString());
 
       return new ApiResponse({
         statusCode: 200,
@@ -98,7 +114,20 @@ export const applyForAttendance = asyncErrorHandler(
       punchIn: { time: now, isApproved: false },
     });
 
-    emitAttendanceRequest(attendance);
+    const attendanceReq = {
+      _id: attendance._id,
+      staffId: staff._id,
+      date: attendance.date,
+      workingHour: attendance.workingHour,
+      punchIn: attendance.punchIn,
+      userId: {
+        _id: user._id,
+        name: user.name,
+        image: user.image,
+      },
+    };
+
+    emitAttendanceRequest(attendanceReq, staff.manager.toString());
 
     return new ApiResponse({
       statusCode: 201,
@@ -258,7 +287,7 @@ export const applyForLeave = asyncErrorHandler(
       await session.commitTransaction();
       session.endSession();
 
-      emitLeaveRequest(leaveDocResult);
+      emitLeaveRequest(leaveDocResult, staffDoc.manager.toString());
 
       return new ApiResponse({
         statusCode: 201,
@@ -337,6 +366,12 @@ export const applyForPunchOut = asyncErrorHandler(
       )
     );
 
+    const user = await UserModel.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
+
+    const staff = await StaffModel.findOne({ userId: userId });
+    if (!staff) throw new ApiError(404, "Staff not found");
+
     const attendance = await AttendanceModel.findOne({
       userId,
       date: { $gte: startOfDayUTC, $lte: endOfDayUTC },
@@ -365,7 +400,20 @@ export const applyForPunchOut = asyncErrorHandler(
 
     await attendance.save();
 
-    emitPunchOutRequest(attendance);
+    const attendanceReq = {
+      _id: attendance._id,
+      staffId: staff._id,
+      date: attendance.date,
+      workingHour: attendance.workingHour,
+      punchIn: attendance.punchIn,
+      userId: {
+        _id: user._id,
+        name: user.name,
+        image: user.image,
+      },
+    };
+
+    emitPunchOutRequest(attendanceReq, staff.manager.toString());
 
     return new ApiResponse({
       statusCode: 200,

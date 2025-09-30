@@ -123,7 +123,7 @@ export const loginStaff = asyncErrorHandler(
     return new ApiResponse({
       statusCode: 200,
       message: "Logged In",
-      data: user,
+      data: userObj,
     }).send(res);
   }
 );
