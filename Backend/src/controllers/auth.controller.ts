@@ -338,19 +338,21 @@ export const updateAdmin = asyncErrorHandler(
 );
 
 export const authenticateUser = asyncErrorHandler(async (req, res) => {
-  const { password } = req.body;
+  const password = req.query.password as string;
   const userId = req.userId;
-
+  
   if (!password) {
     throw new ApiError(400, "Password is required.");
   }
 
   const user = await UserModel.findById(userId);
+  
   if (!user) {
     throw new ApiError(404, "User not found.");
   }
 
   const isMatch = await user.comparePassword(password);
+  
   return new ApiResponse({
     statusCode: 200,
     message: "Password matched",
