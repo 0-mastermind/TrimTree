@@ -27,6 +27,20 @@ export interface User {
   updatedAt?: string;
 }
 
+interface Bonus {
+  date: string;
+  description: string;
+  amount: number;
+  _id?: string;
+}
+
+interface Payment {
+  from: string;
+  to: string;
+  amount: number;
+  _id?: string;
+}
+
 export interface Staff {
   _id: string;
   userId: User;
@@ -35,17 +49,43 @@ export interface Staff {
   salary: number;
   createdAt?: string;
   updatedAt?: string;
+  payments: Payment[];
+  bonus: Bonus[];
 }
 
 export interface BranchManagerByNameState {
-  _id: string,
-  name: string,
+  _id: string;
+  name: string;
   branch: {
-    _id: string,
-    name: string,
-  }
+    _id: string;
+    name: string;
+  };
 }
 
+export interface SalaryAnalticsState {
+  grossSalary: string;
+  halfDayPresentSalary: string;
+  fullDaySalary: string;
+  paidHolidaySalary: string;
+  totalWorkingHolidaySalary: string;
+  totalSalary: string;
+  totalBonus: string;
+}
+
+export interface AttendanceAnalyticsState {
+  totalPresent: number;
+  totalHalfDayPresent: number;
+  totalFullDayPresent: number;
+  totalAbsent: number;
+  totalPaidHoliday: number;
+  totalWorkingHoliday: number;
+  totalLeave: number;
+  totalDays: number;
+}
+export interface EmployeeAnalyticsState {
+  attendance: AttendanceAnalyticsState;
+  salary: SalaryAnalticsState;
+}
 
 export type attendanceType = "LEAVE" | "ATTENDANCE";
 
@@ -58,15 +98,14 @@ export type punchOutStatus =
   | "REJECTED";
 
 export type attendanceStatus =
-  | "PENDING"
-  | "DISMISSED"
-  | "PRESENT"
-  | "ABSENT"
-  | "HOLIDAY"
-  | "REJECTED LEAVE"
-  | "LEAVE PAID"
-  | "LEAVE UNPAID"
-  | "WORKING HOLIDAY";
+  "PENDING"|
+  "PRESENT"|
+  "ABSENT"|
+  "LEAVE"|
+  "HOLIDAY"|
+  "WORKING HOLIDAY"|
+  "REJECTED LEAVE"|
+  "DISMISSED";
 
 export interface Attendance {
   _id: string;

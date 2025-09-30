@@ -6,6 +6,7 @@ export const AuthEndpoints = {
   LOGOUT_API: BASE_URL + "/auth/logout",
   PROFILE_API: BASE_URL + "/auth/profile",
   CREATE_USER_API: BASE_URL + "/auth/register",
+  AUTHENTICATE_USER_API: BASE_URL + "/auth/authenticate"
 };
 
 export const BranchEndpoints = {
@@ -17,6 +18,13 @@ export const EmployeeEndpoints = {
   GET_BRANCH_EMPLOYEES_API: BASE_URL + "/staff/get-staff-by-branch",
   GET_EMPLOYEES_BY_MANAGER_API: BASE_URL + "/staff/get-staff-by-manager",
   GET_ALL_EMPLOYEES_API: BASE_URL + "/staff/get-all-staff-members",
+  GET_SPECIFIC_EMPLOYEE_API: BASE_URL + "/staff/specific-employee-details",
+  GET_SPECIFIC_EMPLOYEE_ANALYTICS_API: BASE_URL + "/staff/employee-analytics",
+  GET_EMPLOYEE_MONTHLY_ATTENDANCE_API: BASE_URL + "/staff/attendance/monthly",
+  ADD_EMPLOYEE_BONUS_API: BASE_URL + "/manager/add-staff-bonus",
+  REMOVE_EMPLOYEE_BONUS_API: BASE_URL + "/manager/delete-bonus-by-date",
+  MARK_PAYMENT_API: BASE_URL + "/admin/mark-employee-payment",
+  DELETE_STAFF_API: BASE_URL + "/admin/delete/staff",
 }
 
 export const ManagerEndpoints = {

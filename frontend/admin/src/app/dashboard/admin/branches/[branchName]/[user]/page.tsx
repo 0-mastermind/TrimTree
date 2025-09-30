@@ -1,148 +1,258 @@
 "use client";
 import { attendanceData, metricsData } from "@/data/data";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, X } from "lucide-react";
 import Image from "next/image";
 import "@/app/calendar.css";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { redirect, useSearchParams } from "next/navigation";
+import {
+  addEmployeeBonus,
+  deleteStaffMember,
+  getSpecificEmployeeAnalytics,
+  getSpecificEmployeeDetails,
+  markEmployeePaymentAsPaid,
+  removeEmployeeBonus,
+} from "@/utils/api/staff";
+import PaycheckDetails from "@/components/admin/PaycheckDetails";
+import { Bonus, Payment } from "@/types/global";
+import StaffCalendarAnalytics from "@/components/admin/StaffCalendarAnalytics";
+import { authenticateUser } from "@/utils/api/auth";
 const Calendar = dynamic(() => import("react-calendar"), { ssr: false });
 
 const User = () => {
   const [deleteUserSection, setDeleteUserSection] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const dispatch = useAppDispatch();
+  const staffId = useSearchParams().get("id");
+
+  const { selectedEmployee, employeeAnalytics } = useAppSelector(
+    (state) => state.employees
+  );
+
+  const fetchEmployeeData = useCallback(async () => {
+    try {
+      await dispatch(getSpecificEmployeeDetails(staffId as string));
+    } catch (error) {
+      console.error("Error! while fetching employees details", error);
+    }
+  }, []);
+
+  const fetchEmployeeAnalytics = useCallback(async () => {
+    if (!selectedEmployee) return;
+
+    const payments = selectedEmployee.payments;
+    const previousPayments = payments[payments.length - 1];
+    const lastToDate = new Date(previousPayments?.to);
+    try {
+      await dispatch(
+        getSpecificEmployeeAnalytics({
+          userId: selectedEmployee.userId._id,
+          staffId: selectedEmployee._id,
+          date: lastToDate.toISOString().split("T")[0],
+        })
+      );
+    } catch (error) {
+      console.error("Error! while fetching employees analytics", error);
+    }
+  }, [selectedEmployee]);
+
+  useEffect(() => {
+    fetchEmployeeData();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedEmployee) return;
+    fetchEmployeeAnalytics();
+  }, [selectedEmployee]);
 
   const handleEmployeeDelete = () => {
-    console.log("Employee is deleted");
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmEmployeeDelete = async () => {
+    if (!password.trim()) {
+      alert("Please enter your password to confirm deletion");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      // authenticating user
+      const isAuthenticated = await dispatch(authenticateUser(password));
+
+      if (!isAuthenticated) return;
+      
+      // deleting employee
+      const isDeleted = await dispatch(deleteStaffMember(staffId as string));
+      
+      if (isDeleted) {
+        redirect("/dashboard/admin/branches");
+      }
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+      alert(
+        "Failed to delete employee. Please check your password and try again."
+      );
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+      setPassword("");
+    }
+  };
+
+  const cancelEmployeeDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setPassword("");
+  };
+
+  const handleAddBonus = async (bonusData: Bonus) => {
+    await dispatch(
+      addEmployeeBonus({
+        formData: bonusData,
+        staffId: staffId as string,
+      })
+    );
+    await fetchEmployeeData();
+  };
+
+  const handleRemoveBonus = async (bonusDate: string) => {
+    await dispatch(
+      removeEmployeeBonus({ date: bonusDate, staffId: staffId as string })
+    );
+
+    await fetchEmployeeData();
+  };
+
+  const handleMarkAsPaymentChange = async (paymentData: Payment) => {
+    await dispatch(
+      markEmployeePaymentAsPaid({
+        data: paymentData,
+        staffId: staffId as string,
+      })
+    );
+
+    // Fetch both employee details and analytics after marking as paid
+    await fetchEmployeeData();
+    await fetchEmployeeAnalytics();
+  };
+
+  if (!selectedEmployee) {
+    return <div></div>;
   }
-  
+
   return (
     <div className="mt-6 p-2">
       {/* User Details */}
-      <div className="flex gap-4">
-        <div>
+      <div className="flex gap-4 ">
+        <div className="flex items-center justify-center">
           <Image
-            src={"/user.png"}
-            alt="Store illustration"
-            height={70}
-            width={70}
-            className="rounded-lg"
-            priority={true}
+            src={selectedEmployee.userId.image?.url || "/user.png"}
+            alt="Employee avatar"
+            height={100}
+            width={100}
+            className="rounded-full object-cover aspect-square shadow-md border border-gray-200"
+            priority
           />
         </div>
+
         <div>
-          <h1 className="text-xl font-semibold">Employee Name</h1>
-          <p className="text-black/60 mt-1">Artist</p>
+          <h1 className="text-xl font-semibold">
+            {selectedEmployee.userId.name}
+          </h1>
+          <p className="text-black/60 mt-1">{selectedEmployee.designation}</p>
         </div>
       </div>
 
       {/* Metrics */}
       <div className="mt-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Metrics */}
-          {metricsData.map((item) => {
-            return (
-              <div
-                key={item.id}
-                className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
-                <h1 className="text-4xl text-bold">{item.value}</h1>
-                <p className="text-sm text-black mt-2">{item.title}</p>
-              </div>
-            );
-          })}
+          {/* Total Days Present */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalPresent}
+            </h1>
+            <p className="text-sm text-black mt-2">Total Days Present</p>
+          </div>
+
+          {/* Full Day Present */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalFullDayPresent}
+            </h1>
+            <p className="text-sm text-black mt-2">Full Day Present</p>
+          </div>
+
+          {/* Half Day Present */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalHalfDayPresent}
+            </h1>
+            <p className="text-sm text-black mt-2">Half Day Present</p>
+          </div>
+
+          {/* Total Absent */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalAbsent}
+            </h1>
+            <p className="text-sm text-black mt-2">Total Absent</p>
+          </div>
+
+          {/* Total Leave */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalLeave}
+            </h1>
+            <p className="text-sm text-black mt-2">Total Leave</p>
+          </div>
+
+          {/* Paid Holiday */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalPaidHoliday}
+            </h1>
+            <p className="text-sm text-black mt-2">Paid Holiday</p>
+          </div>
+
+          {/* Working Holiday */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalWorkingHoliday}
+            </h1>
+            <p className="text-sm text-black mt-2">Working Holiday</p>
+          </div>
+
+          {/* Total Days */}
+          <div className="flex flex-1 p-4 items-center justify-center flex-col shadow-md rounded-md">
+            <h1 className="text-4xl font-semibold">
+              {employeeAnalytics?.attendance.totalDays}
+            </h1>
+            <p className="text-sm text-black mt-2">Total Days</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <div className="mt-6">
           {/* Paycheck details */}
-          <div className="shadow-md rounded-xl p-4 sm:p-6 w-full mx-auto bg-white">
-            <h4 className="mb-4 font-semibold text-lg border-b border-black/20 pb-2">
-              Paycheck Details (from_date to current_date)
-            </h4>
-
-            <div className="space-y-3 sm:space-y-4">
-              <p className="text-sm sm:text-base flex justify-between">
-                <span className="font-semibold">Gross Salary:</span>
-                <span className="text-right">25,000</span>
-              </p>
-
-              <p className="text-sm sm:text-base flex justify-between">
-                <span className="font-semibold">Deduction:</span>
-                <span className="text-right">2,500 x 2</span>
-              </p>
-
-              <p className="text-sm sm:text-base flex justify-between">
-                <span className="font-bold">Net Salary:</span>
-                <span className="text-right font-bold text-green-500">
-                  20,000
-                </span>
-              </p>
-            </div>
-
-            <button className="text-xs sm:text-sm mt-6 cursor-pointer transition-all bg-yellow-400 text-white px-6 py-3 rounded-lg border-yellow-500 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center justify-center w-full font-bold">
-              <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" /> Mark as paid
-            </button>
-          </div>
-
-          {/* User Attendance */}
-          <div>
-            <Calendar
-              tileContent={({ date }) => {
-                const formattedDate = date.toLocaleDateString("en-GB");
-
-                const record = attendanceData.find(
-                  (a) => a.date === formattedDate
-                );
-
-                if (record?.status === "present") {
-                  return <span className="text-green-500 text-xs ml-1">⬤</span>;
-                }
-
-                if (record?.status === "absent") {
-                  return <span className="text-red-500 text-xs ml-1">⬤</span>;
-                }
-
-                if (record?.status === "non-paid-holiday") {
-                  return (
-                    <span className="text-yellow-500 text-xs ml-1">⬤</span>
-                  );
-                }
-
-                if (record?.status === "halfday") {
-                  return <span className="text-blue-500 text-xs ml-1">⬤</span>;
-                }
-
-                if (record?.status === "paid-holiday") {
-                  return (
-                    <span className="text-purple-500 text-xs ml-1">⬤</span>
-                  );
-                }
-
-                return null;
-              }}
+          {employeeAnalytics && (
+            <PaycheckDetails
+              salary={employeeAnalytics.salary}
+              payments={selectedEmployee.payments}
+              bonuses={selectedEmployee.bonus}
+              onMarkAsPaid={(paymentData) =>
+                handleMarkAsPaymentChange(paymentData)
+              }
+              onAddBonus={(bonusData) => handleAddBonus(bonusData)}
+              onRemoveBonus={(bonusDate) => handleRemoveBonus(bonusDate)}
             />
-
-            <div className="flex gap-3 mt-1 text-gray-700 justify-end text-xs">
-              <div className="flex items-center">
-                <span className="text-green-500 text-xs mx-1">⬤</span>{" "}
-                <span>Present</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-red-500 text-xs mx-1">⬤</span>{" "}
-                <span>Absent</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-blue-500 text-xs mx-1">⬤</span>{" "}
-                <span>Half Day</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-yellow-500 text-xs mx-1">⬤</span>{" "}
-                <span>Working Holiday</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-purple-500 text-xs mx-1">⬤</span>{" "}
-                <span>Paid Holiday</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
+        
+        {/* User Attendance */}
+        <StaffCalendarAnalytics staffId={staffId as string} />
 
         {/* Delete user section */}
         <div className="my-6">
@@ -163,12 +273,97 @@ const User = () => {
             className="w-full bg-red-500 p-2 text-sm mt-4 rounded-md text-white cursor-pointer disabled:bg-red-500/50 disabled:cursor-default"
             disabled={!deleteUserSection}
             title="This action will delete this employee permanantly"
-            onClick={() => handleEmployeeDelete()}
-            >
+            onClick={handleEmployeeDelete}>
             Remove employee
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {isDeleteDialogOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            {/* Dialog Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertTriangle className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Confirm Deletion
+                </h3>
+              </div>
+              <button
+                onClick={cancelEmployeeDelete}
+                className="text-gray-400 hover:text-gray-600 transition-colors">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Dialog Content */}
+            <div className="p-6">
+              <div className="space-y-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-sm text-red-700 font-semibold">
+                    ⚠️ This action cannot be undone
+                  </p>
+                  <p className="text-sm text-red-600 mt-1">
+                    You are about to permanently delete{" "}
+                    <strong>{selectedEmployee.userId.name}</strong> and all
+                    associated data.
+                  </p>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-semibold text-gray-700 mb-2">
+                    Enter your password to confirm
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your account password"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition"
+                    autoComplete="current-password"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    For security reasons, please enter your password to confirm
+                    this action.
+                  </p>
+                </div>
+              </div>
+
+              {/* Dialog Actions */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={cancelEmployeeDelete}
+                  disabled={isDeleting}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold disabled:opacity-50">
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmEmployeeDelete}
+                  disabled={!password.trim() || isDeleting}
+                  className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  {isDeleting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    "Delete Employee"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

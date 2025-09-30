@@ -89,7 +89,7 @@ export const logout =
     try {
       const res = await apiConnector("POST", AuthEndpoints.LOGOUT_API);
       const toastId = toast.loading("Logging Out...");
-
+      
       if (res.success) {
         toast.dismiss(toastId);
         toast.success("Logged Out Successfully!");
@@ -105,3 +105,31 @@ export const logout =
       return false;
     }
   };
+
+interface AuthenticateAPIResponse {
+  isMatch: boolean
+}
+  
+export const authenticateUser = (password: string) =>  async (): Promise<Boolean> => {
+  const toastId = toast.loading("Authenticating");
+  try {
+    const res = await apiConnector("GET", `${AuthEndpoints.AUTHENTICATE_USER_API}?password=${password}`);
+    
+    if (res.success && res.data) {
+        const data = res.data as AuthenticateAPIResponse;
+        
+        if (data.isMatch) {
+          toast.dismiss(toastId);
+          toast.success("Authenticated");
+          return true;
+        }
+    }
+    
+    toast.dismiss(toastId);
+    toast.error("Failed to authenticate!");
+    return false;
+  } catch (error) {
+    console.log("Error! while authenticating user!");
+    return false;
+  }
+}   
