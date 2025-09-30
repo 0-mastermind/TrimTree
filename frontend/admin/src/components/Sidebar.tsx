@@ -92,13 +92,13 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
   // Handle scroll effect for navbar
   useEffect(() => {
     if (!isLoggedIn) return;
-    
+
     if (user && user.role === "ADMIN") {
       setNavItems(adminRoutes);
     } else {
       setNavItems(managerRoutes);
     }
-    
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -109,10 +109,16 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target as Node)) {
+      if (
+        desktopDropdownRef.current &&
+        !desktopDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDesktopDropdownOpen(false);
       }
-      if (headerDropdownRef.current && !headerDropdownRef.current.contains(event.target as Node)) {
+      if (
+        headerDropdownRef.current &&
+        !headerDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsHeaderDropdownOpen(false);
       }
     };
@@ -157,8 +163,12 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
                 <span className="text-white font-bold text-lg">T</span>
               </div>
               <div>
-                <div className="text-white font-bold text-xl tracking-tight">TrimTree</div>
-                <div className="text-white/60 text-xs font-medium">Workforce Management</div>
+                <div className="text-white font-bold text-xl tracking-tight">
+                  TrimTree
+                </div>
+                <div className="text-white/60 text-xs font-medium">
+                  Workforce Management
+                </div>
               </div>
             </div>
           </div>
@@ -182,12 +192,17 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
                         ? "bg-white text-primary shadow-lg shadow-white/20"
                         : "text-white/90 hover:bg-white/10 hover:shadow-md"
                     }`}>
-                    <div className={`flex items-center justify-center w-5 h-5 transition-colors ${
-                      isActive ? "text-primary" : "text-white/80 group-hover:text-white"
-                    }`}>
+                    <div
+                      className={`flex items-center justify-center w-5 h-5 transition-colors ${
+                        isActive
+                          ? "text-primary"
+                          : "text-white/80 group-hover:text-white"
+                      }`}>
                       {item.icon}
                     </div>
-                    <span className="ml-3 transition-all duration-200">{item.label}</span>
+                    <span className="ml-3 transition-all duration-200">
+                      {item.label}
+                    </span>
                     {hoveredItem === item.href && !isActive && (
                       <div className="ml-auto w-2 h-2 bg-white/40 rounded-full transition-all duration-200"></div>
                     )}
@@ -228,8 +243,8 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
         {/* Enhanced Navbar */}
         <header
           className={`sticky top-0 z-40 transition-all duration-300 ${
-            isScrolled 
-              ? "bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-100" 
+            isScrolled
+              ? "bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-100"
               : "bg-white shadow-sm border-b border-gray-100"
           }`}>
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
@@ -252,7 +267,8 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
             {/* Desktop Page Title */}
             <div className="hidden lg:block">
               <h1 className="text-xl font-semibold text-gray-900">
-                {navItems.find(item => item.href === pathname)?.label || 'Dashboard'}
+                {navItems.find((item) => item.href === pathname)?.label ||
+                  "Dashboard"}
               </h1>
             </div>
 
@@ -266,7 +282,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
 
               {/* Settings Dropdown */}
               <div className="relative" ref={headerDropdownRef}>
-                <button 
+                <button
                   onClick={() => setIsHeaderDropdownOpen(!isHeaderDropdownOpen)}
                   className="flex items-center space-x-2 p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
@@ -296,11 +312,10 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
                       </div>
                     </div>
                     <div className="py-2">
-                      <Link 
-                        href="/dashboard/profile" 
+                      <Link
+                        href="/dashboard/profile"
                         className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
-                        onClick={() => setIsHeaderDropdownOpen(false)}
-                      >
+                        onClick={() => setIsHeaderDropdownOpen(false)}>
                         <User className="h-4 w-4 mr-3 text-gray-400 group-hover:text-primary transition-colors" />
                         <span className="font-medium">View Profile</span>
                       </Link>
@@ -325,40 +340,58 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
         <main className="flex-1 pb-8">
           <div className="px-4 sm:px-6 lg:px-8">
             {/* Enhanced Breadcrumbs */}
-            {pathname !== "/dashboard" && (
-              <div className="py-4">
-                <nav className="flex items-center space-x-2 text-sm">
-                  {parts.map((item, index) => {
-                    const href = "/" + parts.slice(0, index + 1).join("/");
-                    const isLast = index === parts.length - 1;
-                    return (
-                      <div key={item} className="flex items-center">
-                        {index > 0 && (
-                          <svg className="w-4 h-4 text-gray-400 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        )}
-                        {isLast ? (
-                          <span className="capitalize font-semibold text-gray-900 px-3 py-1 bg-gray-100 rounded-lg">
-                            {item.replace(/%20|-/g, " ")}
-                          </span>
-                        ) : (
-                          <Link
-                            className="capitalize font-medium text-gray-600 hover:text-primary px-3 py-1 rounded-lg hover:bg-gray-50 transition-colors"
-                            href={href}>
-                            {item}
-                          </Link>
-                        )}
-                      </div>
-                    );
-                  })}
-                </nav>
-              </div>
-            )}
+            <div className="px-4 sm:px-6 lg:px-8">
+              {pathname !== "/dashboard" && (
+                <div className="py-4">
+                  <nav className="flex items-center space-x-2 text-sm">
+                    {parts.map((item, index) => {
+                      const href = "/" + parts.slice(0, index + 1).join("/");
+                      const isLast = index === parts.length - 1;
+                      const isSecondLast = index === parts.length - 2;
 
-            <div className="py-4">
-              {children}
+                      // On mobile, show only last 2 items
+                      const showOnMobile = isLast || isSecondLast;
+
+                      return (
+                        <div
+                          key={item}
+                          className={`flex items-center ${
+                            !showOnMobile ? "hidden sm:flex" : ""
+                          }`}>
+                          {index > 0 && (
+                            <svg
+                              className="w-4 h-4 text-gray-400 mx-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          )}
+                          {isLast ? (
+                            <span className="capitalize font-semibold text-gray-900 px-3 py-1 bg-gray-100 rounded-lg">
+                              {item.replaceAll("%20", " ").replaceAll("-", " ")}
+                            </span>
+                          ) : (
+                            <Link
+                              className="capitalize font-medium text-gray-600 hover:text-primary px-3 py-1 rounded-lg hover:bg-gray-50 transition-colors"
+                              href={href}>
+                              {item.replaceAll("%20", " ").replaceAll("-", " ")}
+                            </Link>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </nav>
+                </div>
+              )}
             </div>
+
+            <div className="py-4">{children}</div>
           </div>
         </main>
       </div>
@@ -407,9 +440,10 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
                         ? "bg-white text-primary shadow-lg"
                         : "text-white/90 hover:bg-white/10"
                     }`}>
-                    <div className={`flex items-center justify-center w-5 h-5 ${
-                      isActive ? "text-primary" : "text-white/80"
-                    }`}>
+                    <div
+                      className={`flex items-center justify-center w-5 h-5 ${
+                        isActive ? "text-primary" : "text-white/80"
+                      }`}>
                       {item.icon}
                     </div>
                     <span className="ml-3">{item.label}</span>

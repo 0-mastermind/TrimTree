@@ -134,7 +134,7 @@ const User = () => {
               </div>
               <div className="flex items-center">
                 <span className="text-yellow-500 text-xs mx-1">⬤</span>{" "}
-                <span>Non-Paid Holiday</span>
+                <span>Working Holiday</span>
               </div>
               <div className="flex items-center">
                 <span className="text-purple-500 text-xs mx-1">⬤</span>{" "}
