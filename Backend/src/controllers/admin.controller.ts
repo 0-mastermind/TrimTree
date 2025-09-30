@@ -127,3 +127,34 @@ export const getBranchManagers = asyncErrorHandler(async (req: Request, res: Res
     data: managers
   }).send(res);
 });
+
+export const markPaymentOfEmployee = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.query.staffId;
+    const {from, to, amount} = req.body;
+    
+    const updatedStaff = await StaffModel.findByIdAndUpdate(staffId, {
+      $push: {
+        payments: {
+          from: new Date(from),
+          to: new Date(to),
+          amount
+        }
+      },
+      $set: {
+        bonus: [],
+      }
+    });
+    
+    if (!updatedStaff) {
+      throw new ApiError(500, "Failed to add payment");
+    }
+    
+    return new ApiResponse(
+      {
+        statusCode: 200,
+        message: "Payments updated successfully!",
+      }
+    ).send(res);
+  }
+);

@@ -1,7 +1,14 @@
 import type { Types } from "mongoose";
-import type { attendanceStatus, attendanceType,  leaveStatus, punchOutStatus, userRoles, WorkingHour } from "../utils/constants.js";
+import type {
+  attendanceStatus,
+  attendanceType,
+  leaveStatus,
+  punchOutStatus,
+  userRoles,
+  WorkingHour,
+} from "../utils/constants.js";
 
-export interface IUser  {
+export interface IUser {
   name: string;
   username: string;
   password: string;
@@ -18,7 +25,7 @@ export interface IUser  {
   generateJWT(): string;
 }
 
-export interface IAttendance  {
+export interface IAttendance {
   userId: Types.ObjectId;
   date: Date;
   branch: Types.ObjectId;
@@ -50,16 +57,26 @@ export interface ILeave {
   updatedAt: Date;
 }
 
-export interface IStaff  {
+export interface IStaff {
   userId: Types.ObjectId;
   designation: string;
   salary: number;
   manager: Types.ObjectId;
+  bonus: {
+    date: Date;
+    description: string;
+    amount: string;
+  }[];
+  payments: {
+    from: Date;
+    to: Date;
+    amount: number,
+  }[],
   createdAt: Date;
-  updatedAt: Date;  
+  updatedAt: Date;
 }
 
-export interface IOfficialHoliday  {
+export interface IOfficialHoliday {
   name: string;
   date: Date;
   branch: Types.ObjectId;

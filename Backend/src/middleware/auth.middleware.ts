@@ -50,7 +50,15 @@ export const adminMiddleware = (req: Request, res: Response, next: NextFunction)
 };
 
 export const admin_managerMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if (req.role == "STAFF") {
+  if (req.role == userRoles.STAFF) {
+    throw new ApiError(403, "Access denied: Admin / Manager only");
+  }
+  next();
+};
+
+// for general routes of admin and staff
+export const generalAdminStaffMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  if (req.role == userRoles.MANAGER) {
     throw new ApiError(403, "Access denied: Admin / Manager only");
   }
   next();

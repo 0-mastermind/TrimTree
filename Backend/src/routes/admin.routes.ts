@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBranch, deleteStaff, getAllBranches, getBranchManagers } from "../controllers/admin.controller.js";
+import { createBranch, deleteStaff, getAllBranches, getBranchManagers, markPaymentOfEmployee } from "../controllers/admin.controller.js";
 import { multerUpload } from "../middleware/multer.middleware.js";
 import { adminMiddleware, authMiddleware } from "../middleware/auth.middleware.js";
 import { getManagerNameByBranch } from "../controllers/manager.controller.js";
@@ -24,5 +24,7 @@ adminRouter.delete("/delete/staff" , authMiddleware, adminMiddleware, deleteStaf
 adminRouter.delete("/delete/staff" , authMiddleware, adminMiddleware, deleteStaff);
 
 adminRouter.get("/getManagerNameByBranch", authMiddleware , adminMiddleware , getManagerNameByBranch);
+
+adminRouter.post("/mark-employee-payment", authMiddleware, adminMiddleware, markPaymentOfEmployee);
 
 export default adminRouter

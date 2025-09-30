@@ -11,7 +11,7 @@ const StaffSchema = new Schema<IStaff>(
       type: String,
       trim: true,
     },
-    manager:{
+    manager: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: "User",
@@ -21,6 +21,32 @@ const StaffSchema = new Schema<IStaff>(
       trim: true,
       required: true,
     },
+    bonus: [
+      {
+        date: {
+          type: Date,
+        },
+        description: {
+          type: String,
+        },
+        amount: {
+          type: Number,
+        },
+      },
+    ],
+    payments: [
+      {
+        from: {
+          type: Date,
+        },
+        to: {
+          type: Date,
+        },
+        amount: {
+          type: Number,
+        }
+      }
+    ]
   },
   { timestamps: true }
 );
