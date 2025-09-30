@@ -282,10 +282,10 @@ export const getMonthlyAttendance = asyncErrorHandler(
     if (!staffId) throw new ApiError(400, "User Not Logged In");
     if (!month || !year)
       throw new ApiError(400, "Please provide month and year");
-    
+
     const staff = await StaffModel.findById(staffId);
     const userId = staff?.userId;
-    
+
     const monthNum = parseInt(month as string);
     const yearNum = parseInt(year as string);
 
@@ -567,7 +567,7 @@ export const getSpecificEmployeeAnalytics = asyncErrorHandler(
     }
 
     // Calculating analytics
-    const attendanceAnalytics = await AttendanceModel.aggregate([
+    const attendanceOperations = await AttendanceModel.aggregate([
       {
         // matching with corresponding user id
         $match: {
@@ -664,29 +664,30 @@ export const getSpecificEmployeeAnalytics = asyncErrorHandler(
     // Fetching staff data
     const staffMember = await StaffModel.findById(employeeId);
 
-    const totalBonus = staffMember?.bonus.reduce(
-      (sum, item) => sum + Number(item.amount),
-      0
-    ) || 0;  
+    const totalBonus =
+      staffMember?.bonus.reduce((sum, item) => sum + Number(item.amount), 0) ||
+      0;
 
     const salary = staffMember?.salary! / 30; // daywise salary
 
     // gross salary
-    const grossSalary = salary * attendanceAnalytics[0].totalDays;
+    const grossSalary = salary * attendanceOperations[0]?.totalDays || 0;
 
     // half day salary
     const halfDayPresentSalary =
-      salary * 0.5 * attendanceAnalytics[0].totalHalfDayPresent;
+      salary * 0.5 * attendanceOperations[0]?.totalHalfDayPresent || 0;
 
     // full day salary
-    const fullDaySalary = salary * attendanceAnalytics[0].totalFullDayPresent;
+    const fullDaySalary =
+      salary * attendanceOperations[0]?.totalFullDayPresent || 0;
 
     // total paid holidays
-    const paidHolidaySalary = salary * attendanceAnalytics[0].totalPaidHoliday;
+    const paidHolidaySalary =
+      salary * attendanceOperations[0]?.totalPaidHoliday || 0;
 
     // working holiday salary
     const totalWorkingHolidaySalary =
-      salary * attendanceAnalytics[0].totalWorkingHoliday;
+      salary * attendanceOperations[0]?.totalWorkingHoliday || 0;
 
     // bonus salary
     const totalSalary =
@@ -696,14 +697,27 @@ export const getSpecificEmployeeAnalytics = asyncErrorHandler(
       totalWorkingHolidaySalary +
       totalBonus;
 
+    // salary analytics response
     const salaryAnalytics = {
-      grossSalary: grossSalary.toFixed(2),
-      halfDayPresentSalary: halfDayPresentSalary.toFixed(2),
-      fullDaySalary: fullDaySalary.toFixed(2),
-      paidHolidaySalary: paidHolidaySalary.toFixed(2),
-      totalWorkingHolidaySalary: totalWorkingHolidaySalary.toFixed(2),
-      totalSalary: totalSalary.toFixed(2),
-      totalBonus: totalBonus.toFixed(2),
+      grossSalary: Number(grossSalary.toFixed(2)),
+      halfDayPresentSalary: Number(halfDayPresentSalary.toFixed(2)),
+      fullDaySalary: Number(fullDaySalary.toFixed(2)),
+      paidHolidaySalary: Number(paidHolidaySalary.toFixed(2)),
+      totalWorkingHolidaySalary: Number(totalWorkingHolidaySalary.toFixed(2)),
+      totalSalary: Number(totalSalary.toFixed(2)),
+      totalBonus: Number(totalBonus.toFixed(2)),
+    };
+
+    // attendance analytics response
+    const attendanceAnalytics = {
+      totalPresent: attendanceOperations[0]?.totalPresent || 0,
+      totalHalfDayPresent: attendanceOperations[0]?.totalHalfDayPresent || 0,
+      totalFullDayPresent: attendanceOperations[0]?.totalFullDayPresent || 0,
+      totalAbsent: attendanceOperations[0]?.totalAbsent || 0,
+      totalPaidHoliday: attendanceOperations[0]?.totalPaidHoliday || 0,
+      totalWorkingHoliday: attendanceOperations[0]?.totalWorkingHoliday || 0,
+      totalLeave: attendanceOperations[0]?.totalLeave || 0,
+      totalDays: attendanceOperations[0]?.totalDays || 0,
     };
 
     return new ApiResponse({
@@ -720,23 +734,23 @@ export const getSpecificEmployeeAnalytics = asyncErrorHandler(
 export const getSpecificEmployeesDetails = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const staffId = req.query.staffId;
-    
+
     if (!staffId) {
       throw new ApiError(400, "Staff Id is required");
     }
-    
-    const staffMember = await StaffModel.findById(staffId).populate("userId", "-password").select("designation salary manager");
-    
+
+    const staffMember = await StaffModel.findById(staffId)
+      .populate("userId", "-password")
+      .select("designation salary manager");
+
     if (!staffMember) {
       throw new ApiError(500, "Failed to fetch employee");
     }
-    
-    return new ApiResponse(
-      {
-        statusCode: 200,
-        message: "Employee details fetched successfully!",
-        data: staffMember,
-      }
-    ).send(res);
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Employee details fetched successfully!",
+      data: staffMember,
+    }).send(res);
   }
-)
+);
