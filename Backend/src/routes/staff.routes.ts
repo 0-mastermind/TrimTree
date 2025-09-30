@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { adminMiddleware, authMiddleware , generalAdminMiddleware, generalAdminStaffMiddleware, managerMiddleware, staffMiddleware } from "../middleware/auth.middleware.js";
-import { applyForAttendance, applyForLeave, applyForPunchOut, getLeaveHistory, getMonthlyAttendance, getSpecificEmployeeAnalytics, getStaffDetails, getStaffList, getStaffListByBranch, getStaffListByManager, getTodayAttendanceStatus } from "../controllers/staff.controller.js";
+import { applyForAttendance, applyForLeave, applyForPunchOut, getLeaveHistory, getMonthlyAttendance, getSpecificEmployeeAnalytics, getSpecificEmployeesDetails, getStaffDetails, getStaffList, getStaffListByBranch, getStaffListByManager, getTodayAttendanceStatus } from "../controllers/staff.controller.js";
 
 const staffRouter = Router();
 
@@ -25,5 +25,7 @@ staffRouter.get("/get-staff-details", authMiddleware, adminMiddleware, getStaffD
 staffRouter.get("/leave/history", authMiddleware ,  getLeaveHistory);
 
 staffRouter.get("/employee-analytics", authMiddleware, adminMiddleware, getSpecificEmployeeAnalytics);
+
+staffRouter.get("/specific-employee-details", authMiddleware, adminMiddleware, getSpecificEmployeesDetails);
 
 export default staffRouter;

@@ -716,3 +716,27 @@ export const getSpecificEmployeeAnalytics = asyncErrorHandler(
     }).send(res);
   }
 );
+
+export const getSpecificEmployeesDetails = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.query.staffId;
+    
+    if (!staffId) {
+      throw new ApiError(400, "Staff Id is required");
+    }
+    
+    const staffMember = await StaffModel.findById(staffId).populate("userId", "-password").select("designation salary manager");
+    
+    if (!staffMember) {
+      throw new ApiError(500, "Failed to fetch employee");
+    }
+    
+    return new ApiResponse(
+      {
+        statusCode: 200,
+        message: "Employee details fetched successfully!",
+        data: staffMember,
+      }
+    ).send(res);
+  }
+)
