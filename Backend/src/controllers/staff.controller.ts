@@ -421,7 +421,7 @@ export const getStaffList = asyncErrorHandler(
     const staffList = await StaffModel.find()
       .populate({
         path: "userId",
-        select: "name username role branch",
+        select: "name username role branch image",
         populate: {
           path: "branch",
           select: "name",
@@ -444,7 +444,7 @@ export const getStaffListByManager = asyncErrorHandler(
     const staffList = await StaffModel.find({ manager: managerId })
       .populate({
         path: "userId",
-        select: "name username role branch",
+        select: "name username role branch image",
         populate: {
           path: "branch",
           select: "name",
@@ -505,6 +505,7 @@ export const getStaffListByBranch = asyncErrorHandler(async (req, res) => {
           _id: "$userId._id",
           name: "$userId.name",
           username: "$userId.username",
+          image: "$userId.image",
           role: "$userId.role",
           branch: {
             name: "$branchData.name",
@@ -741,7 +742,7 @@ export const getSpecificEmployeesDetails = asyncErrorHandler(
 
     const staffMember = await StaffModel.findById(staffId)
       .populate("userId", "-password")
-      .select("designation salary manager");
+      .select("designation salary manager payments bonus");
 
     if (!staffMember) {
       throw new ApiError(500, "Failed to fetch employee");

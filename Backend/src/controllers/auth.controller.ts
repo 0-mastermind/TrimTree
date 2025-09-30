@@ -74,6 +74,13 @@ export const registerUser = asyncErrorHandler(
         salary,
         designation,
         manager,
+        payments: [
+          {
+            from: new Date(),
+            to: new Date(),
+            amount: 0,
+          },
+        ],
       });
     }
 
@@ -125,7 +132,7 @@ export const loginAdminManager = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const { username, password } = req.body;
 
-    const user = await UserModel.findOne({ username })
+    const user = await UserModel.findOne({ username });
     if (!user) throw new ApiError(404, "User not found");
 
     const isMatch = await user.comparePassword(password);
@@ -145,7 +152,6 @@ export const loginAdminManager = asyncErrorHandler(
 
     const userObj = user.toObject() as Record<string, any>;
     delete userObj.password;
-
 
     return new ApiResponse({
       statusCode: 200,
@@ -176,7 +182,9 @@ export const getUserProfile = asyncErrorHandler(
       return new ApiError(401, "Unauthorized");
     }
 
-    const user = await UserModel.findById(userId).populate("branch").select("-password");
+    const user = await UserModel.findById(userId)
+      .populate("branch")
+      .select("-password");
     if (!user) {
       throw new ApiError(404, "User not found");
     }
@@ -184,7 +192,9 @@ export const getUserProfile = asyncErrorHandler(
     let staffData = null;
 
     if (user.role === userRoles.STAFF) {
-      staffData = await StaffModel.findOne({ userId: userId }).populate("manager").select("-password");
+      staffData = await StaffModel.findOne({ userId: userId })
+        .populate("manager")
+        .select("-password");
     }
 
     return new ApiResponse({
@@ -347,5 +357,3 @@ export const authenticateUser = asyncErrorHandler(async (req, res) => {
     data: { isMatch },
   }).send(res);
 });
-
-
