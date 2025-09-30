@@ -176,3 +176,13 @@ export interface pendingAttendance {
     };
   }
 }
+
+export interface OfficialHolidays {
+  _id: string;
+  name: string;
+  date: Date;
+  employees: string[];
+  branch: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -1,14 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 const Calendar = dynamic(() => import("react-calendar"), { ssr: false });
 import "@/app/calendar.css";
 import { Calendar as CalendarIcon, Info } from "lucide-react";
 import dynamic from "next/dynamic";
-
-type Holiday = {
-  date: string;
-  name: string;
-};
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { getOfficialHolidays } from "@/utils/api/manager";
+import type { OfficialHolidays } from "@/types/global";
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -17,23 +15,25 @@ const HolidayCalendar: React.FC = () => {
   const [date, setDate] = useState<Value>(new Date());
   const [selectedHoliday, setSelectedHoliday] = useState<{
     date: Date;
-    holidays: Holiday[];
+    holidays: OfficialHolidays[];
   } | null>(null);
+  const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
+  const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
+  
+  const dispatch = useAppDispatch();
+  const { holidays } = useAppSelector((state) => state.holidays);
 
-  // Sample holiday data
-  const holidays: Holiday[] = [
-    { date: "2025-08-15", name: "Independence Day" },
-    { date: "2025-09-05", name: "Labor Day" },
-    { date: "2025-10-31", name: "Halloween" },
-    { date: "2025-11-23", name: "Thanksgiving" },
-    { date: "2025-12-25", name: "Christmas Day" },
-    { date: "2025-12-31", name: "New Year's Eve" },
-    { date: "2025-08-21", name: "Summer Break" },
-    { date: "2025-08-22", name: "Summer Break" },
-    { date: "2025-08-23", name: "Summer Break" },
-    { date: "2025-12-26", name: "Office Closure" },
-    { date: "2025-12-27", name: "Office Closure" },
-  ];
+  const fetchHolidays = useCallback(async () => {
+    try {
+      await dispatch(getOfficialHolidays(currentMonth, currentYear));
+    } catch (error) {
+      console.log("Error! while fetching holidays", error);
+    }
+  }, [dispatch, currentMonth, currentYear]);
+
+  useEffect(() => {
+    fetchHolidays();
+  }, [fetchHolidays]);
 
   // Check if a date has a holiday
   const dateHasHoliday = (date: Date): boolean => {
@@ -48,7 +48,7 @@ const HolidayCalendar: React.FC = () => {
   };
 
   // Get holidays for a specific date
-  const getHolidaysForDate = (date: Date): Holiday[] => {
+  const getHolidaysForDate = (date: Date): OfficialHolidays[] => {
     return holidays.filter((holiday) => {
       const holidayDate = new Date(holiday.date);
       return (
@@ -69,15 +69,28 @@ const HolidayCalendar: React.FC = () => {
     }
   };
 
+  // Handle month/year change
+  const handleActiveStartDateChange = ({ activeStartDate }: { activeStartDate: Date | null }) => {
+    if (activeStartDate) {
+      const newMonth = activeStartDate.getMonth() + 1;
+      const newYear = activeStartDate.getFullYear();
+      
+      if (newMonth !== currentMonth || newYear !== currentYear) {
+        setCurrentMonth(newMonth);
+        setCurrentYear(newYear);
+      }
+    }
+  };
+
   // Custom tile content for the calendar
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
-  if (view === "month" && dateHasHoliday(date)) {
-    return (
+    if (view === "month" && dateHasHoliday(date)) {
+      return (
         <span className="bg-primary rounded-full w-2 h-2 inline-block ml-1"></span>
-    );
-  }
-  return null;
-};
+      );
+    }
+    return null;
+  };
 
   // Custom tile class for styling
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
@@ -105,6 +118,7 @@ const HolidayCalendar: React.FC = () => {
                 onChange={setDate}
                 value={date}
                 onClickDay={handleDateClick}
+                onActiveStartDateChange={handleActiveStartDateChange}
                 tileContent={tileContent}
                 tileClassName={tileClassName}
                 className="w-full border-none bg-base-100 text-base-content"
@@ -137,15 +151,19 @@ const HolidayCalendar: React.FC = () => {
                 </h3>
 
                 <div className="space-y-3">
-                  {selectedHoliday.holidays.map((holiday, index) => (
+                  {selectedHoliday.holidays.map((holiday) => (
                     <div
-                      key={index}
-                      className="bg-primary/20 p-3 rounded-box border border-primary/30">
+                      key={holiday._id}
+                      className="bg-primary/20 p-3 rounded-box border border-primary/30"
+                    >
                       <div className="flex items-center">
                         <Info className="h-5 w-5 text-primary mr-2" />
                         <span className="font-medium text-base-content">
                           {holiday.name}
                         </span>
+                      </div>
+                      <div className="mt-2 text-xs text-base-content/70">
+                        {holiday.employees.length} employee(s) affected
                       </div>
                     </div>
                   ))}
@@ -168,28 +186,35 @@ const HolidayCalendar: React.FC = () => {
                 Upcoming Holidays
               </h3>
               <div className="space-y-2">
-                {holidays
-                  .filter((holiday) => new Date(holiday.date) > new Date())
-                  .sort(
-                    (a, b) =>
-                      new Date(a.date).getTime() - new Date(b.date).getTime()
-                  )
-                  .slice(0, 3)
-                  .map((holiday, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 bg-base-200 rounded-box">
-                      <span className="text-sm font-medium text-base-content">
-                        {holiday.name}
-                      </span>
-                      <span className="text-xs text-base-content/70">
-                        {new Date(holiday.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
-                    </div>
-                  ))}
+                {holidays.length > 0 ? (
+                  [...holidays]
+                    .filter((holiday) => new Date(holiday.date) > new Date())
+                    .sort(
+                      (a, b) =>
+                        new Date(a.date).getTime() - new Date(b.date).getTime()
+                    )
+                    .slice(0, 3)
+                    .map((holiday) => (
+                      <div
+                        key={holiday._id}
+                        className="flex items-center justify-between p-2 bg-base-200 rounded-box"
+                      >
+                        <span className="text-sm font-medium text-base-content">
+                          {holiday.name}
+                        </span>
+                        <span className="text-xs text-base-content/70">
+                          {new Date(holiday.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-sm text-base-content/70 text-center py-4">
+                    No upcoming holidays
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -201,31 +226,41 @@ const HolidayCalendar: React.FC = () => {
             All Holidays
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {holidays
-              .sort(
-                (a, b) =>
-                  new Date(a.date).getTime() - new Date(b.date).getTime()
-              )
-              .map((holiday, index) => (
-                <div
-                  key={index}
-                  className="flex items-center p-3 bg-primary/20 rounded-box border border-primary/30">
-                  <Info className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-base-content">
-                      {holiday.name}
-                    </p>
-                    <p className="text-sm text-base-content/70">
-                      {new Date(holiday.date).toLocaleDateString("en-US", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </p>
+            {holidays.length > 0 ? (
+              [...holidays]
+                .sort(
+                  (a, b) =>
+                    new Date(a.date).getTime() - new Date(b.date).getTime()
+                )
+                .map((holiday) => (
+                  <div
+                    key={holiday._id}
+                    className="flex items-center p-3 bg-primary/20 rounded-box border border-primary/30"
+                  >
+                    <Info className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-base-content">
+                        {holiday.name}
+                      </p>
+                      <p className="text-sm text-base-content/70">
+                        {new Date(holiday.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                      <p className="text-xs text-base-content/60 mt-1">
+                        {holiday.employees.length} employee(s)
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+            ) : (
+              <p className="col-span-full text-center text-base-content/70 py-8">
+                No holidays scheduled
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -28,7 +28,9 @@ export const EmployeeEndpoints = {
 }
 
 export const ManagerEndpoints = {
-  GET_MANAGER_BY_BRANCH_NAME: BASE_URL + "/admin/getManagerNameByBranch",
+  ADD_OFFICIAL_HOLIDAY_API: BASE_URL + "/manager/create-holiday", 
+  GET_OFFICIAL_HOLIDAYS_API: BASE_URL + "/manager/holidays/monthly",
+  GET_MANAGER_BY_BRANCH_NAME_API: BASE_URL + "/admin/getManagerNameByBranch",
 }
 
 export const AttendanceEndpoints = {
