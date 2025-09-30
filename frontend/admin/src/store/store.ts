@@ -3,12 +3,13 @@ import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
 import userSlice from "./features/auth/user.slice";
 import branchSlice from "./features/branches/branch.slice";
 import employeeSlice from "./features/employee/employee.slice";
-
+import attendanceSlice from "./features/attendance/attendance.slice";
 export const store = configureStore({
   reducer: {
     auth: userSlice,
     branches: branchSlice,
-    employees: employeeSlice
+    employees: employeeSlice,
+    attendance: attendanceSlice,
   },
 });
 

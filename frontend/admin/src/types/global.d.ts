@@ -140,3 +140,39 @@ export interface Branch {
   updatedAt: Date;
   createdAt: Date;
 }
+
+export enum leaveStatus {
+  PENDING="PENDING",
+  APPROVED="APPROVED",
+  REJECTED="REJECTED"
+}
+
+export interface Leave {
+  userId: string;
+  branch: Branch;
+  startDate: Date;
+  endDate: Date;
+  status: leaveStatus;
+  reason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface pendingAttendance {
+  _id: string;
+  staffId: string;
+  date: Date;
+  workingHour: WorkingHour;
+  punchIn: {
+    time: Date;
+    isApproved: boolean;
+  };
+  userId: {
+    _id: string;
+    name: string;
+    image: {
+      url: string;
+      public_id: string;
+    };
+  }
+}

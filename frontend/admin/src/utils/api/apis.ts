@@ -30,3 +30,15 @@ export const EmployeeEndpoints = {
 export const ManagerEndpoints = {
   GET_MANAGER_BY_BRANCH_NAME: BASE_URL + "/admin/getManagerNameByBranch",
 }
+
+export const AttendanceEndpoints = {
+  PENDING_ATTENDANCE_API: BASE_URL + "/manager/attendance/pending",
+  PENDING_LEAVES_API: BASE_URL + "/manager/leave/pending",
+  APPROVE_ATTENDANCE_API: BASE_URL + "/manager/approve-attendance",
+  REJECT_ATTENDANCE_API: BASE_URL + "/manager/reject-attendance",
+  DISMISS_ATTENDANCE_API: BASE_URL + "/manager/dismiss-attendance",
+  REJECT_PUNCHOUT_API: BASE_URL + "/manager/reject-punch-out",
+  APPROVE_PUNCHOUT_API: BASE_URL + "/manager/approve-punch-out",
+  APPROVE_LEAVE_API: BASE_URL + "/manager/approve-leave",
+  REJECT_LEAVE_API: BASE_URL + "/manager/reject-leave",
+}
