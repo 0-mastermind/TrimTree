@@ -283,28 +283,28 @@ export const rejectAttendance = asyncErrorHandler(
       throw new ApiError(400, "Only pending attendance can be rejected");
     }
 
-  const isHoliday = await OfficialHolidayModel.findOne({
-    branch: attendance.branch,
-    date: {
-      $gte: getUTCStartOfDay(new Date(attendance.date)),
-      $lte: getUTCEndOfDay(new Date(attendance.date)),
-    },
-    employees: attendance.userId,
-  });
+    const isHoliday = await OfficialHolidayModel.findOne({
+      branch: attendance.branch,
+      date: {
+        $gte: getUTCStartOfDay(new Date(attendance.date)),
+        $lte: getUTCEndOfDay(new Date(attendance.date)),
+      },
+      employees: attendance.userId,
+    });
 
-  if (isHoliday) {
-    attendance.status = attendanceStatus.HOLIDAY;
-    attendance.leaveDescription = isHoliday.name || "";
+    if (isHoliday) {
+      attendance.status = attendanceStatus.HOLIDAY;
+      attendance.leaveDescription = isHoliday.name || "";
+      await attendance.save();
+      emitAttendanceUpdated(attendance);
+      return new ApiResponse({
+        statusCode: 200,
+        message: "Attendance rejected",
+      }).send(res);
+    }
+
+    attendance.status = attendanceStatus.ABSENT;
     await attendance.save();
-    emitAttendanceUpdated(attendance);
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Attendance rejected",
-    }).send(res);
-  }
-
-  attendance.status = attendanceStatus.ABSENT;
-  await attendance.save();
     emitAttendanceUpdated(attendance);
 
     return new ApiResponse({
@@ -441,9 +441,11 @@ export const rejectLeaves = asyncErrorHandler(
 
 export const getAllPendingAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const managerId  = req.userId;
+    const managerId = req.userId;
 
-    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    const staffUnderManager = await StaffModel.find({
+      manager: managerId,
+    }).select("userId");
     if (!staffUnderManager || staffUnderManager.length === 0) {
       return new ApiResponse({
         statusCode: 404,
@@ -452,14 +454,15 @@ export const getAllPendingAttendance = asyncErrorHandler(
       }).send(res);
     }
 
-    const employeeIds = staffUnderManager.map(staff => staff.userId);
+    const employeeIds = staffUnderManager.map((staff) => staff.userId);
 
     const pendingAttendance = await AttendanceModel.find({
       userId: { $in: employeeIds },
       status: attendanceStatus.PENDING,
       type: attendanceType.ATTENDANCE,
     })
-      .populate("userId", "name username email image").sort({ date: -1 });
+      .populate("userId", "name username email image")
+      .sort({ date: -1 });
 
     return new ApiResponse({
       statusCode: 200,
@@ -610,6 +613,26 @@ export const getManagerNameByBranch = asyncErrorHandler(
   }
 );
 
+export const getAttendanceByDay = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const date = req.query.date; // yy-mm-dd
+    
+    if (!date) {
+      throw new ApiError(400, "Date is required!");
+    }
+    
+    const attendances = await AttendanceModel.find({
+      date: new Date(date as string)
+    }).populate("userId", "name image role").select("punchIn punchOut workingHour");
+    
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Attendence fetched successfully!",
+      data: attendances,
+    }).send(res);
+  }
+);
+
 export const giveBonusToEmployee = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const staffId = req.query.staffId;
@@ -661,22 +684,22 @@ export const deleteBonusByDate = asyncErrorHandler(
     const date = req.query.date as string;
 
     const deletedBonus = await StaffModel.findByIdAndUpdate(
-        {_id: staffId, "bonus.date": new Date(date)},
-        {
-          $pull: {
-            bonus: {date: new Date(date)},
-          },
+      { _id: staffId, "bonus.date": new Date(date) },
+      {
+        $pull: {
+          bonus: { date: new Date(date) },
         },
-        { new: true }
-      );
-    
+      },
+      { new: true }
+    );
+
     if (!deletedBonus) {
       throw new ApiError(500, "Failed to delete bonus!");
     }
-    
+
     return new ApiResponse({
       statusCode: 200,
-      message: "Bonus deleted successfully!"
+      message: "Bonus deleted successfully!",
     }).send(res);
   }
 );
