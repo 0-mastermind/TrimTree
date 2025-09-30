@@ -53,14 +53,14 @@ export const createOfficialHoliday = asyncErrorHandler(
     session.startTransaction();
 
     try {
-      const { name, date, description, employees } = req.body;
+      const { name, date, employees } = req.body;
       const branchId = req.branchId;
 
       if (!Array.isArray(employees) || employees.length === 0) {
         throw new ApiError(400, "employees are required");
       }
 
-      if (!name || !date || !description || !branchId) {
+      if (!name || !date || !branchId) {
         throw new ApiError(400, "All fields are required");
       }
 
@@ -93,7 +93,6 @@ export const createOfficialHoliday = asyncErrorHandler(
             name,
             date: startOfDayUTC,
             branch: branchId,
-            description,
             employees: employeeObjectIds,
           },
         ],
