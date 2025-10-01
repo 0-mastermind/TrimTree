@@ -15,10 +15,6 @@ const OfficialHolidaySchema = new Schema<IOfficialHoliday>(
       type: Schema.Types.ObjectId, 
       ref: "User" 
     }],
-    description: {
-      type: String, 
-      required: true 
-    },
     branch: {
       type: Schema.Types.ObjectId,
       ref: "Branch",
