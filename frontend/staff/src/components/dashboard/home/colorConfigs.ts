@@ -38,7 +38,7 @@
           textColor: 'text-blue-800',
           iconColor: 'text-blue-600'
         },
-        'REJECTED LEAVE': {
+        'REJECTED_LEAVE': {
           icon: Ban,
           label: 'Rejected Leave',
           bgColor: 'bg-red-100',
@@ -52,7 +52,7 @@
           textColor: 'text-emerald-800',
           iconColor: 'text-emerald-600'
         },
-        'WORKING HOLIDAY': {
+        'WORKING_HOLIDAY': {
           icon: Briefcase,
           label: 'Working Holiday',
           bgColor: 'bg-purple-100',
@@ -65,7 +65,7 @@
 
   export const getPunchOutStatusConfig = (status: punchOutStatus) => {
       const configs = {
-        'NOT APPLIED': {
+        'NOT_APPLIED': {
           icon: Clock,
           label: 'Not Applied',
           bgColor: 'bg-gray-50',

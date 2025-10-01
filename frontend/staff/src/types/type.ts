@@ -47,7 +47,7 @@ export type attendanceType = 'LEAVE' |"ATTENDANCE";
 
 export type WorkingHour = 'FULL_DAY' | 'HALF_DAY';
 
-export type punchOutStatus = 'NOT APPLIED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+export type punchOutStatus = 'NOT_APPLIED' | 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export type attendanceStatus = 
   | 'PENDING' 
@@ -55,9 +55,9 @@ export type attendanceStatus =
   | 'PRESENT' 
   | 'ABSENT' 
   | 'HOLIDAY' 
-  | 'REJECTED LEAVE' 
+  | 'REJECTED_LEAVE' 
   | 'LEAVE' 
-  | 'WORKING HOLIDAY';
+  | 'WORKING_HOLIDAY';
 
 export interface Attendance  {
   _id: string;

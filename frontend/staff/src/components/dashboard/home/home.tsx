@@ -145,18 +145,18 @@ const AttendanceStatus: React.FC<AttendanceStatusProps> = ({
   // (Holiday: only allow attendance, not leave)
   const showApplicationButton =
     !attendance ||
-    attendance.status === "REJECTED LEAVE" ||
+    attendance.status === "REJECTED_LEAVE" ||
     attendance.status === "DISMISSED" ||
     isHoliday;
 
   const showPunchTimes =
     isAttendanceType &&
     (attendance?.status === "PRESENT" ||
-      attendance?.status === "WORKING HOLIDAY");
+      attendance?.status === "WORKING_HOLIDAY");
 
   const showPunchOutButton =
     showPunchTimes &&
-    (attendance?.punchOut.status === "NOT APPLIED" ||
+    (attendance?.punchOut.status === "NOT_APPLIED" ||
       attendance?.punchOut.status === "REJECTED");
 
   const showReason =

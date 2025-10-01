@@ -96,7 +96,7 @@ const StaffAnalytics: React.FC = () => {
       if (!record.status) return;
       base[record.status] = (base[record.status] || 0) + 1;
 
-      if (record.status === "PRESENT" || record.status === "WORKING HOLIDAY") {
+      if (record.status === "PRESENT" || record.status === "WORKING_HOLIDAY") {
         const punchIn = record.punchIn?.time
           ? new Date(record.punchIn.time)
           : null;
@@ -279,6 +279,8 @@ const StaffAnalytics: React.FC = () => {
                     >
                       {statusMeta[selectedRecord.status]?.icon}
                       <span className="font-bold text-sm sm:text-base lg:text-lg">
+                          {(selectedRecord.type === "LEAVE" && selectedRecord.status === "PENDING") ? statusMeta["LEAVE"]?.label + " " : ""}
+                         {(selectedRecord.type === "ATTENDANCE" && selectedRecord.status === "PENDING") ? "Attendance ": ""}
                         {statusMeta[selectedRecord.status]?.label}
                       </span>
                     </div>
@@ -286,7 +288,9 @@ const StaffAnalytics: React.FC = () => {
                     {(selectedRecord.punchIn?.time ||
                       selectedRecord.punchOut?.time) && (
                       <div className="space-y-2 sm:space-y-3">
-                        {selectedRecord.punchIn?.time && (
+                        {(selectedRecord.punchIn?.time && (selectedRecord.status === "PRESENT" || selectedRecord.status === "WORKING_HOLIDAY")
+                        )
+                        &&(
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-xl">
                             <span className="text-gray-600 font-medium text-xs sm:text-sm">
                               Punch In
@@ -342,9 +346,9 @@ const StaffAnalytics: React.FC = () => {
                     {selectedRecord.leaveDescription && (
                       <div className="mt-2 text-xs sm:text-sm bg-yellow-50 rounded-lg p-2">
                         <span className="text-yellow-700 font-medium">
-                          {selectedRecord.type == "LEAVE" && "Reason:"}
+                          {(selectedRecord.type == "LEAVE" || selectedRecord.status == "HOLIDAY" )&& "Reason:"}
                         </span>
-                        {selectedRecord.type == "LEAVE" &&
+                        {(selectedRecord.type == "LEAVE" || selectedRecord.status == "HOLIDAY" )&&
                           selectedRecord.leaveDescription}
                       </div>
                     )}

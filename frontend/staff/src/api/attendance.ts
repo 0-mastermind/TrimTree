@@ -115,10 +115,10 @@ export const applyForPunchOut = ( ) => async (dispatch : AppDispatch): Promise<b
 }
 
 export const getLeaveHistory =
-  () =>
+  (year : string , month : string) =>
   async (dispatch: AppDispatch): Promise<boolean> => {
     try {
-      const res = await apiConnector("GET", AttendanceEndpoints.GET_LEAVE_HISTORY_API);
+      const res = await apiConnector("GET", AttendanceEndpoints.GET_LEAVE_HISTORY_API + `?year=${year}&month=${month}`);
 
       if (res.success && res.data) {
         dispatch(setLeaveHistory(res.data as Leave[]));
