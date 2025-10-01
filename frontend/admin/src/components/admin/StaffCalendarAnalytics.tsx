@@ -289,7 +289,8 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
                     >
                       {statusMeta[selectedRecord.status]?.icon}
                       <span className="font-bold text-sm sm:text-base lg:text-lg">
-                        {(selectedRecord.type === "LEAVE" && selectedRecord.status === "PENDING") ? statusMeta["LEAVE"]?.label + " " : "Attendance "} 
+                        {(selectedRecord.type === "LEAVE" && selectedRecord.status === "PENDING") ? statusMeta["LEAVE"]?.label + " " : ""}
+                         {(selectedRecord.type === "ATTENDANCE" && selectedRecord.status === "PENDING") ? "ATTENDANCE": ""}
                         {statusMeta[selectedRecord.status]?.label}
                       </span>
                     </div>
