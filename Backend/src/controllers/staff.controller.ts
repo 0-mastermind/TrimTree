@@ -16,7 +16,6 @@ import {
   emitAttendanceRequest,
   emitLeaveRequest,
   emitPunchOutRequest,
-  getIO,
 } from "../socketio.js";
 import StaffModel from "../models/staff.model.js";
 import mongoose from "mongoose";
@@ -317,15 +316,12 @@ export const applyForLeave = asyncErrorHandler(
 
 export const getMonthlyAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const staffId = req.query.staffId;
+    const userId = req.userId;
     const { month, year } = req.query;
 
-    if (!staffId) throw new ApiError(400, "User Not Logged In");
+    if (!userId) throw new ApiError(400, "User Not Logged In");
     if (!month || !year)
       throw new ApiError(400, "Please provide month and year");
-
-    const staff = await StaffModel.findById(staffId);
-    const userId = staff?.userId;
 
     const monthNum = parseInt(month as string);
     const yearNum = parseInt(year as string);

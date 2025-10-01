@@ -158,3 +158,38 @@ export const markPaymentOfEmployee = asyncErrorHandler(
     ).send(res);
   }
 );
+
+export const getMonthlyAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const staffId = req.query.staffId;
+    const { month, year } = req.query;
+
+    if (!staffId) throw new ApiError(400, "User Not Logged In");
+    if (!month || !year)
+      throw new ApiError(400, "Please provide month and year");
+
+    const staff = await StaffModel.findById(staffId);
+    const userId = staff?.userId;
+
+    const monthNum = parseInt(month as string);
+    const yearNum = parseInt(year as string);
+
+    const startOfMonthUTC = new Date(
+      Date.UTC(yearNum, monthNum - 1, 1, 0, 0, 0, 0)
+    );
+    const endOfMonthUTC = new Date(
+      Date.UTC(yearNum, monthNum, 0, 23, 59, 59, 999)
+    );
+
+    const attendance = await AttendanceModel.find({
+      userId,
+      date: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
+    }).sort({ date: 1 });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Monthly attendance fetched successfully",
+      data: attendance,
+    }).send(res);
+  }
+);
