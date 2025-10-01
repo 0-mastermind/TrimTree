@@ -4,8 +4,7 @@ import { io, Socket } from "socket.io-client";
 interface ServerToClientEvents {
   attendanceRequest: (payload: { data: any; message: string }) => void;
   punchOutRequest: (payload: { data: any; message: string }) => void;
-  punchOutUpdated: (payload: { data: any; message: string }) => void;
-  
+  leaveRequest: (payload: { data: any; message: string }) => void;
 }
 
 interface ClientToServerEvents {

@@ -22,6 +22,18 @@ const attendanceSlice = createSlice({
         setLeaves: (state, action: PayloadAction<Leave[]>) => {
             state.leaves = action.payload;
         },
+        addLeaves: (state, action: PayloadAction<Leave>) => {
+            if (state.leaves) {
+                state.leaves.unshift(action.payload);
+            } else {
+                state.leaves = [action.payload];
+            }
+        },
+        removeLeaves: (state, action: PayloadAction<string>) => {
+            if (state.leaves) {
+                state.leaves = state.leaves.filter(leave => leave._id !== action.payload);
+            }
+        },
         addAttendance: (state, action: PayloadAction<pendingAttendance>) => {
             if (state.attendances) {
                 state.attendances.unshift(action.payload);
@@ -52,5 +64,5 @@ const attendanceSlice = createSlice({
     },
 });
 
-export const { setAttendances , setLeaves , addAttendance , removeAttendance , setPunchOuts , removePunchOut , addPunchOut} = attendanceSlice.actions;
+export const { setAttendances , setLeaves , addAttendance , removeAttendance , setPunchOuts , removePunchOut , addPunchOut , addLeaves , removeLeaves} = attendanceSlice.actions;
 export default attendanceSlice.reducer;

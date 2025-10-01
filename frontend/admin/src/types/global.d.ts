@@ -92,7 +92,7 @@ export type attendanceType = "LEAVE" | "ATTENDANCE";
 export type WorkingHour = "FULL_DAY" | "HALF_DAY";
 
 export type punchOutStatus =
-  | "NOT APPLIED"
+  | "NOT_APPLIED"
   | "PENDING"
   | "APPROVED"
   | "REJECTED";
@@ -103,8 +103,8 @@ export type attendanceStatus =
   "ABSENT"|
   "LEAVE"|
   "HOLIDAY"|
-  "WORKING HOLIDAY"|
-  "REJECTED LEAVE"|
+  "WORKING_HOLIDAY"|
+  "REJECTED_LEAVE"|
   "DISMISSED";
 
 export interface Attendance {
@@ -148,7 +148,8 @@ export enum leaveStatus {
 }
 
 export interface Leave {
-  userId: string;
+  _id: string;
+  userId: User;
   branch: Branch;
   startDate: Date;
   endDate: Date;

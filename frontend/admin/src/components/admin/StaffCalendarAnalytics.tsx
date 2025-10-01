@@ -7,29 +7,39 @@ import {
   Calendar as CalendarIcon,
 } from "lucide-react";
 import clsx from "clsx";
-import type { Attendance, attendanceStatus } from "@/types/global";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store/store";
 import { getMonthlyAttendance } from "@/utils/api/staff";
 import Loader from "@/components/common/Loader";
 import type { Value } from "react-calendar/dist/shared/types.js";
-import { attendanceStatuses } from "@/utils/constants";
+import { Attendance, attendanceStatus } from "@/types/global";
 import { statusMeta } from "./config";
+
+const attendanceStatuses: attendanceStatus[] = [
+  "PENDING",
+  "PRESENT",
+  "ABSENT",
+  "LEAVE",
+  "HOLIDAY",
+  "WORKING_HOLIDAY",
+  "REJECTED_LEAVE",
+  "DISMISSED",
+];
 
 type AttendanceSummary = {
   summary: Record<attendanceStatus, number>;
 };
 
 interface StaffAnalyticsProps {
-  staffId?: string; // Optional staff ID for filtering
-  showTitle?: boolean; // Whether to show the title
-  className?: string; // Additional className for container
+  staffId?: string;
+  showTitle?: boolean;
+  className?: string;
 }
 
 const toISODate = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    0,
-    "2"
+    2,
+    "0"
   )}-${String(date.getDate()).padStart(2, "0")}`;
 
 const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
@@ -41,7 +51,6 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
-
   const [loading, setLoading] = useState<boolean>(true);
 
   const month = useMemo(
@@ -62,7 +71,6 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        // You can modify the API call to accept staffId if needed
         await dispatch(getMonthlyAttendance(month, year, staffId as string));
       } finally {
         if (isActive) setLoading(false);
@@ -77,7 +85,8 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
   const attendanceMap = useMemo(() => {
     const map: Record<string, Attendance> = {};
     attendanceData.forEach((record) => {
-      if (!record.date) return;
+      if (!record?.date) return;
+      // Support if date comes as string from API
       const key = toISODate(new Date(record.date));
       map[key] = record;
     });
@@ -94,29 +103,18 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
   );
 
   const { summary }: AttendanceSummary = useMemo(() => {
-    const base: Record<attendanceStatus, number> = Object.fromEntries(
-      attendanceStatuses.map((s) => [s, 0])
-    ) as Record<attendanceStatus, number>;
-
-    let workedHours = 0;
-    let workingCount = 0;
+    const base: Record<attendanceStatus, number> = attendanceStatuses.reduce(
+      (acc, s) => {
+        acc[s] = 0;
+        return acc;
+      },
+      {} as Record<attendanceStatus, number>
+    );
 
     attendanceData.forEach((record) => {
-      if (!record.status) return;
-      base[record.status] = (base[record.status] || 0) + 1;
-
-      if (record.status === "PRESENT" || record.status === "WORKING HOLIDAY") {
-        const punchIn = record.punchIn?.time
-          ? new Date(record.punchIn.time)
-          : null;
-        const punchOut = record.punchOut?.time
-          ? new Date(record.punchOut.time)
-          : null;
-        if (punchIn && punchOut) {
-          const diffHrs = (punchOut.getTime() - punchIn.getTime()) / 36e5;
-          if (diffHrs > 0) workedHours += diffHrs;
-        }
-        workingCount++;
+      if (!record?.status) return;
+      if (base[record.status] !== undefined) {
+        base[record.status] += 1;
       }
     });
 
@@ -144,7 +142,6 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
     ({ activeStartDate }: { activeStartDate: Date | null }) => {
       if (!activeStartDate) return;
       setCurrentMonthDate(activeStartDate);
-
       if (
         activeStartDate.getMonth() !== selectedDate.getMonth() ||
         activeStartDate.getFullYear() !== selectedDate.getFullYear()
@@ -161,7 +158,8 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
 
   return (
     <div
-      className={`min-h-screen p-3 mt-15 sm:p-4 md:p-6 lg:p-8 z-0 ${className}`}>
+      className={`min-h-screen p-3 mt-15 sm:p-4 md:p-6 lg:p-8 z-0 ${className}`}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {/* Calendar Section */}
@@ -222,7 +220,7 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
                                 "block w-2 h-2 sm:w-3 sm:h-3 rounded-full shadow-sm",
                                 meta.color
                               )}
-                              title={record.status}
+                              title={meta.label}
                             />
                           </div>
                         ) : null;
@@ -241,7 +239,8 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
                   return (
                     <div
                       key={status}
-                      className="flex items-center space-x-2 p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                      className="flex items-center space-x-2 p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
                       <span
                         className={clsx(
                           "w-3 h-3 rounded-full shadow-sm flex-shrink-0",
@@ -286,9 +285,11 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
                         "flex items-center space-x-3 p-3 sm:p-4 rounded-2xl border-2",
                         statusMeta[selectedRecord.status]?.bgColor,
                         statusMeta[selectedRecord.status]?.textColor
-                      )}>
+                      )}
+                    >
                       {statusMeta[selectedRecord.status]?.icon}
                       <span className="font-bold text-sm sm:text-base lg:text-lg">
+                        {(selectedRecord.type === "LEAVE" && selectedRecord.status === "PENDING") ? statusMeta["LEAVE"]?.label + " " : "Attendance "} 
                         {statusMeta[selectedRecord.status]?.label}
                       </span>
                     </div>
@@ -349,15 +350,17 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
                       </div>
                     )}
 
-                    {selectedRecord.leaveDescription && (
-                      <div className="mt-2 text-xs sm:text-sm bg-yellow-50 rounded-lg p-2">
-                        <span className="text-yellow-700 font-medium">
-                          {selectedRecord.type == "LEAVE" && "Reason:"}
-                        </span>
-                        {selectedRecord.type == "LEAVE" &&
-                          selectedRecord.leaveDescription}
-                      </div>
-                    )}
+                    {selectedRecord.leaveDescription &&
+                      (selectedRecord.type === "LEAVE" ||
+                        (selectedRecord.type === "ATTENDANCE" &&
+                          selectedRecord.status === "HOLIDAY")) && (
+                        <div className="mt-2 text-xs sm:text-sm bg-yellow-50 rounded-lg p-2">
+                          <span className="text-yellow-700 font-medium">
+                            Reason:{" "}
+                          </span>
+                          {selectedRecord.leaveDescription}
+                        </div>
+                      )}
                   </div>
                 ) : (
                   <div className="text-center py-6 sm:py-8">
@@ -390,21 +393,24 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
                       className={clsx(
                         "flex items-center justify-between p-2 sm:p-3 rounded-xl",
                         meta?.bgColor
-                      )}>
+                      )}
+                    >
                       <div className="flex items-center space-x-2 sm:space-x-3">
                         <div
                           className={clsx(
                             "p-1 sm:p-2 rounded-lg",
                             meta?.color,
                             "bg-opacity-20"
-                          )}>
+                          )}
+                        >
                           {meta?.icon}
                         </div>
                         <span
                           className={clsx(
                             "font-medium text-xs sm:text-sm",
                             meta?.textColor
-                          )}>
+                          )}
+                        >
                           {meta?.label}
                         </span>
                       </div>
@@ -412,7 +418,8 @@ const StaffCalendarAnalytics: React.FC<StaffAnalyticsProps> = ({
                         className={clsx(
                           "font-bold text-sm sm:text-base lg:text-lg",
                           meta?.textColor
-                        )}>
+                        )}
+                      >
                         {summary[status]}
                       </span>
                     </div>
