@@ -60,6 +60,7 @@ export const createOfficialHoliday = asyncErrorHandler(
         throw new ApiError(400, "employees are required");
       }
 
+
       if (!name || !date || !description || !branchId) {
         throw new ApiError(400, "All fields are required");
       }
@@ -480,7 +481,7 @@ export const getAllPendingLeaves = asyncErrorHandler(async (req, res) => {
     branch: branchId,
     status: leaveStatus.PENDING,
   })
-    .populate({ path: "userId", select: "name username", model: UserModel })
+    .populate({ path: "userId", select: "name image", model: UserModel })
     .sort({ startDate: -1 });
 
   return new ApiResponse({
@@ -575,16 +576,15 @@ export const rejectPunchOut = asyncErrorHandler(
 );
 
 export const getAllPendingPunchOuts = asyncErrorHandler(
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response) => { 
     const pendingPunchOuts = await AttendanceModel.find({
       branch: req.branchId,
       "punchOut.isApproved": false,
-      "punchOut.status": punchOutStatus.PENDING,
+      "punchOut.status": punchOutStatus.PENDING || punchOutStatus.REJECTED,
       type: attendanceType.ATTENDANCE,
     })
       .sort({ date: -1 })
-      .populate("userId", "name")
-      .select("date punchOut userId");
+      .populate("userId", "name image")
 
     return new ApiResponse({
       statusCode: 200,
@@ -609,26 +609,6 @@ export const getManagerNameByBranch = asyncErrorHandler(
       statusCode: 200,
       message: "Managers fetched successfully",
       data: managers,
-    }).send(res);
-  }
-);
-
-export const getAttendanceByDay = asyncErrorHandler(
-  async (req: Request, res: Response) => {
-    const date = req.query.date; // yy-mm-dd
-    
-    if (!date) {
-      throw new ApiError(400, "Date is required!");
-    }
-    
-    const attendances = await AttendanceModel.find({
-      date: new Date(date as string)
-    }).populate("userId", "name image role").select("punchIn punchOut workingHour");
-    
-    return new ApiResponse({
-      statusCode: 200,
-      message: "Attendence fetched successfully!",
-      data: attendances,
     }).send(res);
   }
 );

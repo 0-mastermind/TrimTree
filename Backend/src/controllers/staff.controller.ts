@@ -148,9 +148,7 @@ export const applyForLeave = asyncErrorHandler(
     const user = await UserModel.findById(userId);
     if (!user) throw new ApiError(404, "User not found");
 
-    const staffDoc = await StaffModel.findOne({ userId: user._id }).select(
-      "_id"
-    );
+    const staffDoc = await StaffModel.findOne({ userId: user._id });
     if (!staffDoc) throw new ApiError(404, "Staff not found");
 
     if (!startDate || !endDate) {
@@ -168,16 +166,15 @@ export const applyForLeave = asyncErrorHandler(
     const leaveDoc = await LeaveModel.findOne({
       userId,
       branch: branchId,
-      $or: [{ startDate: { $lte: end }, endDate: { $gte: start } }],
+      $or: [
+        { startDate: { $lte: end }, endDate: { $gte: start } }, // overlapping
+      ],
     });
 
     if (leaveDoc?.status === leaveStatus.APPROVED) {
       throw new ApiError(400, "Leave already exists for the given dates");
     } else if (leaveDoc?.status === leaveStatus.PENDING) {
-      throw new ApiError(
-        400,
-        "You have a pending leave request for the given dates"
-      );
+      throw new ApiError(400, "You have a pending leave request for the given dates");
     }
 
     // If REJECTED, update instead of creating new
@@ -193,6 +190,7 @@ export const applyForLeave = asyncErrorHandler(
 
     try {
       let leaveDocResult;
+
       if (isUpdate) {
         leaveDocToProcess.set({
           startDate: start,
@@ -243,18 +241,17 @@ export const applyForLeave = asyncErrorHandler(
         }).session(session);
 
         if (attendanceEntry) {
-          // If status is not dismissed or rejected leave, block leave application
+          // Block leave if an active attendance entry exists
           if (
             attendanceEntry.status !== attendanceStatus.DISMISSED &&
             attendanceEntry.status !== attendanceStatus.REJECTED_LEAVE
           ) {
             throw new ApiError(
               400,
-              `Cannot apply for leave: attendance entry with status '${
-                attendanceEntry.status
-              }' exists for ${utcDayStart.toISOString().split("T")[0]}`
+              `Cannot apply for leave: attendance entry with status '${attendanceEntry.status}' exists for ${utcDayStart.toISOString().split("T")[0]}`
             );
           }
+
           // Otherwise, update the existing attendance entry
           attendanceEntry.set({
             type: attendanceType.LEAVE,
@@ -264,7 +261,7 @@ export const applyForLeave = asyncErrorHandler(
           });
           await attendanceEntry.save({ session });
         } else {
-          // No entry: create new
+          // No entry: create a new one
           await AttendanceModel.create(
             [
               {
@@ -287,7 +284,19 @@ export const applyForLeave = asyncErrorHandler(
       await session.commitTransaction();
       session.endSession();
 
-      emitLeaveRequest(leaveDocResult, staffDoc.manager.toString());
+      const leaveReq = {
+        _id: leaveDocResult._id,
+        userId: {
+          _id: user._id,
+          name: user.name,
+          image: user.image,
+        },
+        startDate: leaveDocResult.startDate,
+        endDate: leaveDocResult.endDate,
+        reason: leaveDocResult.reason,  
+      }
+
+      emitLeaveRequest(leaveReq, staffDoc.manager.toString());
 
       return new ApiResponse({
         statusCode: 201,
@@ -296,12 +305,15 @@ export const applyForLeave = asyncErrorHandler(
           : "Leave applied successfully",
       }).send(res);
     } catch (err) {
-      await session.abortTransaction();
+      if (session.inTransaction()) {
+        await session.abortTransaction();
+      }
       session.endSession();
       throw err;
     }
   }
 );
+
 
 export const getMonthlyAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -406,6 +418,7 @@ export const applyForPunchOut = asyncErrorHandler(
       date: attendance.date,
       workingHour: attendance.workingHour,
       punchIn: attendance.punchIn,
+      punchOut: attendance.punchOut,
       userId: {
         _id: user._id,
         name: user.name,
