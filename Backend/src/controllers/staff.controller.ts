@@ -67,7 +67,8 @@ export const applyForAttendance = asyncErrorHandler(
     if (existingAttendance) {
       if (
         existingAttendance.status !== attendanceStatus.REJECTED_LEAVE &&
-        existingAttendance.status !== attendanceStatus.DISMISSED
+        existingAttendance.status !== attendanceStatus.DISMISSED &&
+        existingAttendance.status !== attendanceStatus.HOLIDAY
       ) {
         throw new ApiError(400, "Attendance already applied for today");
       }
@@ -173,7 +174,10 @@ export const applyForLeave = asyncErrorHandler(
     if (leaveDoc?.status === leaveStatus.APPROVED) {
       throw new ApiError(400, "Leave already exists for the given dates");
     } else if (leaveDoc?.status === leaveStatus.PENDING) {
-      throw new ApiError(400, "You have a pending leave request for the given dates");
+      throw new ApiError(
+        400,
+        "You have a pending leave request for the given dates"
+      );
     }
 
     // If REJECTED, update instead of creating new
@@ -247,7 +251,9 @@ export const applyForLeave = asyncErrorHandler(
           ) {
             throw new ApiError(
               400,
-              `Cannot apply for leave: attendance entry with status '${attendanceEntry.status}' exists for ${utcDayStart.toISOString().split("T")[0]}`
+              `Cannot apply for leave: attendance entry with status '${
+                attendanceEntry.status
+              }' exists for ${utcDayStart.toISOString().split("T")[0]}`
             );
           }
 
@@ -292,8 +298,8 @@ export const applyForLeave = asyncErrorHandler(
         },
         startDate: leaveDocResult.startDate,
         endDate: leaveDocResult.endDate,
-        reason: leaveDocResult.reason,  
-      }
+        reason: leaveDocResult.reason,
+      };
 
       emitLeaveRequest(leaveReq, staffDoc.manager.toString());
 
@@ -312,7 +318,6 @@ export const applyForLeave = asyncErrorHandler(
     }
   }
 );
-
 
 export const getMonthlyAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -599,12 +604,43 @@ export const getStaffDetails = asyncErrorHandler(
 export const getLeaveHistory = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const userId = req.userId;
+    const { month, year } = req.query;
 
     if (!userId) throw new ApiError(400, "User Not Logged In");
 
-    const leaveHistory = await LeaveModel.find({ userId }).sort({
-      createdAt: -1,
-    });
+    let filter: any = { userId };
+
+    if (month && year) {
+      const monthNum = parseInt(month as string);
+      const yearNum = parseInt(year as string);
+
+      if (isNaN(monthNum) || isNaN(yearNum)) {
+        throw new ApiError(400, "Invalid month or year");
+      }
+
+      const startOfMonth = new Date(
+        Date.UTC(yearNum, monthNum - 1, 1, 0, 0, 0)
+      );
+      const endOfMonth = new Date(
+        Date.UTC(yearNum, monthNum, 0, 23, 59, 59, 999)
+      );
+
+      filter.$or = [
+        {
+          startDate: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+        {
+          endDate: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+        {
+          startDate: { $lte: startOfMonth },
+          endDate: { $gte: endOfMonth },
+        },
+      ];
+    }
+
+    const leaveHistory = await LeaveModel.find(filter).sort({ startDate: -1 });
+
     return new ApiResponse({
       statusCode: 200,
       message: "Leave history fetched successfully",
