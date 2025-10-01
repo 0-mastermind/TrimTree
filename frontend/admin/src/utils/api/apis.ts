@@ -20,7 +20,7 @@ export const EmployeeEndpoints = {
   GET_ALL_EMPLOYEES_API: BASE_URL + "/staff/get-all-staff-members",
   GET_SPECIFIC_EMPLOYEE_API: BASE_URL + "/staff/specific-employee-details",
   GET_SPECIFIC_EMPLOYEE_ANALYTICS_API: BASE_URL + "/staff/employee-analytics",
-  GET_EMPLOYEE_MONTHLY_ATTENDANCE_API: BASE_URL + "/staff/attendance/monthly",
+  GET_EMPLOYEE_MONTHLY_ATTENDANCE_API: BASE_URL + "/manager/attendance/monthly",
   ADD_EMPLOYEE_BONUS_API: BASE_URL + "/manager/add-staff-bonus",
   REMOVE_EMPLOYEE_BONUS_API: BASE_URL + "/manager/delete-bonus-by-date",
   MARK_PAYMENT_API: BASE_URL + "/admin/mark-employee-payment",
