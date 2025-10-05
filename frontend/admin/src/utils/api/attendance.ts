@@ -1,4 +1,4 @@
-import { Attendance, Leave, pendingAttendance } from "@/types/global";
+import { Leave, pendingAttendance } from "@/types/global";
 import { apiConnector } from "../apiConnector";
 import { AttendanceEndpoints } from "./apis";
 import { AppDispatch } from "@/store/store";
@@ -44,7 +44,7 @@ export const approveAttendance = (id:string) => async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    toast.dismiss
+    toast.dismiss(toastId);
     console.error("Error! while approving attendance", error);
     toast.error("Unable to approve");
     return false;
@@ -69,7 +69,7 @@ export const rejectAttendance = (id:string) =>  async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    toast.dismiss
+    toast.dismiss(toastId);
     console.error("Error! while rejecting attendance", error);
     toast.error("Unable to reject");
     return false;
@@ -94,7 +94,7 @@ export const dismissAttendance = (id:string) => async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    toast.dismiss
+    toast.dismiss(toastId);
     console.error("Error! while dismissing leave", error);
     toast.error("Unable to dismiss");
     return false;
@@ -139,7 +139,7 @@ export const approvePunchOut = (id:string) =>  async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    toast.dismiss
+    toast.dismiss(toastId);
     console.error("Error! while approving punch out", error);
     toast.error("Unable to approve");
     return false;
@@ -164,7 +164,7 @@ export const rejectPunchOut = (id:string) =>  async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    toast.dismiss
+    toast.dismiss(toastId);
     console.error("Error! while rejecting punch out", error);
     toast.error("Unable to reject");
     return false;
@@ -209,7 +209,7 @@ export const rejectLeave = (id:string) =>  async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    toast.dismiss
+    toast.dismiss(toastId);
     console.error("Error! while rejecting leave", error);
     toast.error("Unable to reject");
     return false;
@@ -234,7 +234,7 @@ export const approveLeave = (id:string) =>  async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    toast.dismiss
+    toast.dismiss(toastId);
     console.error("Error! while approving leave", error);
     toast.error("Unable to approve");
     return false;

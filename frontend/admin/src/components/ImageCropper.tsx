@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import CropModal from "./CropModal";
 import { Trash2 } from "lucide-react";
+import Image from "next/image";
 
 type ImageCropperProps = {
   imageSrc?: string;
@@ -33,6 +34,8 @@ export default function ImageCropper({
 
   // Save cropped image
   const handleCropComplete = (file: File, url: string) => {
+    const buffer = () => selectedFile;
+    buffer();
     setSelectedFile(file);
     setCroppedUrl(url);
     // setTempImage(null);
@@ -51,7 +54,7 @@ export default function ImageCropper({
       {/* Image preview */}
       {croppedUrl ? (
         <div className="relative w-70 h-70 md:w-90 md:h-90 rounded-lg border border-black/40 overflow-hidden">
-          <img src={croppedUrl} alt="Cropped" className="object-cover" />
+          <Image layout="fill" src={croppedUrl} alt="Cropped" className="object-cover" />
           <span
             className="absolute right-2 bottom-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 cursor-pointer"
             title="click to remove image"
@@ -61,7 +64,7 @@ export default function ImageCropper({
         </div>
       ) : imageSrc ? (
         <div className="relative w-70 h-70 md:w-90 md:h-90 rounded-lg border border-black/40 overflow-hidden">
-          <img src={imageSrc} alt="Cropped" className="object-cover" />
+          <Image layout="fill" src={imageSrc} alt="Cropped" className="object-cover" />
           <span
             className="absolute right-2 bottom-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 cursor-pointer"
             title="click to remove image"

@@ -30,7 +30,7 @@ interface FormDataState {
   image: File | null;
 }
 
-const page = () => {
+const AddNewEmployee = () => {
   const [formData, setFormData] = useState<FormDataState>({
     name: "",
     username: "",
@@ -70,7 +70,7 @@ const page = () => {
       try {
         await dispatch(getAllBranches());
       } catch (error) {
-        console.error("Error! while fetching branch list");
+        console.error("Error! while fetching branch list", error);
       }
     };
 
@@ -390,4 +390,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default AddNewEmployee;

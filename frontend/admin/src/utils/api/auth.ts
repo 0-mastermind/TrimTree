@@ -2,7 +2,7 @@ import { apiConnector } from "@/utils/apiConnector";
 import { AuthEndpoints } from "./apis";
 import type { AppDispatch } from "@/store/store";
 import { clearUser, setUser } from "@/store/features/auth/user.slice";
-import type { Staff, User } from "@/types/global";
+import type { User } from "@/types/global";
 import toast from "react-hot-toast";
 
 export const login =
@@ -110,7 +110,7 @@ interface AuthenticateAPIResponse {
   isMatch: boolean
 }
   
-export const authenticateUser = (password: string) =>  async (): Promise<Boolean> => {
+export const authenticateUser = (password: string) =>  async (): Promise<boolean> => {
   const toastId = toast.loading("Authenticating");
   try {
     const res = await apiConnector("GET", `${AuthEndpoints.AUTHENTICATE_USER_API}?password=${password}`);
@@ -129,7 +129,7 @@ export const authenticateUser = (password: string) =>  async (): Promise<Boolean
     toast.error("Failed to authenticate!");
     return false;
   } catch (error) {
-    console.log("Error! while authenticating user!");
+    console.log("Error! while authenticating user!", error);
     return false;
   }
 }   

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { useLayoutEffect } from "react"
 import { useSelector } from "react-redux";
 
-const page = () => {
+const AdminDashboard = () => {
   const {user, isLoggedIn} = useSelector((state: RootState) => state.auth);
   
   useLayoutEffect(() => {
@@ -15,7 +15,7 @@ const page = () => {
     } else {
       redirect("/dashboard/manager");
     }
-  }, [user]);
+  }, [user, isLoggedIn]);
   
   return (
     <div className="">
@@ -25,4 +25,4 @@ const page = () => {
   )
 }
 
-export default page
+export default AdminDashboard

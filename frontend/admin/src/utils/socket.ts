@@ -2,9 +2,9 @@ import { io, Socket } from "socket.io-client";
 
 // Match backend events
 interface ServerToClientEvents {
-  attendanceRequest: (payload: { data: any; message: string }) => void;
-  punchOutRequest: (payload: { data: any; message: string }) => void;
-  leaveRequest: (payload: { data: any; message: string }) => void;
+  attendanceRequest: (payload: { data: object; message: string }) => void;
+  punchOutRequest: (payload: { data: object; message: string }) => void;
+  leaveRequest: (payload: { data: object; message: string }) => void;
 }
 
 interface ClientToServerEvents {

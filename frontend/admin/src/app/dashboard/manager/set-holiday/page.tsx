@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { getEmployeesByManager } from "@/utils/api/staff";
 import { addOfficialHoliday } from "@/utils/api/manager";
+import Image from "next/image";
 
 const HolidayForm = () => {
   const dispatch = useAppDispatch();
@@ -204,14 +205,15 @@ const HolidayForm = () => {
                       />
 
                       <div className="avatar">
-                        <div className="w-12 h-12 rounded-full">
+                        <div className="w-12 h-12 rounded-lg overflow-hidden relative">
                           {member.userId.image ? (
-                            <img
+                            <Image
                               src={member.userId.image.url}
                               alt={member.userId.name}
+                              layout="fill"
                             />
                           ) : (
-                            <img src={"/user.png"} alt={member.userId.name} />
+                            <Image src={"/user.png"} fill alt={member.userId.name} objectFit="cover" sizes="48px" />
                           )}
                         </div>
                       </div>

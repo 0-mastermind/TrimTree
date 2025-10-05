@@ -157,7 +157,7 @@ export const addEmployeeBonus =
     } catch (error) {
       toast.dismiss(toastId);
       toast.error("Failed to add bonus!");
-      console.error("Error while adding employee bonus");
+      console.error("Error while adding employee bonus", error);
 
       return false;
     }
@@ -185,7 +185,7 @@ export const removeEmployeeBonus =
     } catch (error) {
       toast.dismiss(toastId);
       toast.error("Failed to remove bonus!");
-      console.error("Error while adding employee bonus");
+      console.error("Error while adding employee bonus", error);
 
       return false;
     }
@@ -193,7 +193,7 @@ export const removeEmployeeBonus =
 
 export const markEmployeePaymentAsPaid =
   ({ data, staffId }: { data: Payment; staffId: string }) =>
-  async (dispatch: AppDispatch): Promise<boolean> => {
+  async (): Promise<boolean> => {
     const toastId = toast.loading("Marking salary");
     try {
       const res = await apiConnector(
@@ -242,7 +242,7 @@ export const getMonthlyAttendance =
   };
 
   
-export const deleteStaffMember = (staffId: string) => async (): Promise<Boolean> => {
+export const deleteStaffMember = (staffId: string) => async (): Promise<boolean> => {
   const toastId = toast.loading("Deleting employee");
   try {
     const res = await apiConnector("DELETE", `${EmployeeEndpoints.DELETE_STAFF_API}?staffId=${staffId}`);
@@ -258,7 +258,7 @@ export const deleteStaffMember = (staffId: string) => async (): Promise<Boolean>
     toast.error("Failed to delete employee!");
     return false;
   } catch (error) {
-    console.log("Error! while deleting the user");
+    console.log("Error! while deleting the user", error);
     return false;
   }
 }

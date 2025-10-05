@@ -1,17 +1,16 @@
 "use client";
-import { storesData } from "@/data/data";
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { Branch, StoreData } from "@/types/global";
+import { Branch } from "@/types/global";
 import { getAllBranches } from "@/utils/api/branches";
 import { Store, UserPlus } from "lucide-react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
-const page = () => {
+const ViewBranches = () => {
   const dispatch = useAppDispatch();
   const { branches } = useAppSelector((state) => state.branches);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const redirectToURI = (url: string) => {
     redirect(url);
@@ -20,11 +19,11 @@ const page = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await dispatch(getAllBranches());
+        await dispatch(getAllBranches());
 
-        if (res) {
-          setIsLoading(false);
-        }
+        // if (res) {
+        //   setIsLoading(false);
+        // }
       } catch (error) {
         console.error("Error! while fetching the branches data", error);
       }
@@ -98,4 +97,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ViewBranches;

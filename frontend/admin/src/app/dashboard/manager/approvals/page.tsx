@@ -3,6 +3,7 @@ import Loader from "@/components/common/Loader";
 import ApprovalCard from "@/components/Manager/ApprovalCard";
 import { addLeaves } from "@/store/features/attendance/attendance.slice";
 import { RootState, useAppDispatch } from "@/store/store";
+import { ApiResponse, Leave } from "@/types/global";
 import { fetchPendingLeaves } from "@/utils/api/attendance";
 import { connectSocket, disconnectSocket, socket } from "@/utils/socket";
 import { CircleCheck } from "lucide-react";
@@ -55,8 +56,8 @@ const Page = () => {
       }
     };
 
-    const handleLeaveRequest = (payload: any) => {
-      dispatch(addLeaves(payload.data));
+    const handleLeaveRequest = (payload: ApiResponse) => {
+      dispatch(addLeaves(payload.data as Leave));
       toast(payload.message);
       playSound();
     };
@@ -68,7 +69,7 @@ const Page = () => {
       disconnectSocket();
       socket.off("leaveRequest", handleLeaveRequest);
     };
-  }, [dispatch, user?._id]);
+  }, [dispatch, user?._id, user?.branch]);
 
   if (loading || !pendingLeaves) {
     return <Loader />;

@@ -45,14 +45,14 @@ export const statusMeta: Record<attendanceStatus, StatusMeta> = {
     textColor: "text-purple-700",
     icon: <Plane className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  "WORKING HOLIDAY": {
+  "WORKING_HOLIDAY": {
     label: "Working Holiday",
     color: "bg-indigo-500",
     bgColor: "bg-indigo-50",
     textColor: "text-indigo-700",
     icon: <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
-  "REJECTED LEAVE": {
+  "REJECTED_LEAVE": {
     label: "Rejected Leave",
     color: "bg-pink-500",
     bgColor: "bg-pink-50",

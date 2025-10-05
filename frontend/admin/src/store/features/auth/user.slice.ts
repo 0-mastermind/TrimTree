@@ -1,4 +1,4 @@
-import type { Staff, User } from "@/types/global";
+import type {User } from "@/types/global";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {

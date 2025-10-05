@@ -3,14 +3,14 @@
 import { redirect } from "next/navigation";
 import { useLayoutEffect } from "react"
 
-const page = () => {
+const Dashboard = () => {
   useLayoutEffect(() => {
     redirect("/dashboard/profile");
-  }, [])
+  }, []);
   
   return (
     <div>page</div>
   )
 }
 
-export default page
+export default Dashboard

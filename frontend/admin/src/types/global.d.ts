@@ -16,7 +16,7 @@ export interface User {
   _id: string;
   name: string;
   username: string;
-  image?: {
+  image: {
     url: string;
     public_id: string;
   };
@@ -127,6 +127,7 @@ export interface Attendance {
   leaveDescription: string;
   createdAt: Date;
   updatedAt: Date;
+  userId: User;
 }
 
 export interface Branch {
@@ -186,4 +187,9 @@ export interface OfficialHolidays {
   branch: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ApiResponse {
+  data: object;
+  message: string;
 }

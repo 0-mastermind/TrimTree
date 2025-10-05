@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import Loader from "../common/Loader";
+import { ApiResponse, Attendance, pendingAttendance } from "@/types/global";
 
 const Approvals = () => {
   const [loading, setLoading] = useState(false);
@@ -145,14 +146,14 @@ const Approvals = () => {
       }
     };
 
-    const handleAttendanceRequest = (payload: any) => {
-      dispatch(addAttendance(payload.data));
+    const handleAttendanceRequest = (payload: ApiResponse) => {
+      dispatch(addAttendance(payload.data as pendingAttendance));
       toast(payload.message);
       playSound();
     };
 
-    const handlePunchOutRequest = (payload: any) => {
-      dispatch(addPunchOut(payload.data));
+    const handlePunchOutRequest = (payload: ApiResponse) => {
+      dispatch(addPunchOut(payload.data as pendingAttendance));
       toast(payload.message);
       playSound();
     };
@@ -165,9 +166,9 @@ const Approvals = () => {
       socket.off("attendanceRequest", handleAttendanceRequest);
       socket.off("punchOutRequest", handlePunchOutRequest);
     };
-  }, [dispatch, user?._id]);
+  }, [dispatch, user?._id, user?.branch]);
 
-  const renderPunchInCard = (attendance: any) => (
+  const renderPunchInCard = (attendance: Attendance) => (
     <div 
       key={attendance._id}
       className="w-full rounded-xl sm:rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
@@ -243,7 +244,7 @@ const Approvals = () => {
     </div>
   );
 
-  const renderPunchOutCard = (punchOut: any) => (
+  const renderPunchOutCard = (punchOut: Attendance) => (
     <div 
       key={punchOut._id}
       className="w-full rounded-xl sm:rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
@@ -333,7 +334,7 @@ const Approvals = () => {
     <div className="px-3 sm:px-4 lg:px-6 max-w-7xl mx-auto">
       {/* Tab Navigation */}
       <div className="mb-6 sm:mb-8 flex justify-center">
-        <div className="flex w-full max-w-sm sm:max-w-md mt-10 bg-yellow-200 rounded-xl p-1">
+        <div className="flex w-full max-w-sm sm:max-w-md mt-10 bg-gray-50 inset border-box-shadow rounded-xl p-1">
           <button
             onClick={() => setActiveTab('punchin')}
             className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base font-medium rounded-lg transition-all duration-200 ${
@@ -362,8 +363,8 @@ const Approvals = () => {
         {currentData && currentData.length > 0 ? (
           currentData.map((item) => 
             activeTab === 'punchin' 
-              ? renderPunchInCard(item)
-              : renderPunchOutCard(item)
+              ? renderPunchInCard(item as Attendance)
+              : renderPunchOutCard(item as Attendance)
           )
         ) : (
           <div className="col-span-full text-center py-12 text-gray-500">

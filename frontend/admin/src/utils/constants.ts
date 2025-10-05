@@ -6,7 +6,7 @@ export const attendanceStatuses: attendanceStatus[] = [
   "ABSENT",
   "LEAVE",
   "HOLIDAY",
-  "WORKING HOLIDAY",
-  "REJECTED LEAVE",
+  "WORKING_HOLIDAY",
+  "REJECTED_LEAVE",
   "DISMISSED",
 ];

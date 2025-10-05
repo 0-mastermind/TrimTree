@@ -1,15 +1,8 @@
 "use client";
 import React from "react";
 import { useAppSelector } from "@/store/store";
-import {
-  User,
-  Mail,
-  MapPin,
-  Calendar,
-  Building2,
-  Shield,
-  Edit,
-} from "lucide-react";
+import { User, Mail, MapPin, Calendar, Building2, Shield } from "lucide-react";
+import Image from "next/image";
 
 interface UserImage {
   url: string;
@@ -88,9 +81,15 @@ const ProfilePage: React.FC = () => {
               <div className="card-body items-center text-center">
                 {/* Profile Image */}
                 <div className="avatar">
-                  <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden relative">
                     {user.image?.url ? (
-                      <img src={user.image.url} alt={user.name} />
+                      <Image
+                        src={user.image.url}
+                        alt={user.name}
+                        fill
+                        className="object-cover"
+                        sizes="128px"
+                      />
                     ) : (
                       <div className="flex items-center justify-center bg-primary/20 w-full h-full">
                         <User className="h-16 w-16 text-primary" />
@@ -110,8 +109,7 @@ const ProfilePage: React.FC = () => {
                 {/* Role Badge */}
                 <div className="mt-3">
                   <span
-                    className={`badge ${getRoleBadgeColor(user.role)} gap-2`}
-                  >
+                    className={`badge ${getRoleBadgeColor(user.role)} gap-2`}>
                     <Shield className="h-3 w-3" />
                     {user.role}
                   </span>
@@ -133,9 +131,7 @@ const ProfilePage: React.FC = () => {
             {/* Contact Information */}
             <div className="card bg-base-100 shadow-md">
               <div className="card-body">
-                <h3 className="card-title text-xl mb-4">
-                  Contact Information
-                </h3>
+                <h3 className="card-title text-xl mb-4">Contact Information</h3>
 
                 <div className="space-y-4">
                   {/* Email */}
@@ -179,9 +175,10 @@ const ProfilePage: React.FC = () => {
                     {/* Branch Image */}
                     {user.branch.image?.url && (
                       <div className="w-full h-48 rounded-lg overflow-hidden">
-                        <img
+                        <Image
                           src={user.branch.image.url}
                           alt={user.branch.name}
+                          layout="fill"
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -239,9 +236,7 @@ const ProfilePage: React.FC = () => {
             {/* Account Information */}
             <div className="card bg-base-100 shadow-md">
               <div className="card-body">
-                <h3 className="card-title text-xl mb-4">
-                  Account Information
-                </h3>
+                <h3 className="card-title text-xl mb-4">Account Information</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-base-200 rounded-lg">

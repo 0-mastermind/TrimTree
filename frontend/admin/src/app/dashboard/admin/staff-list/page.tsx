@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/store/store";
 import { getAllEmployees } from "@/utils/api/staff";
 import { useEffect } from "react";
 
-const page = () => {
+const ViewStaffList = () => {
   const dispatch = useAppDispatch();
   const { employees } = useAppSelector((state) => state.employees);
 
@@ -17,7 +17,7 @@ const page = () => {
       }
     };
     fetchEmployees();
-  }, []);
+  }, [dispatch]);
 
   return (
     <div>
@@ -27,7 +27,7 @@ const page = () => {
           employees.map((item) => {
             return (
               <StaffCard
-                imageUrl={item.userId.image?.url!}
+                imageUrl={item.userId.image.url!}
                 designation={item.designation!}
                 name={item.userId.name}
                 branchName={item.userId.branch.name}
@@ -43,4 +43,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ViewStaffList;

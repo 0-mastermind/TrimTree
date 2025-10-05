@@ -1,5 +1,4 @@
 "use client"
-import Loader from "@/components/common/Loader";
 import { RootState, useAppDispatch } from "@/store/store";
 import { getProfile } from "@/utils/api/auth";
 import { useRouter } from "next/navigation";

@@ -1,11 +1,10 @@
 "use client";
-import { AppDispatch, useAppDispatch, useAppSelector } from "@/store/store";
+import { useAppDispatch, useAppSelector } from "@/store/store";
 import { logout } from "@/utils/api/auth";
 import {
   Home,
   UserRound,
   LogOut,
-  Settings,
   Menu,
   X,
   Calendar,
@@ -13,12 +12,10 @@ import {
   CalendarClock,
   User,
   ChevronDown,
-  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useEffect, FormEvent, useRef } from "react";
-import { useDispatch } from "react-redux";
 
 interface NavItems {
   href: string;
@@ -129,6 +126,11 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const buffer = () => isDesktopDropdownOpen;
+    buffer();
+  }, [isDesktopDropdownOpen]) 
+  
   const handleLogout = async (e: FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
@@ -179,7 +181,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
               Navigation
             </div>
             {navItems &&
-              navItems.map((item, index) => {
+              navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link

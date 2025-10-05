@@ -3,14 +3,13 @@ import { useAppDispatch, useAppSelector } from "@/store/store";
 import { Staff } from "@/types/global";
 import { getBranchEmployees } from "@/utils/api/staff";
 import Image from "next/image";
-import { redirect, useSearchParams, useRouter } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-const page = () => {
+const ViewBranchDetails = () => {
   const dispatch = useAppDispatch();
   const { branchStaff } = useAppSelector((state) => state.branches);
   const branchId = useSearchParams().get("id");
-  const router = useRouter();
 
   const redirectToURI = (url: string) => {
     redirect(url);
@@ -18,10 +17,8 @@ const page = () => {
 
   useEffect(() => {
     // const isPermitted = !branchId && !branchStaff;
-    console.log(branchId, branchStaff);
-    console.log(branchId === null && !branchStaff);
     // if (!isPermitted) return router.push("/dashboard/admin/branches");
-  }, [branchStaff]);
+  }, [branchStaff, branchId]);
 
   useEffect(() => {
     const fetchStaffData = async () => {
@@ -36,7 +33,7 @@ const page = () => {
     };
 
     fetchStaffData();
-  }, []);
+  }, [dispatch, branchId]);
 
   return (
     <div className="mt-6">
@@ -106,4 +103,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ViewBranchDetails;

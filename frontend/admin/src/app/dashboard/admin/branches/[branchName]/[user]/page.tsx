@@ -1,9 +1,7 @@
 "use client";
-import { attendanceData, metricsData } from "@/data/data";
-import { CheckCircle2, AlertTriangle, X } from "lucide-react";
+import { AlertTriangle, X } from "lucide-react";
 import Image from "next/image";
 import "@/app/calendar.css";
-import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,7 +17,6 @@ import PaycheckDetails from "@/components/admin/PaycheckDetails";
 import { Bonus, Payment } from "@/types/global";
 import StaffCalendarAnalytics from "@/components/admin/StaffCalendarAnalytics";
 import { authenticateUser } from "@/utils/api/auth";
-const Calendar = dynamic(() => import("react-calendar"), { ssr: false });
 
 const User = () => {
   const [deleteUserSection, setDeleteUserSection] = useState(false);
@@ -39,7 +36,7 @@ const User = () => {
     } catch (error) {
       console.error("Error! while fetching employees details", error);
     }
-  }, []);
+  }, [dispatch, staffId]);
 
   const fetchEmployeeAnalytics = useCallback(async () => {
     if (!selectedEmployee) return;
@@ -59,16 +56,16 @@ const User = () => {
     } catch (error) {
       console.error("Error! while fetching employees analytics", error);
     }
-  }, [selectedEmployee]);
+  }, [selectedEmployee, dispatch]);
 
   useEffect(() => {
     fetchEmployeeData();
-  }, []);
+  }, [fetchEmployeeData]);
 
   useEffect(() => {
     if (!selectedEmployee) return;
     fetchEmployeeAnalytics();
-  }, [selectedEmployee]);
+  }, [selectedEmployee, fetchEmployeeAnalytics]);
 
   const handleEmployeeDelete = () => {
     setIsDeleteDialogOpen(true);

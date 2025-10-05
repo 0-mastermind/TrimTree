@@ -15,7 +15,7 @@ interface FormDataState {
   imageUrl?: string;
 }
 
-const page = () => {
+const CreateNewBranch = () => {
   const [formData, setFormData] = useState<FormDataState>({
     name: "",
     address: "",
@@ -145,4 +145,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default CreateNewBranch;

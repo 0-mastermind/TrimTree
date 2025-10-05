@@ -33,7 +33,7 @@ export default function AppProvider({
         setIsInitialized(true);
       }
     } catch (error) {
-      console.error("Error while initializing app");
+      console.error("Error while initializing app", error);
       setIsInitialized(true);
     }
   }, [dispatch]);
@@ -41,7 +41,7 @@ export default function AppProvider({
   useLayoutEffect(() => {
     initalize();
     setIsClient(true);
-  }, []);
+  }, [initalize]);
 
   // Check if user has access to the current route based on role
   const checkRouteAccess = useCallback(() => {

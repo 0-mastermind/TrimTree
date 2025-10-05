@@ -121,7 +121,7 @@ const DropDown = ({
     setSelectedIndex(-1);
   };
 
-  const handleItemClick = (item: ValueState, index: number) => {
+  const handleItemClick = (item: ValueState) => {
     setInput(item.name);
     setIsDropdownOpen(false);
     setSelectedIndex(-1);
@@ -163,7 +163,7 @@ const DropDown = ({
                   selectedIndex === index ? "bg-gray-100" : ""
                 } ${isHovered && matchedItem?.id === item.id ? "bg-gray-100" : ""}`}
                 key={item.id}
-                onClick={() => handleItemClick(item, index)}>
+                onClick={() => handleItemClick(item)}>
                 {input ? item.name : item.name}
               </li>
             ));

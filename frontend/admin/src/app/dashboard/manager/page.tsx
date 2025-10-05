@@ -1,21 +1,10 @@
 "use client";
 import DetailsToday from "@/components/Manager/DetailsToday";
-import { useAppSelector } from "@/store/store";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useLayoutEffect } from "react";
+import React from "react";
 
 const page = () => {
-  const auth = useAppSelector((state) => state.auth);
-  const router = useRouter();
-    
-  useLayoutEffect(() => {
-    // if (!auth.isLoggedIn) return;
-    
-    // if (auth.isLoggedIn && auth.user?.role !== "MANAGER") {
-    //   router.push("/dashboard/admin");    
-    // }
-  });
+  
 
   return (
     <div className="mt-6">
