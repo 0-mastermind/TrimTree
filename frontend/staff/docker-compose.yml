@@ -1,0 +1,11 @@
+name: trimtree-staff-panel
+
+services:
+  staff-panel:
+    image: staff-panel
+    build: .
+    ports:
+      - "4173:4173"
+    env_file:
+      - ./.env
+    restart: unless-stopped

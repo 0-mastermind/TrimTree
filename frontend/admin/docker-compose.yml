@@ -1,0 +1,11 @@
+name: trimtree-admin-panel
+
+services:
+  admin-panel:
+    image: admin-panel
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
+    restart: unless-stopped

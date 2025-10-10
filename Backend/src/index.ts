@@ -17,6 +17,7 @@ async function startServer() {
   const PORT = process.env.PORT || 3030;
   const whitelist = process.env.CORS_ORIGIN?.split(",") || [
     "http://localhost:3000",
+    "http://localhost:4173",
   ];
 
   // Middleware
