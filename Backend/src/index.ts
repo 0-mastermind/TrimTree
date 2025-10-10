@@ -3,20 +3,21 @@ import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import http from "http"; 
+import http from "http";
 import dbConnect from "./config/database.js";
 import authRouter from "./routes/auth.routes.js";
 import { ApiError } from "./utils/ApiError.js";
 import managerRouter from "./routes/manager.routes.js";
 import staffRouter from "./routes/staff.routes.js";
 import adminRouter from "./routes/admin.routes.js";
-import { initSocket } from "./socketio.js"; 
+import { initSocket } from "./socketio.js";
 
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3030;
-  const whitelist =
-    process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"];
+  const whitelist = process.env.CORS_ORIGIN?.split(",") || [
+    "http://localhost:3000",
+  ];
 
   // Middleware
   app.use(cookieParser());
@@ -46,10 +47,14 @@ async function startServer() {
   app.use("/api/manager", managerRouter);
   app.use("/api/staff", staffRouter);
   app.use("/api/admin", adminRouter);
-  
-  app.get("/health", (req: Request, res: Response) => {
-    res.status(200).send('OK! App is fine');
-  })
+
+  app.get("/health", async (req: Request, res: Response) => {
+    try {
+      res.status(200).json({ status: "healthy" });
+    } catch (error) {
+      res.status(503).json({ status: "unhealthy" });
+    }
+  });
 
   // Global error handler
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
