@@ -1,15 +1,22 @@
+import "./utils/dotenv.config.js";
 import express from "express";
-import dotenv from "dotenv";
+import type { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import demoRouter from "./routes/demo.routes.js";
+import http from "http"; 
 import dbConnect from "./config/database.js";
-async function startServer() {
-  dotenv.config();
+import authRouter from "./routes/auth.routes.js";
+import { ApiError } from "./utils/ApiError.js";
+import managerRouter from "./routes/manager.routes.js";
+import staffRouter from "./routes/staff.routes.js";
+import adminRouter from "./routes/admin.routes.js";
+import { initSocket } from "./socketio.js"; 
 
+async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3030;
-  const whitelist = process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"];
+  const whitelist =
+    process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"];
 
   // Middleware
   app.use(cookieParser());
@@ -17,10 +24,9 @@ async function startServer() {
   app.use(express.urlencoded());
 
   // DB connect
-//   await dbConnect();
+  await dbConnect();
 
-
- // CORS setup
+  // CORS setup
   app.use(
     cors({
       origin: (origin, callback) => {
@@ -30,16 +36,42 @@ async function startServer() {
           callback(new Error("Not allowed by CORS"));
         }
       },
-      methods: ["GET", "POST", "PUT", "DELETE"],
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       credentials: true,
     })
   );
 
   // Routes
-  app.use("/api/demo", demoRouter);
+  app.use("/api/auth", authRouter);
+  app.use("/api/manager", managerRouter);
+  app.use("/api/staff", staffRouter);
+  app.use("/api/admin", adminRouter);
 
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`);
+  // Global error handler
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof ApiError) {
+      return res.status(err.statusCode).json({
+        success: err.success,
+        message: err.message,
+        errors: err.errors,
+      });
+    }
+
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  });
+
+  // Create HTTP server and init socket.io
+  const server = http.createServer(app);
+  initSocket(server);
+
+  server.listen(PORT, () => {
+    console.log(
+      `Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`
+    );
   });
 }
 
