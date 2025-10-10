@@ -5,10 +5,10 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # Copy package files first (for caching)
-COPY package.json ./
+COPY package*.json ./
 
 # Install dependencies
-RUN npm install --production
+RUN npm ci
 
 COPY . .
 
