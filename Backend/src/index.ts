@@ -46,6 +46,10 @@ async function startServer() {
   app.use("/api/manager", managerRouter);
   app.use("/api/staff", staffRouter);
   app.use("/api/admin", adminRouter);
+  
+  app.get("/health", (req: Request, res: Response) => {
+    res.status(200).send('OK! App is fine');
+  })
 
   // Global error handler
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
