@@ -17,6 +17,7 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
       trim: true,
+      tolowercase: true,
     },
     image: {
       url: {
@@ -31,6 +32,7 @@ const UserSchema = new Schema<IUser>(
     email: {
       type: String,
       trim: true,
+      toLowerCase: true,
     },
     password: {
       type: String,
