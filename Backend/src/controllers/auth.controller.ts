@@ -168,6 +168,7 @@ export const logout = asyncErrorHandler(async (req: Request, res: Response) => {
     httpOnly: true,
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     secure: process.env.NODE_ENV === "production",
+    domain: process.env.NODE_ENV === "production" ? ".trimtreesalon.in" : "localhost",
   });
 
   return new ApiResponse({
