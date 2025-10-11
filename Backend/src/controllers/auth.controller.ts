@@ -114,6 +114,7 @@ export const loginStaff = asyncErrorHandler(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      domain: process.env.NODE_ENV === "production" ? "staff.trimtreesalon.in" : "localhost",
       maxAge: 6 * 60 * 60 * 1000, // 6 hours
     });
 
@@ -147,6 +148,7 @@ export const loginAdminManager = asyncErrorHandler(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      domain: process.env.NODE_ENV === "production" ? "admin.trimtreesalon.in" : "localhost",
       maxAge: 6 * 60 * 60 * 1000, // 6 hours
     });
 
