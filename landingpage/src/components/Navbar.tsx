@@ -3,7 +3,7 @@ import ThemeToggler from "./ThemeToggler";
 
 const Navbar = () => {
   return (
-    <nav className="flex justify-between my-6 items-center gap-2">
+    <nav className="hidden md:flex justify-between my-6 items-center gap-2">
       <div className="mr-14 flex items-center">
         {/* <Image src="/images/logo_light.png" height={70} width={100} alt="Trimtree Logo" className="dark:hidden"/>
         <Image src="/images/logo_dark.png" height={70} width={100} alt="Trimtree Logo" className="hidden dark:block"/> */}

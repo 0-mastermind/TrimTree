@@ -17,6 +17,7 @@
   --text-gray-dark: #454545;
   --text-gray-light: #757575;
   --text-white: #f0f0f0;
+  --text-primary: #010101;
 }
 
 [data-theme='dark'] {
@@ -33,7 +34,7 @@ body {
 }
 
 .container {
-  max-width: calc(100vw - 400px);
+  @apply md:max-w-[calc(100vw_-_100px)] lg:max-w-[calc(100vw_-_400px)];
 }
 
 .font-secondary {

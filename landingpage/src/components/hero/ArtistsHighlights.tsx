@@ -3,7 +3,7 @@ import ArtistImage from "./ArtistImage"
 
 const ArtistsHighlights = () => {
   return (
-    <div className="mt-20">
+    <div className="my-20 md:mt-20">
       <ArtistImage />   
     </div>
   )
