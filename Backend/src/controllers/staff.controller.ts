@@ -716,7 +716,7 @@ export const getSpecificEmployeeAnalytics = asyncErrorHandler(
           },
           totalWorkingHoliday: {
             $sum: {
-              $cond: [{ $eq: ["$status", "WORKING HOLIDAY"] }, 1, 0],
+              $cond: [{ $eq: ["$status", "WORKING_HOLIDAY"] }, 1, 0],
             },
           },
           totalLeave: {
