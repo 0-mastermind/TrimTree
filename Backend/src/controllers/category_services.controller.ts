@@ -10,16 +10,20 @@ import ServiceModel from "../models/services.model.js";
 export const createCategory = asyncErrorHandler( 
   async (req: Request, res: Response) => {
     const { name } = req.body;
-    const { image } = req.files as {
-      [filedName: string]: Express.Multer.File[];
-    };
+    const  file = req.file;
 
-    if (!name && !image) {
+    if (!name || !file) {
       throw new ApiError(400, "All fields are required");
+    }
+    const lname = name.toLowerCase().trim();
+
+    const existingCategory = await CategoryModel.findOne({ name : lname });
+    if (existingCategory) {
+      throw new ApiError(409, "Category with this name already exists");
     }
 
     const imageUpload = await uploadOnCloudinary(
-      image[0].path,
+      file.path,
       "Categories"
     );
 
@@ -63,9 +67,7 @@ export const updateCategory = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const categoryId = req.query.categoryId;
     const { name } = req.body;
-    const { image } = req.files as {
-      [filedName: string]: Express.Multer.File[];
-    };
+    const file = req.file;
 
     if (!categoryId) {
       throw new ApiError(400, "Category ID is required");
@@ -80,13 +82,13 @@ export const updateCategory = asyncErrorHandler(
       category.name = name;
     }
 
-    if (image && image.length > 0) {
+    if (file) {
       if (category.image && category.image.publicId) {
         await cloudinary.uploader.destroy(category.image.publicId);
       }
 
       const imageUpload = await uploadOnCloudinary(
-        image[0].path,
+        file.path,
         "Categories"
       );
 
@@ -142,6 +144,14 @@ export const createService = asyncErrorHandler(
       throw new ApiError(400, "All fields are required");
     }
 
+    const lname = name.trim().toLowerCase();
+
+    const existingService = await ServiceModel.findOne({ name: lname });
+
+    if (existingService) {
+      throw new ApiError(409, "Service with this name already exists");
+    }
+
     const category = await CategoryModel.findById(categoryId);
     if (!category) {
       throw new ApiError(404, "Category not found");
@@ -154,7 +164,7 @@ export const createService = asyncErrorHandler(
       description,
     });
 
-    throw new ApiResponse({
+    return new ApiResponse({
       statusCode: 201,
       message: "Service created successfully!",
     }).send(res);

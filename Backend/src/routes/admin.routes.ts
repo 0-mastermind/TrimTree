@@ -3,6 +3,8 @@ import { createBranch, deleteStaff, getAllBranches, getBranchManagers, getMonthl
 import { multerUpload } from "../middleware/multer.middleware.js";
 import { adminMiddleware, authMiddleware } from "../middleware/auth.middleware.js";
 import { getManagerNameByBranch } from "../controllers/manager.controller.js";
+import { createCategory, createService, deleteCategory, deleteService, getAllCategories, getAllServices, getServicesByCategory, updateCategory, updateService } from "../controllers/category_services.controller.js";
+import { get } from "http";
 
 
 const adminRouter = Router();
@@ -29,5 +31,23 @@ adminRouter.get("/getManagerNameByBranch", authMiddleware , adminMiddleware , ge
 adminRouter.post("/mark-employee-payment", authMiddleware, adminMiddleware, markPaymentOfEmployee);
 
 adminRouter.get("/attendance/monthly" , authMiddleware , adminMiddleware , getMonthlyAttendance);   
+
+adminRouter.post("/create/category" , authMiddleware , adminMiddleware , multerUpload.single("image") , createCategory);
+
+adminRouter.patch("/update/category" , authMiddleware , adminMiddleware , multerUpload.single("image") , updateCategory);
+
+adminRouter.get("/categories" , authMiddleware  , getAllCategories);
+
+adminRouter.delete("/delete/category" , authMiddleware , adminMiddleware , deleteCategory);
+
+adminRouter.post("/create/service" , authMiddleware , adminMiddleware , createService);
+
+adminRouter.get("/services" , authMiddleware , getAllServices); 
+
+adminRouter.patch("/update/service" , authMiddleware , adminMiddleware , updateService);
+
+adminRouter.delete("/delete/service" , authMiddleware , adminMiddleware , deleteService);
+
+adminRouter.get("/service-by-category" , authMiddleware , getServicesByCategory);
 
 export default adminRouter

@@ -7,6 +7,7 @@ const ServiceSchema = new Schema<IService>(
         type: String,
         required: true,
         trim: true,
+        lowercase: true,
     },
     price: {
         type: Number,
@@ -20,6 +21,7 @@ const ServiceSchema = new Schema<IService>(
     description: {
         type: String,
         trim: true,
+        lowercase: true,
     }
   },
   { timestamps: true }

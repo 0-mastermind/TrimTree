@@ -7,6 +7,7 @@ const CategorySchema = new Schema<ICategory>(
         type: String,
         required: true,
         trim: true,
+        lowercase: true,
     },
     image: {
         url: {
