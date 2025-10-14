@@ -102,7 +102,7 @@ export default function ServicesSlider() {
   };
 
   return (
-    <div className="w-full px-6 mt-50">
+    <div className="w-full px-6">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -110,12 +110,12 @@ export default function ServicesSlider() {
           animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : -20 }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <h1 className="text-6xl capitalize text-center dark:text-[var(--text-white)]">
-            Expert premium services
-          </h1>
-           <h1 className="text-6xl capitalize text-center dark:text-[var(--text-white)]">
-             tailored for you
-          </h1>
+          <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">
+        - Services
+      </h6>
+      <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)]">
+        Expert premium hair services tailored for you
+      </h1>
         </motion.div>
         <div
           className="relative overflow-hidden"
