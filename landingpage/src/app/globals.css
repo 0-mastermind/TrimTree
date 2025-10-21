@@ -20,13 +20,14 @@
   --text-primary: #010101;
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --primary-background: #151515;
   --text-primary: #fff;
 }
 
 * {
   font-family: "TASA Explorer", monospace;
+  scroll-behavior: smooth !important;
 }
 
 body {
@@ -44,5 +45,5 @@ body {
 .hero-gradient {
   background: var(--bg-primary, #ff6a00);
   filter: blur(100px);
-  opacity: .3;
+  opacity: 0.3;
 }

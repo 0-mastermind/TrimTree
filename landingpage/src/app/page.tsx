@@ -1,4 +1,5 @@
 import About from "@/components/about/About";
+import Footer from "@/components/Footer";
 import HeroSection from "@/components/hero/HeroSection";
 import OurWork from "@/components/our-work/OurWork";
 import ServicesSlider from "@/components/services/servicesSlider";
@@ -12,6 +13,7 @@ export default function Home() {
         <OurWork />
         <ServicesSlider />
         <About />
+        <Footer />
       </AppProvider>
     </div>
   );

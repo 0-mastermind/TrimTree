@@ -218,7 +218,7 @@ export default function ServicesSlider() {
                             : {}
                         }
                       >
-                        <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                        <span className="bg-[var(--bg-primary)] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                           {service.price}
                         </span>
                       </motion.div>
