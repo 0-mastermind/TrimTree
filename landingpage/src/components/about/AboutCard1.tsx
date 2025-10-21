@@ -18,9 +18,9 @@ const  AboutCard1 = () => {
         <p className="text-left mt-2 sm:mt-3 font-secondary px-1 sm:px-2 text-[var(--text-gray-light)] text-lg  md:text-lg leading-relaxed">
           We combine expert techniques with premium products to give your hair the care it deserves. From styling to treatments, we ensure every visit leaves you feeling confident & careful.
         </p>
-        <button className="bg-[var(--bg-primary)] text-sm sm:text-sm md:text-base lg:text-md p-2.5 sm:p-3 md:p-4 text-white rounded-3xl mt-3 sm:mt-4 md:mt-6 hover:opacity-90 transition-opacity">
+        {/* <button className="bg-[var(--bg-primary)] text-sm sm:text-sm md:text-base lg:text-md py-2 px-6 text-white rounded-3xl mt-3 sm:mt-4 md:mt-6 hover:opacity-90 transition-opacity ">
           Get Expert Care
-        </button>
+        </button> */}
       </div>
     </div>
   );

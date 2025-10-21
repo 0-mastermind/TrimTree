@@ -3,7 +3,7 @@ import AboutCard2 from "./AboutCard2";
 
 const About = () => {
   return (
-    <div className="w-full flex flex-col justify-center items-center my-8 sm:my-12 md:my-16 lg:my-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+    <div className="w-full flex flex-col justify-center items-center my-8 sm:my-12 md:my-16 lg:my-20">
       <div className="w-full max-w-7xl">
         <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">
         - About TrimTree
