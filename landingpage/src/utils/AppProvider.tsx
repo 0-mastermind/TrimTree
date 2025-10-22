@@ -1,7 +1,6 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import PhoneSidebar from "@/components/PhoneSidebar";
-import { div } from "framer-motion/client";
 
 const AppProvider = ({ children }: { children: React.ReactNode }) => {
   return (

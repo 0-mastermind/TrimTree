@@ -6,6 +6,30 @@ import EmployeeCard from './EmployeeCard'
 import { useRouter } from 'next/navigation'
 import { MoveRight } from 'lucide-react'
 
+interface Employee {
+  name: string;
+  imageUrl: string;
+  designation: string;
+  id?: string | number;
+  email?: string;
+}
+
+interface RawEmployeeData {
+  name?: string;
+  fullName?: string;
+  imageUrl?: string;
+  image?: string;
+  avatar?: string;
+  profilePicture?: string;
+  designation?: string;
+  position?: string;
+  role?: string;
+  title?: string;
+  id?: string | number;
+  email?: string;
+  [key: string]: unknown;
+}
+
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array]
   for (let i = arr.length - 1; i > 0; i--) {
@@ -15,54 +39,95 @@ function shuffleArray<T>(array: T[]): T[] {
   return arr
 }
 
-function getRandomEmployees<T>(array: T[], count: number, prevSet: Set<any> = new Set()): T[] {
+function getRandomEmployees<T extends Employee>(
+  array: T[], 
+  count: number, 
+  prevSet: Set<string> = new Set()
+): T[] {
   if (array.length <= count) return [...array]
+  
   let attempt = 0
   let selection: T[] = []
+  const maxAttempts = 5
+  
   do {
     selection = shuffleArray(array).slice(0, count)
     attempt++
     const overlap = selection.filter((e) => prevSet.has(getEmployeeId(e))).length
-    if (overlap < Math.floor(count / 2) || attempt > 5) break
-  } while (true)
+    if (overlap < Math.floor(count / 2) || attempt > maxAttempts) break
+  } while (attempt <= maxAttempts)
+  
   return selection
 }
 
-function getEmployeeId(employee: any) {
-  return employee.id || employee.email || employee.name
+function getEmployeeId(employee: Employee): string {
+  return String(employee.id || employee.email || employee.name || Math.random())
 }
 
-const Team = () => {
+// Function to map your actual data to the expected Employee format
+function mapToEmployeeCardFormat(data: RawEmployeeData): Employee {
+  return {
+    name: data.name || data.fullName || 'Unknown Employee',
+    imageUrl: data.imageUrl || data.image || data.avatar || data.profilePicture || '/default-avatar.png',
+    designation: data.designation || data.position || data.role || data.title || 'Team Member',
+    id: data.id,
+    email: data.email,
+  }
+}
+
+// Debug component to check your data structure
+const DataDebugger: React.FC = () => {
+  useEffect(() => {
+    console.log('Employees data:', employees)
+    if (employees.length > 0) {
+      console.log('First employee structure:', employees[0])
+      console.log('Employee object keys:', Object.keys(employees[0]))
+    }
+  }, [])
+  
+  return null
+}
+
+const Team: React.FC = () => {
   const router = useRouter()
-  const [randomEmployees, setRandomEmployees] = useState(
-    () => employees.slice(0, 6) // SSR-safe, deterministic initial render
+  
+  // Map employees to the correct format expected by EmployeeCard
+  const mappedEmployees = React.useMemo(() => {
+    return (employees as RawEmployeeData[]).map(mapToEmployeeCardFormat)
+  }, [])
+
+  const [randomEmployees, setRandomEmployees] = useState<Employee[]>(
+    () => mappedEmployees.slice(0, 6)
   )
   const [key, setKey] = useState(0)
   const prevEmployeeIds = useRef(new Set(randomEmployees.map(getEmployeeId)))
 
   useEffect(() => {
-    // Randomize once after mount
-    const initial = getRandomEmployees(employees, 6)
+    const initial = getRandomEmployees(mappedEmployees, 6)
     setRandomEmployees(initial)
     prevEmployeeIds.current = new Set(initial.map(getEmployeeId))
     setKey((prev) => prev + 1)
 
     const interval = setInterval(() => {
-      const next = getRandomEmployees(employees, 6, prevEmployeeIds.current)
+      const next = getRandomEmployees(mappedEmployees, 6, prevEmployeeIds.current)
       prevEmployeeIds.current = new Set(next.map(getEmployeeId))
       setRandomEmployees(next)
       setKey((prev) => prev + 1)
     }, 5000)
+    
     return () => clearInterval(interval)
-  }, [])
+  }, [mappedEmployees])
 
   return (
-    <div className='py-20 px-3'>
-      <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">
+    <div id="team" className="py-20 px-3 bg-white dark:bg-gray-900 transition-colors duration-300">
+      {/* Temporary debugger - remove after checking console */}
+      <DataDebugger />
+      
+      <h6 className="text-center text-lg text-gray-800 dark:text-gray-200 font-secondary capitalize transition-colors duration-300">
         - Team
       </h6>
-      <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)]">
-        Meet the experts behind your perfect hairs
+      <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-gray-900 dark:text-white transition-colors duration-300">
+        Meet the experts behind your perfect hair
       </h1>
       <div className='grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3' style={{ perspective: '1500px' }}>
         <AnimatePresence mode="popLayout">
@@ -96,7 +161,6 @@ const Team = () => {
               }}
               style={{
                 transformStyle: 'preserve-3d',
-                backfaceVisibility: 'hidden'
               }}
             >
               <EmployeeCard employee={employee} />
@@ -104,12 +168,13 @@ const Team = () => {
           ))}
         </AnimatePresence>
       </div>
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-14">
         <button
-          className="flex gap-2 px-4 py-3 font-semibold justify-center items-center  font-secondary border-2 hover:bg-[#ffaa00] border-[#ffaa00] rounded-2xl  hover:text-white transition-colors duration-300 cursor-pointer text-[var(--text-primary)]"
+          className="flex gap-2 px-8 py-2 font-semibold justify-center items-center font-secondary border-2 hover:bg-[#ffaa00] border-[#ffaa00] rounded-lg hover:text-white transition-colors duration-300 cursor-pointer text-[#ffaa00] dark:text-[#ffaa00] dark:border-[#ffaa00] dark:hover:bg-[#ffaa00] dark:hover:text-white"
           onClick={() => router.push('/team')}
+          type="button"
         >
-          See All <MoveRight className='h-5 w-5' />
+          View All <MoveRight className='h-5 w-5' />
         </button>
       </div>
     </div>

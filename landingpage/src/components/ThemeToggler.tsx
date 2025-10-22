@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 const ThemeToggler = () => {
-  const [theme, setTheme] = useState<String>("light");
+  const [theme, setTheme] = useState<string>("light");
 
   const toggleTheme = () => {
     if (theme === "dark") {

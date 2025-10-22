@@ -1,5 +1,5 @@
-import Image from "next/image";
 import ThemeToggler from "./ThemeToggler";
+import Link from "next/link";
 
 const Navbar = () => {
   return (
@@ -7,18 +7,20 @@ const Navbar = () => {
       <div className="mr-14 flex items-center">
         {/* <Image src="/images/logo_light.png" height={70} width={100} alt="Trimtree Logo" className="dark:hidden"/>
         <Image src="/images/logo_dark.png" height={70} width={100} alt="Trimtree Logo" className="hidden dark:block"/> */}
-        <h1 className="text-2xl font-bold font-secondary dark:text-[var(--text-white)]">TrimTree</h1>
+        <h1 className="text-2xl font-bold font-secondary dark:text-[var(--text-white)]">
+          <Link href={"/"}>TrimTree</Link>
+        </h1>
       </div>
       <div className="flex-1 flex justify-center items-center">
         <ul className="flex gap-8 font-[500]">
           <li>
-            <a href="#" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">About</a>
+            <Link href="#about" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">About</Link>
           </li>
           <li>
-            <a href="#" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Services</a>
+            <Link href="#services" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Services</Link>
           </li>
           <li>
-            <a href="#" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Reviews</a>
+            <Link href="#team" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Our Team</Link>
           </li>
         </ul>
       </div>

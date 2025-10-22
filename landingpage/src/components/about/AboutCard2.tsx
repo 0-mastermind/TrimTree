@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const AboutCard2 = () => {
   const features = [
     {
@@ -39,11 +41,13 @@ const AboutCard2 = () => {
           ))}
         </div>
       </div>
-      <div className="w-full">
-        <img
+      <div className="w-full relative min-h-[300px] max-h-[400px] lg:min-h-[400px] lg:max-h-[600px]">
+        <Image
           src="/images/about/about2.avif"
-          alt=""
-          className="rounded-2xl w-full h-full object-cover min-h-[300px] max-h-[400px] lg:min-h-[400px] lg:max-h-[600px]"
+          alt="About Velvera Salon"
+          fill
+          priority
+          className="rounded-2xl object-cover"
         />
       </div>
     </div>
