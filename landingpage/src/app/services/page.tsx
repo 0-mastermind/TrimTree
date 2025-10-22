@@ -219,7 +219,7 @@ export default function SalonServices() {
 
                       <div className="relative z-10">
                         <div className="flex justify-between items-start mb-3">
-                          <h3 className="text-lg font-bold text-[var(--text-primary)] flex-1 pr-4">
+                          <h3 className="text-lg font-bold flex-1 pr-4">
                             {service.name}
                           </h3>
                           <div className="bg-[var(--bg-primary)] text-[var(--text-white)] px-3.5 py-1.5 rounded-lg text-base font-bold whitespace-nowrap">
