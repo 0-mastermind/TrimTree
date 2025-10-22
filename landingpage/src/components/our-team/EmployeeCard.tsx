@@ -13,7 +13,7 @@ interface EmployeeCardProps {
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee }) => {
   return (
     <div className='flex flex-col gap-2'>
-        <div className='w-[30vw]  md:w-[25vw] lg:w-[18vw] xl:w-[16vw]'>
+        <div className=''>
 
       <Image
         src={employee.imageUrl}
@@ -24,15 +24,14 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee }) => {
         className="w-full rounded-3xl object-cover"
         />
         </div>
-        <div>
-            
-         <h6 className="text-left text-md sm:text-base md:text-[1.3rem] text-[var(--text-primary)] font-semibold capitalize">
-        {employee.name}
+        <div className='px-1'>
+        <h6 className="text-left text-md sm:text-base md:text-[1.2rem] text-[var(--text-primary)] font-semibold capitalize leading-tight mb-1">
+          {employee.name}
         </h6>
-        <p className='font-secondary text-gray-500 text-md'>
-            {employee.designation}
+        <p className='font-secondary text-gray-500 text-sm leading-snug'>
+          {employee.designation}
         </p>
-        </div>
+      </div>
     </div>
   )
 }

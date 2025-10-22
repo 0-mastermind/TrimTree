@@ -49,6 +49,58 @@ const employees = [
     imageUrl: "https://randomuser.me/api/portraits/men/9.jpg",
     designation: "Spa & Wellness Therapist",
   },
+
+  // ✅ Added New 10
+  {
+    name: "Priya Nanda",
+    imageUrl: "https://randomuser.me/api/portraits/women/10.jpg",
+    designation: "Beauty & Wellness Expert",
+  },
+  {
+    name: "Dev Malhotra",
+    imageUrl: "https://randomuser.me/api/portraits/men/11.jpg",
+    designation: "Massage Therapist",
+  },
+  {
+    name: "Shruti Vashisht",
+    imageUrl: "https://randomuser.me/api/portraits/women/12.jpg",
+    designation: "Hair Color Specialist",
+  },
+  {
+    name: "Arjun Rathore",
+    imageUrl: "https://randomuser.me/api/portraits/men/13.jpg",
+    designation: "Senior Barber",
+  },
+  {
+    name: "Meera Joshi",
+    imageUrl: "https://randomuser.me/api/portraits/women/14.jpg",
+    designation: "Bridal Makeup Artist",
+  },
+  {
+    name: "Karan Gill",
+    imageUrl: "https://randomuser.me/api/portraits/men/15.jpg",
+    designation: "Hair & Beard Artist",
+  },
+  {
+    name: "Aditi Chauhan",
+    imageUrl: "https://randomuser.me/api/portraits/women/16.jpg",
+    designation: "Skin Treatment Specialist",
+  },
+  {
+    name: "Samar Bedi",
+    imageUrl: "https://randomuser.me/api/portraits/men/17.jpg",
+    designation: "Junior Hair Stylist",
+  },
+  {
+    name: "Pooja Arora",
+    imageUrl: "https://randomuser.me/api/portraits/women/18.jpg",
+    designation: "Facial & Spa Expert",
+  },
+  {
+    name: "Neil Kapoor",
+    imageUrl: "https://randomuser.me/api/portraits/men/19.jpg",
+    designation: "Customer Experience Manager",
+  },
 ];
 
 export default employees;
