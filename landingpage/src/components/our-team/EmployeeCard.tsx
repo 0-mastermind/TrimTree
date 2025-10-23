@@ -4,7 +4,7 @@ import React from 'react'
 interface EmployeeCardProps {
   employee: {
     name: string,
-    imageUrl: string,
+    imageUrl?: string,
     designation: string,
   }
 }
