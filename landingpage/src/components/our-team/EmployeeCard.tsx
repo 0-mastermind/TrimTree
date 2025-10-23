@@ -15,7 +15,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee }) => {
         <div className=''>
 
       <Image
-        src={employee.imageUrl}
+        src={employee.imageUrl || '/images/team/user.jpg'}
         alt={employee.name}
         width={1920}
         height={1080}
