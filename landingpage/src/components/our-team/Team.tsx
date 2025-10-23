@@ -68,7 +68,7 @@ function getEmployeeId(employee: Employee): string {
 function mapToEmployeeCardFormat(data: RawEmployeeData): Employee {
   return {
     name: data.name || data.fullName || 'Unknown Employee',
-    imageUrl: data.imageUrl || data.image || data.avatar || data.profilePicture || '/default-avatar.png',
+    imageUrl: data.imageUrl || data.image || data.avatar || data.profilePicture || '/images/team/user.jpg',
     designation: data.designation || data.position || data.role || data.title || 'Team Member',
     id: data.id,
     email: data.email,
