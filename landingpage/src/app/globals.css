@@ -1,0 +1,49 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: "TASA Explorer";
+  src: url("/fonts/font.ttf");
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter.ttf");
+}
+
+:root {
+  --primary-background: #ffffff;
+  --bg-primary: #ffaa00;
+  --text-gray-dark: #454545;
+  --text-gray-light: #757575;
+  --text-white: #f0f0f0;
+  --text-primary: #010101;
+}
+
+[data-theme="dark"] {
+  --primary-background: #151515;
+  --text-primary: #fff;
+}
+
+* {
+  font-family: "TASA Explorer", monospace;
+  scroll-behavior: smooth !important;
+}
+
+body {
+  background: var(--primary-background);
+}
+
+.container {
+  @apply md:max-w-[calc(100vw_-_100px)] lg:max-w-[calc(100vw_-_400px)];
+}
+
+.font-secondary {
+  font-family: "Inter";
+}
+
+.hero-gradient {
+  background: var(--bg-primary, #ff6a00);
+  filter: blur(100px);
+  opacity: 0.3;
+}
