@@ -106,7 +106,7 @@ const Team: React.FC = () => {
   }, [mappedEmployees])
 
   return (
-    <div id="team" className="py-20 px-3 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div id="team" className="py-20 px-3 bg-white dark:bg-[var(--bg-primary)]/2 transition-colors duration-300">
       
       <h6 className="text-center text-lg text-gray-800 dark:text-gray-200 font-secondary capitalize transition-colors duration-300">
         - Team
