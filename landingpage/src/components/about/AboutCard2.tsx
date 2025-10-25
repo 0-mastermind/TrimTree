@@ -24,7 +24,21 @@ const AboutCard2 = () => {
         <div className="space-y-4">
           {features.map((feature, index) => (
             <div key={index} className="flex items-start gap-3">
-              <div className="bg-[var(--bg-primary)] h-4 w-4 rounded-full flex-shrink-0 mt-1.5"></div>
+              <div className="bg-[var(--bg-primary)] h-4 w-4 rounded-full flex-shrink-0 mt-1.5 flex items-center justify-center text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-check-icon lucide-check">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </div>
               <div>
                 <span className="text-md sm:text-base md:text-lg text-[var(--text-primary)] font-secondary capitalize">
                   {feature.title}
