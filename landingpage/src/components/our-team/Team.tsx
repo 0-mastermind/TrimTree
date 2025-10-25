@@ -75,19 +75,6 @@ function mapToEmployeeCardFormat(data: RawEmployeeData): Employee {
   }
 }
 
-// Debug component to check your data structure
-const DataDebugger: React.FC = () => {
-  useEffect(() => {
-    console.log('Employees data:', employees)
-    if (employees.length > 0) {
-      console.log('First employee structure:', employees[0])
-      console.log('Employee object keys:', Object.keys(employees[0]))
-    }
-  }, [])
-  
-  return null
-}
-
 const Team: React.FC = () => {
   const router = useRouter()
   
@@ -120,8 +107,6 @@ const Team: React.FC = () => {
 
   return (
     <div id="team" className="py-20 px-3 bg-white dark:bg-gray-900 transition-colors duration-300">
-      {/* Temporary debugger - remove after checking console */}
-      <DataDebugger />
       
       <h6 className="text-center text-lg text-gray-800 dark:text-gray-200 font-secondary capitalize transition-colors duration-300">
         - Team
