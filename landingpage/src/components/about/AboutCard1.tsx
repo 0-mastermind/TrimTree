@@ -16,13 +16,10 @@ const AboutCard1 = () => {
 
       {/* Text Section */}
       <div className="w-full flex flex-col justify-center items-start px-4 sm:px-6 lg:px-8 xl:px-12">
-        <h6 className="text-left text-sm sm:text-base md:text-lg text-[var(--text-primary)] font-secondary capitalize">
-          - Introduction
-        </h6>
-        <h1 className="my-4 sm:my-6 md:my-8 lg:my-10 text-3xl lg:text-4xl xl:text-4xl text-left text-[var(--text-primary)] font-light leading-relaxed">
-          Welcome to Velvera, your destination for hair care
+        <h1 className="my-4 sm:my-6 md:my-8 lg:my-8 text-3xl lg:text-4xl xl:text-4xl text-left text-[var(--text-primary)] font-light leading-relaxed">
+          Welcome to Trim Tree Salon, your destination for hair care
         </h1>
-        <p className="text-left mt-2 sm:mt-3 font-secondary px-1 sm:px-2 text-[var(--text-gray-light)] text-lg md:text-lg leading-relaxed">
+        <p className="text-left font-secondary px-1 sm:px-2 text-[var(--text-gray-light)] text-lg md:text-lg leading-relaxed">
           We combine expert techniques with premium products to give your hair the care it deserves. From styling to treatments, we ensure every visit leaves you feeling confident & cared for.
         </p>
       </div>

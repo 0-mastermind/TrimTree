@@ -11,7 +11,7 @@ export interface OurWorkCardProps {
 
 export interface OurWorkSectionProps {
     cardData: OurWorkCardProps[];
-    sectionSubHeading: string;
+    sectionSubHeading?: string;
     sectionHeading: string;
 }
 
