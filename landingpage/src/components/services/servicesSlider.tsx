@@ -95,10 +95,7 @@ export default function ServicesSlider() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : -20 }}
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}>
-            <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">
-              - Services
-            </h6>
-            <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)]">
+            <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)] font-semibold">
               Expert premium hair services tailored for you
             </h1>
           </motion.div>

@@ -15,6 +15,7 @@ import {
 import { categories } from "@/data/data";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import PhoneSidebar from "@/components/PhoneSidebar";
 
 const getCategoryIcon = (categoryName: string) => {
   const name = categoryName.toLowerCase();
@@ -91,6 +92,7 @@ export default function SalonServices() {
     <>
       <div className="container mx-auto">
         <Navbar />
+        <PhoneSidebar />
       </div>
       <div className="min-h-screen bg-[var(--primary-background)] container mx-auto">
         {/* Header */}

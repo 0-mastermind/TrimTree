@@ -82,18 +82,18 @@ const PhoneSidebar = () => {
               {/* Links */}
               <ul className="mt-16 space-y-6 text-lg font-semibold text-gray-800">
                 <li>
-                  <a href="#about" onClick={() => setIsOpen(false)}>
+                  <a href="/#about" onClick={() => setIsOpen(false)}>
                     About
                   </a>
                 </li>
                 <li>
-                  <a href="#services" onClick={() => setIsOpen(false)}>
+                  <a href="/#services" onClick={() => setIsOpen(false)}>
                     Services
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" onClick={() => setIsOpen(false)}>
-                    Contact Us
+                  <a href="/#team" onClick={() => setIsOpen(false)}>
+                    Our Team
                   </a>
                 </li>
               </ul>

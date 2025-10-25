@@ -122,11 +122,7 @@ const Team: React.FC = () => {
     <div id="team" className="py-20 px-3 bg-white dark:bg-gray-900 transition-colors duration-300">
       {/* Temporary debugger - remove after checking console */}
       <DataDebugger />
-      
-      <h6 className="text-center text-lg text-gray-800 dark:text-gray-200 font-secondary capitalize transition-colors duration-300">
-        - Team
-      </h6>
-      <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-gray-900 dark:text-white transition-colors duration-300">
+      <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-gray-900 dark:text-white transition-colors duration-300 font-semibold">
         Meet the experts behind your perfect hair
       </h1>
       <div className='grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3' style={{ perspective: '1500px' }}>

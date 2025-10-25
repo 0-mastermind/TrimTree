@@ -4,7 +4,7 @@ import ArtistsHighlights from "./ArtistsHighlights";
 const BookAppointment = () => {
   return (
     <div className="mt-20 max-w-200 flex flex-col items-center">
-      <h1 className="text-5xl md:text-6xl capitalize text-center dark:text-[var(--text-white)]">
+      <h1 className="text-5xl md:text-6xl capitalize text-center dark:text-[var(--text-white)] font-semibold">
         Let your hair shine with strength & beauty
       </h1>
       <p className="text-center mt-6 text-md md:text-xl p-2 max-w-120 md:max-w-140 font-secondary text-[var(--text-gray-light)]">

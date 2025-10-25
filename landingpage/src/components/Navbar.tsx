@@ -14,13 +14,13 @@ const Navbar = () => {
       <div className="flex-1 flex justify-center items-center">
         <ul className="flex gap-8 font-[500]">
           <li>
-            <Link href="#about" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">About</Link>
+            <Link href="/#about" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">About</Link>
           </li>
           <li>
-            <Link href="#services" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Services</Link>
+            <Link href="/#services" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Services</Link>
           </li>
           <li>
-            <Link href="#team" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Our Team</Link>
+            <Link href="/#team" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Our Team</Link>
           </li>
         </ul>
       </div>
