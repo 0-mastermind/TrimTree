@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const Footer = () => {
@@ -8,7 +9,7 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="space-y-6">
             <h1 className="text-3xl lg:text-4xl font-bold font-secondary dark:text-[var(--text-white)] text-gray-900">
-              TrimTree
+              <Link href={"/"}>Trim Tree Salon</Link>
             </h1>
             <p className="text-sm lg:text-base max-w-md leading-relaxed text-gray-600 dark:text-[var(--text-gray-dark)]">
               A modern salon designed for modern people who value style and comfort.

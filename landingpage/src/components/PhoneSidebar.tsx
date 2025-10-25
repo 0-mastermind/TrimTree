@@ -17,7 +17,7 @@ const PhoneSidebar = () => {
     <nav className="block md:hidden">
       {/* Top Navbar */}
       <div className="mt-4 flex justify-between items-center px-4">
-        <h1 className="font-inter font-bold text-2xl dark:text-[var(--text-white)] mt-1">TrimTree</h1>
+        <h1 className="font-inter font-bold text-lg dark:text-[var(--text-white)] mt-1">Trim Tree Salon</h1>
 
         <div className="flex gap-4 items-center justify-between">
           <ThemeToggler />

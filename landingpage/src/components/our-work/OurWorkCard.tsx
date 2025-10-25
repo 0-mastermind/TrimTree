@@ -20,7 +20,12 @@ const OurWorkCard = ({
           }
           `}>
           {iconDarkBG ? (
-            <Image src={`${iconSrc.slice(0, -4)}-dark.svg`} alt="icon" width={35} height={35} />
+            <Image
+              src={`${iconSrc.slice(0, -4)}-dark.svg`}
+              alt="icon"
+              width={35}
+              height={35}
+            />
           ) : (
             <Image src={iconSrc} alt="icon" width={35} height={35} />
           )}

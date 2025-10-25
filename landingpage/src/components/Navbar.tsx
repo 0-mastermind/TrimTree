@@ -7,8 +7,8 @@ const Navbar = () => {
       <div className="mr-14 flex items-center">
         {/* <Image src="/images/logo_light.png" height={70} width={100} alt="Trimtree Logo" className="dark:hidden"/>
         <Image src="/images/logo_dark.png" height={70} width={100} alt="Trimtree Logo" className="hidden dark:block"/> */}
-        <h1 className="text-2xl font-bold font-secondary dark:text-[var(--text-white)]">
-          <Link href={"/"}>TrimTree</Link>
+        <h1 className="text-lg font-bold font-secondary dark:text-[var(--text-white)]">
+          <Link href={"/"}>Trim Tree Salon</Link>
         </h1>
       </div>
       <div className="flex-1 flex justify-center items-center">
