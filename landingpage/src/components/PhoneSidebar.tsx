@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggler from "./ThemeToggler";
+import Link from "next/link";
 
 const PhoneSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,19 +83,19 @@ const PhoneSidebar = () => {
               {/* Links */}
               <ul className="mt-16 space-y-6 text-lg font-semibold text-gray-800">
                 <li>
-                  <a href="/#about" onClick={() => setIsOpen(false)}>
+                  <Link href="/#about" onClick={() => setIsOpen(false)}>
                     About
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/#services" onClick={() => setIsOpen(false)}>
+                  <Link href="/#services" onClick={() => setIsOpen(false)}>
                     Services
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/#team" onClick={() => setIsOpen(false)}>
+                  <Link href="/#team" onClick={() => setIsOpen(false)}>
                     Our Team
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </motion.div>

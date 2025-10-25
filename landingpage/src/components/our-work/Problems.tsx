@@ -4,7 +4,6 @@ import { OurWorkCardProps, OurWorkSectionProps } from "@/types/type";
 
 const Problems = ({
   cardData,
-  sectionSubHeading,
   sectionHeading,
 }: OurWorkSectionProps) => {
   return (

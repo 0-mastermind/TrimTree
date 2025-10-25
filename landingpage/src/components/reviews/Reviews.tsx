@@ -2,7 +2,7 @@ const Reviews = () => {
   return (
     <section className="my-10 py-4">
       <h1 className="my-4 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)] font-semibold">
-        What our clients say about Trim Tree Salon's services
+        What our clients say about Trim Tree Salon&apos;s services
       </h1>
       
       {/* Bento Grid */}

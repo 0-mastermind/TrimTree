@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MoveRight } from "lucide-react";
+import Image from "next/image";
 
 const services = [
   {
@@ -11,7 +12,8 @@ const services = [
     description:
       "Get a fresh new look with a stylish haircut tailored to your preferences by professionals.",
     price: "From ₹300",
-    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&q=80",
   },
   {
     id: 2,
@@ -19,7 +21,8 @@ const services = [
     description:
       "A professional blow-dry to give your hair a smooth, voluminous, and perfectly styled finish.",
     price: "From ₹300",
-    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&q=80",
   },
   {
     id: 3,
@@ -27,7 +30,8 @@ const services = [
     description:
       "Achieve smooth, frizz-free, and manageable hair with our transformative keratin treatment.",
     price: "From ₹5000",
-    image: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=500&q=80",
   },
   {
     id: 4,
@@ -35,7 +39,8 @@ const services = [
     description:
       "Transform your look with a stunning, all-over global hair color using premium L'Oréal products.",
     price: "From ₹3000",
-    image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&q=80",
   },
   {
     id: 5,
@@ -43,7 +48,8 @@ const services = [
     description:
       "Indulge in a premium L'Oréal hair spa to deeply nourish and revitalize your hair.",
     price: "From ₹1200",
-    image: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=500&q=80",
   },
 ];
 
@@ -63,8 +69,8 @@ export default function ServicesSlider() {
       setIsMobile(window.innerWidth < 768);
     };
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   useEffect(() => {
@@ -101,7 +107,8 @@ export default function ServicesSlider() {
             className="text-center mb-8 sm:mb-12"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : -20 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}>
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          >
             <h1 className="my-6 sm:my-10 text-3xl sm:text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)] font-semibold px-4">
               Expert premium services tailored for you
             </h1>
@@ -109,7 +116,8 @@ export default function ServicesSlider() {
           <div
             className="relative overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}>
+            onMouseLeave={() => setIsHovered(false)}
+          >
             <motion.div
               className="flex items-start justify-center gap-4 sm:gap-6 py-4 sm:py-8"
               initial={{ opacity: 0 }}
@@ -118,12 +126,15 @@ export default function ServicesSlider() {
                 delay: 0.3,
                 duration: 0.6,
                 ease: [0.25, 0.1, 0.25, 1],
-              }}>
+              }}
+            >
               <AnimatePresence mode="popLayout">
                 {getVisibleServices().map((service) => (
                   <motion.div
                     key={service.slideKey}
-                    className={`relative ${service.isCenter ? "z-20" : "z-10"} w-full max-w-[340px] sm:max-w-none`}
+                    className={`relative ${
+                      service.isCenter ? "z-20" : "z-10"
+                    } w-full max-w-[340px] sm:max-w-none`}
                     layout
                     initial={{
                       opacity: 0,
@@ -164,7 +175,8 @@ export default function ServicesSlider() {
                               ease: [0.25, 0.1, 0.25, 1],
                             },
                           }
-                    }>
+                    }
+                  >
                     <motion.div
                       className="w-full sm:w-90 rounded-3xl overflow-hidden"
                       transition={{
@@ -173,7 +185,8 @@ export default function ServicesSlider() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         },
-                      }}>
+                      }}
+                    >
                       <div className="relative h-64 sm:h-72 overflow-hidden">
                         <motion.div
                           className="relative w-full h-full"
@@ -181,8 +194,12 @@ export default function ServicesSlider() {
                           transition={{
                             duration: 0.4,
                             ease: [0.25, 0.1, 0.25, 1],
-                          }}>
-                          <img
+                          }}
+                        >
+                          <Image
+                            width={1920}
+                            height={1080}
+                            quality={100}
                             src={service.image}
                             alt={service.title}
                             className="w-full h-full object-cover"
@@ -198,7 +215,8 @@ export default function ServicesSlider() {
                                   scale: [1, 1.05, 1],
                                 }
                               : {}
-                          }>
+                          }
+                        >
                           <span className="bg-[var(--bg-primary)] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">
                             {service.price}
                           </span>
@@ -243,13 +261,13 @@ export default function ServicesSlider() {
           </div>
         </div>
       </div>
-      
+
       <div className="flex justify-center mt-2 px-4">
         <button
           className="flex gap-2 px-6 sm:px-8 py-2 font-semibold justify-center items-center border-2 hover:bg-[var(--bg-primary)] border-[var(--bg-primary)] rounded-lg hover:text-white transition-colors duration-300 cursor-pointer 
           text-[var(--bg-primary)] text-sm sm:text-base"
         >
-          View All <MoveRight className='h-4 w-4 sm:h-5 sm:w-5' />
+          View All <MoveRight className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
       </div>
     </>
