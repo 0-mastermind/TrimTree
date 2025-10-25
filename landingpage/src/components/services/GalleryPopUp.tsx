@@ -50,19 +50,19 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
       {/* Close Button */}
       <button
         onClick={onClose}
-        className="absolute top-6 right-6 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 backdrop-blur-sm transition-all duration-200"
+        className="absolute top-6 right-6 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 backdrop-blur-sm transition-all duration-200 cursor-pointer"
       >
         <X className="w-6 h-6 text-black" />
       </button>
 
       {/* Main Image Display */}
       <div className="relative max-w-6xl max-h-[90vh] w-full mx-4">
-        <div className="relative h-[80vh] rounded-lg overflow-hidden">
+        <div className="relative h-[80vh] rounded-lg overflow-hidden p-2 flex items-center justify-center">
           <motion.img
             key={currentIndex}
             src={images[currentIndex]}
             alt={`Gallery image ${currentIndex + 1}`}
-            className="w-full h-full object-contain"
+            className="h-full object-contain rounded-lg"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
@@ -73,7 +73,7 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 backdrop-blur-sm transition-all duration-200"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 backdrop-blur-sm transition-all duration-200 cursor-pointer"
               >
                 <svg
                   className="w-6 h-6 text-"
@@ -92,7 +92,7 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
 
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 backdrop-blur-sm transition-all duration-200"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 backdrop-blur-sm transition-all duration-200 cursor-pointer"
               >
                 <svg
                   className="w-6 h-6 text-black"
@@ -127,7 +127,7 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
                 <button
                   key={index}
                   onClick={() => goToImage(index)}
-                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
                     index === currentIndex
                       ? "border-white ring-2 ring-white ring-opacity-50"
                       : "border-gray-400 border-opacity-50 hover:border-white"

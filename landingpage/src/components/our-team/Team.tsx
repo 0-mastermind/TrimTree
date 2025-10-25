@@ -106,7 +106,7 @@ const Team: React.FC = () => {
   }, [mappedEmployees])
 
   return (
-    <div id="team" className="py-20 px-3 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div id="team" className="py-20 px-3 transition-colors duration-300">
       <h1 className="my-4 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-gray-900 dark:text-white transition-colors duration-300">
         Meet the experts behind your perfect hair
       </h1>
