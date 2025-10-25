@@ -7,20 +7,20 @@ const Navbar = () => {
       <div className="mr-14 flex items-center">
         {/* <Image src="/images/logo_light.png" height={70} width={100} alt="Trimtree Logo" className="dark:hidden"/>
         <Image src="/images/logo_dark.png" height={70} width={100} alt="Trimtree Logo" className="hidden dark:block"/> */}
-        <h1 className="text-2xl font-bold font-secondary dark:text-[var(--text-white)]">
-          <Link href={"/"}>TrimTree</Link>
+        <h1 className="text-lg font-bold font-secondary dark:text-[var(--text-white)]">
+          <Link href={"/"}>Trim Tree Salon</Link>
         </h1>
       </div>
       <div className="flex-1 flex justify-center items-center">
         <ul className="flex gap-8 font-[500]">
           <li>
-            <Link href="#about" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">About</Link>
+            <Link href="/#about" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">About</Link>
           </li>
           <li>
-            <Link href="#services" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Services</Link>
+            <Link href="/#services" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Services</Link>
           </li>
           <li>
-            <Link href="#team" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Our Team</Link>
+            <Link href="/#team" className="font-secondary text-[var(--text-gray-dark)] dark:text-[var(--text-white)]">Our Team</Link>
           </li>
         </ul>
       </div>

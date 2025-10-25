@@ -17,7 +17,7 @@ const PhoneSidebar = () => {
     <nav className="block md:hidden">
       {/* Top Navbar */}
       <div className="mt-4 flex justify-between items-center px-4">
-        <h1 className="font-inter font-bold text-2xl dark:text-[var(--text-white)] mt-1">TrimTree</h1>
+        <h1 className="font-inter font-bold text-lg dark:text-[var(--text-white)] mt-1">Trim Tree Salon</h1>
 
         <div className="flex gap-4 items-center justify-between">
           <ThemeToggler />
@@ -82,18 +82,18 @@ const PhoneSidebar = () => {
               {/* Links */}
               <ul className="mt-16 space-y-6 text-lg font-semibold text-gray-800">
                 <li>
-                  <a href="#about" onClick={() => setIsOpen(false)}>
+                  <a href="/#about" onClick={() => setIsOpen(false)}>
                     About
                   </a>
                 </li>
                 <li>
-                  <a href="#services" onClick={() => setIsOpen(false)}>
+                  <a href="/#services" onClick={() => setIsOpen(false)}>
                     Services
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" onClick={() => setIsOpen(false)}>
-                    Contact Us
+                  <a href="/#team" onClick={() => setIsOpen(false)}>
+                    Our Team
                   </a>
                 </li>
               </ul>

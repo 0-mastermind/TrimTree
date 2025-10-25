@@ -9,10 +9,7 @@ const Problems = ({
 }: OurWorkSectionProps) => {
   return (
     <div>
-      <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">
-        - {sectionSubHeading}
-      </h6>
-      <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)]">
+      <h1 className="my-4 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)] font-semibold">
         {sectionHeading}
       </h1>
 
