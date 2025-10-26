@@ -8,7 +8,6 @@ import {
   Building2,
   UserCircle,
   Users,
-  IndianRupee,
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
@@ -110,14 +109,6 @@ const ProfilePage: React.FC = () => {
   }, []);
   
   const { user, staff } = useSelector((state: RootState) => state.auth);
-  
-  const formatSalary = (salary: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(salary);
-  };
 
   if (loading || !user || !staff) {
     return <Loader />;
@@ -160,9 +151,10 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
+        {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-          <div className="lg:col-span-2 space-y-8">
+          {/* Left/Main Section */}
+          <div className="lg:col-span-2 flex flex-col gap-8">
             <SectionCard
               title="Personal Information"
               icon={<UserCircle className="w-5 h-5" />}
@@ -195,9 +187,9 @@ const ProfilePage: React.FC = () => {
               title="Work Information"
               icon={<Briefcase className="w-5 h-5" />}
             >
-              <div className="space-y-6">
+              <div className="flex flex-col gap-6">
                 <div className="bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-xl p-6 border border-gray-100">
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
                       <ProfileAvatar
                         src={user?.branch?.image?.url}
@@ -210,7 +202,7 @@ const ProfilePage: React.FC = () => {
                         <Building2 className="w-5 h-5 mr-2 text-indigo-600" />
                         {user.branch.name}
                       </h3>
-                      <div className="flex items-start space-x-2 text-gray-600">
+                      <div className="flex items-start gap-2 text-gray-600">
                         <MapPin className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
                         <p className="text-sm leading-relaxed">{user.branch.address}</p>
                       </div>
@@ -218,25 +210,21 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {staff.designation && (
+                {staff.designation && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <InfoCard
                       icon={<Briefcase className="w-5 h-5" />}
                       label="Designation"
                       value={staff.designation}
                     />
-                  )}
-                  <InfoCard
-                    icon={<IndianRupee className="w-5 h-5" />}
-                    label="Salary"
-                    value={formatSalary(staff.salary)}
-                  />
-                </div>
+                  </div>
+                )}
               </div>
             </SectionCard>
           </div>
 
-          <div className="lg:col-span-1 space-y-6">
+          {/* Right/Sidebar Section */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
             <SectionCard
               title="Reporting Manager"
               icon={<Users className="w-5 h-5" />}
@@ -264,11 +252,10 @@ const ProfilePage: React.FC = () => {
                 )}
               </div>
             </SectionCard>
-
-            </div>
           </div>
         </div>
       </div>
+    </div>
   );
 };
 

@@ -96,3 +96,22 @@ export interface IBranches {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ICategory {
+  name: string;
+  image : {
+    url: string;
+    publicId: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IService {
+  name: string;
+  price: number;
+  category: Types.ObjectId;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
