@@ -1,7 +1,7 @@
 "use client";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import ImageCropper from "@/components/ImageCropper";
-import { Store, Loader2 } from "lucide-react";
+import { Store, Loader2, EyeOff, Eye } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { getAllBranches } from "@/utils/api/branches";
@@ -49,6 +49,7 @@ const AddNewEmployee = () => {
     },
     image: null,
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -167,7 +168,7 @@ const AddNewEmployee = () => {
 
     try {
       const res = await dispatch(createUser(data));
-      
+
       if (res) {
         toast.success("Employee created successfully!");
         router.push("/dashboard/admin/branches");
@@ -192,7 +193,7 @@ const AddNewEmployee = () => {
       </div>
 
       <WarningMessage message="* is for required fields" />
-      
+
       <form
         className="grid grid-cols-1 md:grid-cols-2 gap-8"
         onSubmit={handleSubmit}>
@@ -230,17 +231,26 @@ const AddNewEmployee = () => {
             />
           </fieldset>
 
-          <fieldset className="fieldset w-full">
+          <fieldset className="fieldset w-full relative">
             <legend className="fieldset-legend">Password*</legend>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="input focus:outline-none w-full"
-              placeholder="password@123"
-              disabled={isSubmitting}
-            />
+            <div className="relative w-full">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="input focus:outline-none w-full pr-10"
+                placeholder="password@123"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                tabIndex={-1}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </fieldset>
 
           <fieldset className="fieldset w-full">
@@ -274,7 +284,10 @@ const AddNewEmployee = () => {
             <fieldset className="fieldset w-full">
               <legend className="fieldset-legend">Branch*</legend>
 
-              <div className={isSubmitting ? "opacity-50 pointer-events-none" : ""}>
+              <div
+                className={
+                  isSubmitting ? "opacity-50 pointer-events-none" : ""
+                }>
                 <DropDown
                   values={branchesName}
                   onItemSelected={(selectedBranch) => {
@@ -293,7 +306,10 @@ const AddNewEmployee = () => {
 
             <fieldset className="fieldset w-full focus:outline-none">
               <legend className="fieldset-legend">Role*</legend>
-              <div className={isSubmitting ? "opacity-50 pointer-events-none" : ""}>
+              <div
+                className={
+                  isSubmitting ? "opacity-50 pointer-events-none" : ""
+                }>
                 <DropDown
                   values={[
                     { name: "MANAGER", id: "MANAGER" },
@@ -364,7 +380,9 @@ const AddNewEmployee = () => {
                     ? "Not Applicable"
                     : "Enter salary"
                 }
-                disabled={isSubmitting || !formData.role || formData.role === "MANAGER"}
+                disabled={
+                  isSubmitting || !formData.role || formData.role === "MANAGER"
+                }
               />
             </fieldset>
           </div>
