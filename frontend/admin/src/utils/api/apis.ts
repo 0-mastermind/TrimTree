@@ -35,6 +35,9 @@ export const ManagerEndpoints = {
 
 export const AttendanceEndpoints = {
   PENDING_ATTENDANCE_API: BASE_URL + "/manager/attendance/pending",
+  ABSENT_ATTENDANCE_API: BASE_URL + "/manager/attendance/absenties",
+  PRESENT_ATTENDANCE_API: BASE_URL + "/manager/attendance/presenties",
+  NOT_APPLIED_ATTENDANCE_API: BASE_URL + "/manager/attendance/not-applied",
   PENDING_LEAVES_API: BASE_URL + "/manager/leaves/pending",
   PENDING_PUNCHOUT_API: BASE_URL + "/manager/punchOut/pending",
   APPROVE_ATTENDANCE_API: BASE_URL + "/manager/approve-attendance",

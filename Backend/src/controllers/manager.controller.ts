@@ -471,24 +471,39 @@ export const getAllPendingAttendance = asyncErrorHandler(
     }).send(res);
   }
 );
+export const getAllPendingLeaves = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId = req.userId;
 
-export const getAllPendingLeaves = asyncErrorHandler(async (req, res) => {
-  const branchId = req.branchId;
-  if (!branchId) throw new ApiError(400, "Branch ID is required");
+    const staffUnderManager = await StaffModel.find({
+      manager: managerId,
+    }).select("userId");
 
-  const pendingLeaves = await LeaveModel.find({
-    branch: branchId,
-    status: leaveStatus.PENDING,
-  })
-    .populate({ path: "userId", select: "name image", model: UserModel })
-    .sort({ startDate: -1 });
+    if (!staffUnderManager || staffUnderManager.length === 0) {
+      return new ApiResponse({
+        statusCode: 404,
+        message: "No employees found under this manager",
+        data: [],
+      }).send(res);
+    }
 
-  return new ApiResponse({
-    statusCode: 200,
-    message: "Pending leaves fetched successfully",
-    data: pendingLeaves,
-  }).send(res);
-});
+    const employeeIds = staffUnderManager.map((staff) => staff.userId);
+
+    const pendingLeaves = await LeaveModel.find({
+      userId: { $in: employeeIds },
+      status: leaveStatus.PENDING,
+    })
+      .populate({ path: "userId", select: "name image", model: UserModel })
+      .sort({ startDate: -1 });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Pending leaves fetched successfully",
+      data: pendingLeaves,
+    }).send(res);
+  }
+);
+
 
 export const getMonthlyOfficialHolidays = asyncErrorHandler(
   async (req: Request, res: Response) => {
@@ -581,6 +596,7 @@ export const getAllPendingPunchOuts = asyncErrorHandler(
       "punchOut.isApproved": false,
       "punchOut.status": punchOutStatus.PENDING || punchOutStatus.REJECTED,
       type: attendanceType.ATTENDANCE,
+      status: attendanceStatus.PRESENT,
     })
       .sort({ date: -1 })
       .populate("userId", "name image")
@@ -679,6 +695,116 @@ export const deleteBonusByDate = asyncErrorHandler(
     return new ApiResponse({
       statusCode: 200,
       message: "Bonus deleted successfully!",
+    }).send(res);
+  }
+);
+
+export const getAllPresentAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId = req.userId;
+
+    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    if (!staffUnderManager.length) {
+      return new ApiResponse({
+        statusCode: 404,
+        message: "No employees found under this manager",
+        data: [],
+      }).send(res);
+    }
+
+    const employeeIds = staffUnderManager.map(staff => staff.userId);
+
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const presentAttendance = await AttendanceModel.find({
+      userId: { $in: employeeIds },
+      status: attendanceStatus.PRESENT,
+      type: attendanceType.ATTENDANCE,
+      date: { $gte: startOfDay, $lte: endOfDay }, 
+    })
+      .populate("userId", "name username email image")
+      .sort({ date: -1 });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Today's present attendance fetched successfully",
+      data: presentAttendance,
+    }).send(res);
+  }
+);
+
+export const getAllAbsentAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId = req.userId;
+
+    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    if (!staffUnderManager.length) {
+      return new ApiResponse({
+        statusCode: 404,
+        message: "No employees found under this manager",
+        data: [],
+      }).send(res);
+    }
+
+    const employeeIds = staffUnderManager.map(staff => staff.userId);
+
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const absentAttendance = await AttendanceModel.find({
+      userId: { $in: employeeIds },
+      status: {$in: [attendanceStatus.ABSENT , attendanceStatus.LEAVE , attendanceStatus.REJECTED_LEAVE , attendanceStatus.DISMISSED]},
+      type: {$in: [attendanceType.ATTENDANCE , attendanceType.LEAVE]}, 
+      date: { $gte: startOfDay, $lte: endOfDay }, 
+    })
+      .populate("userId", "name username email image")
+      .sort({ date: -1 });
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Today's absent attendance fetched successfully",
+      data: absentAttendance,
+    }).send(res);
+  }
+);
+
+export const getAllNotAppliedAttendance = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId = req.userId;
+
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    if (!staffUnderManager.length) {
+      return new ApiResponse({
+        statusCode: 404,
+        message: "No employees found under this manager",
+        data: [],
+      }).send(res);
+    }
+
+    const employeeIds = staffUnderManager.map(staff => staff.userId);
+
+    const attendanceForToday = await AttendanceModel.find({
+      userId: { $in: employeeIds },
+      date: { $gte: startOfDay, $lte: endOfDay },
+    }).select("userId");
+
+    const appliedUserIds = new Set(attendanceForToday.map(a => a.userId.toString()));
+    const notAppliedIds = employeeIds.filter(id => !appliedUserIds.has(id.toString()));
+
+    const notAppliedUsers = await UserModel.find({ _id: { $in: notAppliedIds } })
+      .select("name username email image");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Today's not-applied attendance fetched successfully",
+      data: notAppliedUsers,
     }).send(res);
   }
 );
