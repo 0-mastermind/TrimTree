@@ -1,9 +1,9 @@
-import { Leave, pendingAttendance } from "@/types/global";
+import { Attendance, Leave, pendingAttendance, User } from "@/types/global";
 import { apiConnector } from "../apiConnector";
 import { AttendanceEndpoints } from "./apis";
 import { AppDispatch } from "@/store/store";
 import toast from "react-hot-toast";
-import { setAttendances, setLeaves, setPunchOuts } from "@/store/features/attendance/attendance.slice";
+import { setAbsenties, setAttendances, setLeaves, setNotapplied, setPresenties, setPunchOuts } from "@/store/features/attendance/attendance.slice";
 
 export const fetchPendingAttendance =
   () => async (dispatch : AppDispatch): Promise<boolean> => {
@@ -237,6 +237,65 @@ export const approveLeave = (id:string) =>  async (): Promise<boolean> => {
     toast.dismiss(toastId);
     console.error("Error! while approving leave", error);
     toast.error("Unable to approve");
+    return false;
+  }
+}
+
+export const fetchAbsenties = () => async (dispatch : AppDispatch): Promise<boolean> => {
+  try {
+    const res = await apiConnector(
+      "GET",
+      AttendanceEndpoints.ABSENT_ATTENDANCE_API
+    ); 
+    
+    if (res.success && res.data) {
+      dispatch(setAbsenties(res.data as Attendance[]));
+      return true;
+    } else {
+      toast.error(res.message || "Failed load data");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error! while fetching absenties", error);
+    return false;
+  }
+}
+
+export const fetchPresenties = () => async (dispatch : AppDispatch): Promise<boolean> => {
+  try {
+    const res = await apiConnector(
+      "GET",
+      AttendanceEndpoints.PRESENT_ATTENDANCE_API
+    );
+    if (res.success && res.data) {
+      dispatch(setPresenties(res.data as Attendance[]));
+      return true;
+    } else {
+      toast.error(res.message || "Failed load data");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error! while fetching presenties", error);
+    return false;
+  }
+}
+
+export const fetchNotapplied = () => async (dispatch : AppDispatch): Promise<boolean> => {
+  try {
+    const res = await apiConnector( 
+      "GET",
+      AttendanceEndpoints.NOT_APPLIED_ATTENDANCE_API
+    ); 
+    
+    if (res.success && res.data) {
+      dispatch(setNotapplied(res.data as User[]));
+      return true;
+    } else {
+      toast.error(res.message || "Failed load data");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error! while fetching not applied attendances", error);
     return false;
   }
 }

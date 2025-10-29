@@ -27,7 +27,7 @@ const ViewStaffList = () => {
           employees.map((item) => {
             return (
               <StaffCard
-                imageUrl={item.userId.image.url!}
+                imageUrl={item?.userId?.image?.url || "/user.png"}
                 designation={item.designation!}
                 name={item.userId.name}
                 branchName={item.userId.branch.name}

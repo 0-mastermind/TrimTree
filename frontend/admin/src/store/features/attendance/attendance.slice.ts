@@ -1,15 +1,21 @@
-import type { Leave, pendingAttendance } from "@/types/global";
+import type { Attendance, Leave, pendingAttendance, User } from "@/types/global";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface attendanceState {
     attendances: pendingAttendance[] | null;
     leaves: Leave[] | null;
     punchOuts: pendingAttendance[] | null;
+    absenties: Attendance[] | null;
+    presenties: Attendance[] | null;
+    notapplied: User[] | null;
 }
 const initialState : attendanceState = {
     attendances: null,
     leaves: null,
     punchOuts: null,
+    absenties: null,
+    presenties: null,
+    notapplied: null,
 };
 
 const attendanceSlice = createSlice({
@@ -61,8 +67,31 @@ const attendanceSlice = createSlice({
                 state.punchOuts = state.punchOuts.filter(att => att._id !== action.payload);
             }
         },
+        setAbsenties: (state, action: PayloadAction<Attendance[]>) => {
+            state.absenties = action.payload;
+        },
+        addAbsenties: (state, action: PayloadAction<Attendance>) => {
+            if (state.absenties) {
+                state.absenties.unshift(action.payload);
+            } else {
+                state.absenties = [action.payload];
+            }
+        },
+        setPresenties: (state, action: PayloadAction<Attendance[]>) => {
+            state.presenties = action.payload;
+        },
+        addPresenties: (state, action: PayloadAction<Attendance>) => {
+            if (state.presenties) {
+                state.presenties.unshift(action.payload);
+            } else {
+                state.presenties = [action.payload];
+            }
+        },
+        setNotapplied: (state, action: PayloadAction<User[]>) => {
+            state.notapplied = action.payload;
+        }
     },
 });
 
-export const { setAttendances , setLeaves , addAttendance , removeAttendance , setPunchOuts , removePunchOut , addPunchOut , addLeaves , removeLeaves} = attendanceSlice.actions;
+export const { setAttendances , setLeaves , addAttendance , removeAttendance , setPunchOuts , removePunchOut , addPunchOut , addLeaves , removeLeaves , setAbsenties , addAbsenties , setPresenties , addPresenties , setNotapplied } = attendanceSlice.actions;
 export default attendanceSlice.reducer;
