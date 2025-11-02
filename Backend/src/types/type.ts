@@ -70,8 +70,8 @@ export interface IStaff {
   payments: {
     from: Date;
     to: Date;
-    amount: number,
-  }[],
+    amount: number;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -99,7 +99,7 @@ export interface IBranches {
 
 export interface ICategory {
   name: string;
-  image : {
+  image: {
     url: string;
     publicId: string;
   };
@@ -118,9 +118,16 @@ export interface IService {
 
 export interface IReviews {
   customerName: string;
-  service : string;
+  service: string;
   rating: number;
   comment: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IAppointments {
+  customerName: string;
+  appointmentAt: Date;
+  description: string;
+  assignedStaffMember: Types.ObjectId;
 }
