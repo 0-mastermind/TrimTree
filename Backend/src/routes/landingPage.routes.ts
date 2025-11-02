@@ -1,6 +1,7 @@
 import express from "express";
-import { createReview, deleteReview, getAllReviews, getEmployees, updateReview } from "../controllers/landingPage.controller.js";
+import { addToSlider, createReview, deleteReview, deleteSliderItem, getAllReviews, getEmployees, getSliderItems, updateReview, updateSliderItem } from "../controllers/landingPage.controller.js";
 import { adminMiddleware, authMiddleware } from "../middleware/auth.middleware.js";
+import { multerUpload } from "../middleware/multer.middleware.js";
 
 const landingPageRouter = express.Router();
 
@@ -9,5 +10,15 @@ landingPageRouter.post("/reviews/create" , authMiddleware , adminMiddleware , cr
 landingPageRouter.patch("/reviews/update/:id" , authMiddleware , adminMiddleware , updateReview);
 landingPageRouter.delete("/reviews/delete/:id" , authMiddleware , adminMiddleware , deleteReview);
 landingPageRouter.get("/employees" , getEmployees);
+landingPageRouter.post("/slider/create" , authMiddleware , adminMiddleware ,multerUpload.fields([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "gallery", maxCount: 3 }, 
+  ]), addToSlider);
+landingPageRouter.patch("/slider/update/:id" , authMiddleware , adminMiddleware ,multerUpload.fields([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "gallery", maxCount: 3 }, 
+  ]), updateSliderItem);
+landingPageRouter.get("/slider" , authMiddleware , adminMiddleware , getSliderItems);
+landingPageRouter.delete("/slider/delete/:id" , authMiddleware , adminMiddleware , deleteSliderItem);
 
 export default landingPageRouter;

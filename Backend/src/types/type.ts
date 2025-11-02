@@ -131,3 +131,18 @@ export interface IAppointments {
   description: string;
   assignedStaffMember: Types.ObjectId;
 }
+
+export interface ISlider {
+  name : string;
+  price: number;
+  thumbnail: {
+    url: string;
+    publicId: string;
+  };
+  gallery: {
+    url: string;
+    publicId: string;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
