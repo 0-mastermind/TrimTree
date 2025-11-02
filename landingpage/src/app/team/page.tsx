@@ -44,7 +44,7 @@ const Team = () => {
             </span>
           </div>
           <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)]">
-            Meet the experts behind your perfect hair
+            Meet the experts behind your perfect look
           </h1>
 
           <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">

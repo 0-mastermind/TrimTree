@@ -5,11 +5,10 @@ const BookAppointment = () => {
   return (
     <div className="mt-20 max-w-200 flex flex-col items-center">
       <h1 className="text-5xl md:text-6xl capitalize text-center dark:text-[var(--text-white)] font-semibold">
-        Let your hair shine with strength & beauty
+        Feel beautiful look flawless stay confident 
       </h1>
       <p className="text-center mt-6 text-md md:text-xl p-2 max-w-120 md:max-w-140 font-secondary text-[var(--text-gray-light)]">
-        A haircut is just the beginning. Experience hair artistry that enhances
-        your beauty and boosts
+        Experience expert styling, personalized care, and luxury treatments that bring out your natural beauty effortlessly
       </p>
       <button className="mt-6 font-secondary px-8 py-3 bg-[var(--bg-primary)] text-white font-semibold rounded-xl cursor-pointer">
         Get in touch

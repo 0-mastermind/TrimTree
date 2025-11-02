@@ -86,7 +86,7 @@ const Team: React.FC = () => {
   return (
     <div id="team" className="py-20 px-3 transition-colors duration-300">
       <h1 className="my-4 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-gray-900 dark:text-white transition-colors duration-300">
-        Meet the experts behind your perfect hair
+        Meet the experts behind your perfect look
       </h1>
       <div className='grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3 mt-20 mb-10' style={{ perspective: '1500px' }}>
         <AnimatePresence mode="popLayout">

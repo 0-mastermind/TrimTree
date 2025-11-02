@@ -2,8 +2,8 @@ export const cardDataProblem = [
   {
     iconSrc: "/images/our-work/icon-one.svg",
     iconDarkBG: false,
-    cardHeading: "Frizzy Hairs",
-    cardDescription: "Hair that constantly looks dry, frizzy, and difficult to style"
+    cardHeading: "Dull Skin",
+    cardDescription: "Lack of glow and smoothness due to stress, pollution, or dryness"
   },
   {
     iconSrc: "/images/our-work/icon-three.svg",
