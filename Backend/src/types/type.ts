@@ -124,3 +124,18 @@ export interface IReviews {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ISlider {
+  name : string;
+  price: number;
+  thumbnail: {
+    url: string;
+    publicId: string;
+  };
+  gallery: {
+    url: string;
+    publicId: string;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
