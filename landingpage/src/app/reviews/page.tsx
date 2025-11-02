@@ -1,26 +1,26 @@
 "use client";
-import EmployeeCard from "@/components/our-team/EmployeeCard";
 import React, { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "@/store/store";
-import { fetchEmployees } from "../../lib/api/landingpage";
+import { fetchReviews } from "@/lib/api/landingpage";
+import ReviewCard from "@/components/reviews/ReviewCard";
 
 const Team = () => {
   const router = useRouter();
-  const employees = useSelector((state : RootState) => state.landingPage.employees);
+  const reviews = useSelector((state: RootState) => state.landingPage.reviews);
   const dispatch = useAppDispatch();
-   useEffect(() => {
-      const fetchData = async () => {
-        try {
-          dispatch(fetchEmployees());
-        } catch (error) {
-          console.error('Error fetching employees:', error);
-        }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        dispatch(fetchReviews());
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
       }
-      fetchData()
-    }, [dispatch])
+    };
+    fetchData();
+  }, [dispatch]);
   return (
     <div className="min-h-screen">
       {/* Header Section */}
@@ -34,44 +34,41 @@ const Team = () => {
             <ArrowLeft className="w-5 h-5 text-black" />
           </div>
           <span className="font-medium">Back</span>
-        </button>   
+        </button>
 
         {/* Title Section */}
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <div className="inline-block">
             <span className="text-sm font-semibold tracking-wider uppercase text-amber-600 bg-amber-50 px-4 py-2 rounded-full">
-              Our Team
+              Our Testimonials
             </span>
           </div>
           <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)]">
-            Meet the experts behind your perfect hair
+            Hear from our satisfied clients
           </h1>
 
           <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">
-            Our talented team of professionals is dedicated to bringing out the
-            best in you
+            Discover why our clients love Trim Tree Salon
           </h6>
         </div>
       </div>
 
-      {/* Team Grid Section */}
-      <div className="px-6 md:px-12 lg:px-20 pb-16 md:pb-24">
-        <div className="max-w-[1600px] mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6 lg:gap-8">
-            {employees.map((employee, index) => (
-              <div
-                key={index}
-                className="transform transition-all duration-300"
-                style={{
-                  animationDelay: `${index * 50}ms`,
-                  animation: "fadeInUp 0.6s ease-out forwards",
-                  opacity: 0,
-                }}
-              >
-                <EmployeeCard employee={employee} />
-              </div>
-            ))}
-          </div>
+      {/* Review Grid Section */}
+      <div className="px-6 md:px-12 lg:px-20 pb-16 md:pb-24 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mt-8 sm:mt-12 auto-rows-fr max-w-7xl mx-auto">
+          {reviews.map((review, index) => (
+            <div
+              key={index}
+              className="transform transition-all duration-300"
+              style={{
+                animationDelay: `${index * 50}ms`,
+                animation: "fadeInUp 0.6s ease-out forwards",
+                opacity: 0,
+              }}
+            >
+              <ReviewCard review={review} index={index} />
+            </div>
+          ))}
         </div>
       </div>
 

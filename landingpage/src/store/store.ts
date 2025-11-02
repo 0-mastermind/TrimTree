@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
-import authReducer from "./features/auth/demo.slice";
+import landingPageReducer from "./features/auth/landingPage.slice";
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
+    landingPage: landingPageReducer,
   },
 });
 

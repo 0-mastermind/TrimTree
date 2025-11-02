@@ -1,34 +1,14 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import employees from './data'
 import EmployeeCard from './EmployeeCard'
 import { useRouter } from 'next/navigation'
 import { MoveRight } from 'lucide-react'
+import { Employee } from '@/types/type'
+import { RootState, useAppDispatch } from '@/store/store'
+import { fetchEmployees } from '@/lib/api/landingpage'
+import { useSelector } from 'react-redux'
 
-interface Employee {
-  name: string;
-  imageUrl: string;
-  designation: string;
-  id?: string | number;
-  email?: string;
-}
-
-interface RawEmployeeData {
-  name?: string;
-  fullName?: string;
-  imageUrl?: string;
-  image?: string;
-  avatar?: string;
-  profilePicture?: string;
-  designation?: string;
-  position?: string;
-  role?: string;
-  title?: string;
-  id?: string | number;
-  email?: string;
-  [key: string]: unknown;
-}
 
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array]
@@ -61,49 +41,47 @@ function getRandomEmployees<T extends Employee>(
 }
 
 function getEmployeeId(employee: Employee): string {
-  return String(employee.id || employee.email || employee.name || Math.random())
+  return String(employee._id || employee.userId.name || Math.random())
 }
 
-// Function to map your actual data to the expected Employee format
-function mapToEmployeeCardFormat(data: RawEmployeeData): Employee {
-  return {
-    name: data.name || data.fullName || 'Unknown Employee',
-    imageUrl: data.imageUrl || data.image || data.avatar || data.profilePicture || '/images/team/user.jpg',
-    designation: data.designation || data.position || data.role || data.title || 'Team Member',
-    id: data.id,
-    email: data.email,
-  }
-}
 
 const Team: React.FC = () => {
   const router = useRouter()
-  
-  // Map employees to the correct format expected by EmployeeCard
-  const mappedEmployees = React.useMemo(() => {
-    return (employees as RawEmployeeData[]).map(mapToEmployeeCardFormat)
-  }, [])
-
+  const employees = useSelector((state : RootState) => state.landingPage.employees);
+  const dispatch = useAppDispatch();
   const [randomEmployees, setRandomEmployees] = useState<Employee[]>(
-    () => mappedEmployees.slice(0, 6)
+    () => employees.slice(0, 6)
   )
   const [key, setKey] = useState(0)
   const prevEmployeeIds = useRef(new Set(randomEmployees.map(getEmployeeId)))
 
   useEffect(() => {
-    const initial = getRandomEmployees(mappedEmployees, 6)
+    const fetchData = async () => {
+      try {
+        dispatch(fetchEmployees());
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    }
+    fetchData()
+  }, [dispatch])
+
+  useEffect(() => {
+    const initial = getRandomEmployees(employees, 6)
     setRandomEmployees(initial)
     prevEmployeeIds.current = new Set(initial.map(getEmployeeId))
     setKey((prev) => prev + 1)
 
     const interval = setInterval(() => {
-      const next = getRandomEmployees(mappedEmployees, 6, prevEmployeeIds.current)
+      const next = getRandomEmployees(employees, 6, prevEmployeeIds.current)
       prevEmployeeIds.current = new Set(next.map(getEmployeeId))
       setRandomEmployees(next)
       setKey((prev) => prev + 1)
     }, 5000)
     
     return () => clearInterval(interval)
-  }, [mappedEmployees])
+  }, [employees])
+
 
   return (
     <div id="team" className="py-20 px-3 transition-colors duration-300">
