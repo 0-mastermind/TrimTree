@@ -115,3 +115,12 @@ export interface IService {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IReviews {
+  customerName: string;
+  service : string;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

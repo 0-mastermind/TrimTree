@@ -11,6 +11,7 @@ import managerRouter from "./routes/manager.routes.js";
 import staffRouter from "./routes/staff.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import { initSocket } from "./socketio.js";
+import landingPageRouter from "./routes/landingPage.routes.js";
 
 async function startServer() {
   const app = express();
@@ -48,6 +49,7 @@ async function startServer() {
   app.use("/api/manager", managerRouter);
   app.use("/api/staff", staffRouter);
   app.use("/api/admin", adminRouter);
+  app.use("/api/landingpage", landingPageRouter);
 
   app.get("/health", async (req: Request, res: Response) => {
     try {
