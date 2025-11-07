@@ -48,3 +48,16 @@ export const AttendanceEndpoints = {
   APPROVE_LEAVE_API: BASE_URL + "/manager/approve-leave",
   REJECT_LEAVE_API: BASE_URL + "/manager/reject-leave",
 }
+
+export const LandingPageEndpoints = {
+  GET_SLIDERS_API: BASE_URL + "/landingpage/slider",
+  GET_SLIDER_BY_ID_API: (id: string) => `${BASE_URL}/landingpage/slider/${id}`,
+  CREATE_SLIDER_API: BASE_URL + "/landingpage/slider/create",
+  UPDATE_SLIDER_API: (id: string) => `${BASE_URL}/landingpage/slider/update/${id}`,
+  DELETE_SLIDER_API: (id: string) => `${BASE_URL}/landingpage/slider/delete/${id}`,
+  GET_REVIEWS_API: BASE_URL + "/landingpage/reviews",
+  CREATE_REVIEW_API: BASE_URL + "/landingpage/reviews/create",
+  UPDATE_REVIEW_API: (id: string) => `${BASE_URL}/landingpage/reviews/update/${id}`,
+  DELETE_REVIEW_API: (id: string) => `${BASE_URL}/landingpage/reviews/delete/${id}`,
+  GET_REVIEW_BY_ID_API: (id: string) => `${BASE_URL}/landingpage/reviews/${id}`,
+};

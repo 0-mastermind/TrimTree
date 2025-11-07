@@ -139,6 +139,7 @@ export interface ISlider {
     url: string;
     publicId: string;
   };
+  description : string;
   gallery: {
     url: string;
     publicId: string;

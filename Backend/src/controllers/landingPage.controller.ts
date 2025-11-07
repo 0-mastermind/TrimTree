@@ -16,7 +16,7 @@ export const createReview = asyncErrorHandler(
       throw new ApiError(400, "All fields are required");
     }
 
-    const newReview = await ReviewsModel.create({
+   await ReviewsModel.create({
       customerName,
       service,
       rating,
@@ -26,7 +26,6 @@ export const createReview = asyncErrorHandler(
     return new ApiResponse({
       statusCode: 201,
       message: "Review created successfully",
-      data: newReview,
     }).send(res);
   }
 );
@@ -40,6 +39,23 @@ export const getAllReviews = asyncErrorHandler(
       message: "Reviews fetched successfully",
       data: reviews,
     });
+  }
+);
+
+export const fetchReviewById = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const review = await ReviewsModel.findById(id);
+    if (!review) {
+      throw new ApiError(404, "Review not found");
+    }
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Review fetched successfully",
+      data: review,
+    }).send(res);
   }
 );
 
@@ -70,7 +86,6 @@ export const updateReview = asyncErrorHandler(
     return new ApiResponse({
       statusCode: 200,
       message: "Review updated successfully",
-      data: review,
     }).send(res);
   }
 );
@@ -112,10 +127,10 @@ export const getEmployees = asyncErrorHandler(
 
 export const addToSlider = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const { name, price } = req.body;
+    const { name, price ,description} = req.body;
 
-    if (!name || !price) {
-      throw new ApiError(400, "Name and price are required!");
+    if (!name || !price || !description) {
+      throw new ApiError(400, "Name price and description are required!");
     }
 
     const files = req.files as {
@@ -149,6 +164,7 @@ export const addToSlider = asyncErrorHandler(
         publicId: thumbnailUpload.public_id,
       },
       gallery: galleryUploads,
+      description
     });
 
     return new ApiResponse({
@@ -173,7 +189,7 @@ export const getSliderItems = asyncErrorHandler(
 export const updateSliderItem = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { name, price } = req.body;
+    const { name, price , description} = req.body;
 
     const files = req.files as {
       thumbnail?: Express.Multer.File[];
@@ -210,6 +226,7 @@ export const updateSliderItem = asyncErrorHandler(
 
     sliderItem.name = name || sliderItem.name;
     sliderItem.price = price || sliderItem.price;
+    sliderItem.description = description || sliderItem.description;
     if (thumbnailUpload) {
       sliderItem.thumbnail = {
         url: thumbnailUpload.secure_url,
@@ -249,6 +266,24 @@ export const deleteSliderItem = asyncErrorHandler(
     return new ApiResponse({
       statusCode: 200,
       message: "Slider item deleted successfully",
+    }).send(res);
+  }
+);
+
+
+export const fetchSlideById = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const slide = await SliderModel.findById(id);
+    if (!slide) {
+      throw new ApiError(404, "Slide not found");
+    }
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Slide fetched successfully",
+      data: slide,
     }).send(res);
   }
 );

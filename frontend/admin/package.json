@@ -10,14 +10,16 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
+    "@smastrom/react-rating": "^1.5.0",
     "axios": "^1.11.0",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-calendar": "^6.0.0",
     "react-dom": "19.1.0",
-    "react-easy-crop": "^5.5.0",
+    "react-easy-crop": "^5.5.3",
     "react-hot-toast": "^2.6.0",
+    "react-rating": "^2.0.5",
     "react-redux": "^9.2.0",
     "socket.io-client": "^4.8.1"
   },
