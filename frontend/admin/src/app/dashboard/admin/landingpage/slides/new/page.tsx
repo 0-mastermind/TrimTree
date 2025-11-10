@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CropModal from "@/components/admin/landingpage/cropModal";
 import { useAppDispatch } from "@/store/store";
 import { createSlide } from "@/utils/api/landingpage";
+import Image from "next/image";
 
 interface SlideData {
   name: string;
@@ -14,7 +15,7 @@ interface SlideData {
   galleryImages: string[];
 }
 
-const MAX_FILE_SIZE_MB = 1; 
+const MAX_FILE_SIZE_MB = 1;
 
 const CreateSlidePage = () => {
   const router = useRouter();
@@ -45,7 +46,6 @@ const CreateSlidePage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
 
   const handleImageUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -234,7 +234,10 @@ const CreateSlidePage = () => {
                 }`}
               >
                 {slideData.thumbnail ? (
-                  <img
+                  <Image
+                    width={1920}
+                    height={1080}
+                    alt="Thumbnail Preview"
                     src={slideData.thumbnail}
                     className="w-full h-full object-contain"
                   />
@@ -280,7 +283,10 @@ const CreateSlidePage = () => {
                     }`}
                   >
                     {slideData.galleryImages[i] ? (
-                      <img
+                      <Image
+                        width={1920}
+                        height={1080}
+                        alt={`Gallery Image ${i + 1}`}
                         src={slideData.galleryImages[i]}
                         className="w-full h-full object-contain"
                       />

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import CropModal from "@/components/admin/landingpage/cropModal";
 import { RootState, useAppDispatch, useAppSelector } from "@/store/store";
 import { fetchSlideById, updateSlide } from "@/utils/api/landingpage";
+import Image from "next/image";
 
 const MAX_FILE_SIZE_MB = 1;
 
@@ -55,8 +56,11 @@ const EditSlidePage = () => {
         description: slide.description || "",
         price: String(slide.price || ""),
         thumbnail: slide.thumbnail?.url || "",
-        galleryImages:
-          slide.gallery?.map((g) => g.url).slice(0, 3) || ["", "", ""],
+        galleryImages: slide.gallery?.map((g) => g.url).slice(0, 3) || [
+          "",
+          "",
+          "",
+        ],
       });
     }
   }, [slide]);
@@ -140,7 +144,9 @@ const EditSlidePage = () => {
     formData.append("price", slideData.price);
 
     if (files.thumbnail) formData.append("thumbnail", files.thumbnail);
-    files.galleryImages.forEach((file) => file && formData.append("gallery", file));
+    files.galleryImages.forEach(
+      (file) => file && formData.append("gallery", file)
+    );
 
     try {
       const success = await dispatch(updateSlide(id as string, formData));
@@ -162,8 +168,11 @@ const EditSlidePage = () => {
         description: slide.description || "",
         price: String(slide.price || ""),
         thumbnail: slide.thumbnail?.url || "",
-        galleryImages:
-          slide.gallery?.map((g) => g.url).slice(0, 3) || ["", "", ""],
+        galleryImages: slide.gallery?.map((g) => g.url).slice(0, 3) || [
+          "",
+          "",
+          "",
+        ],
       });
       setFiles({ thumbnail: null, galleryImages: [null, null, null] });
       setErrors({});
@@ -307,7 +316,11 @@ const EditSlidePage = () => {
                 }`}
               >
                 {slideData.thumbnail ? (
-                  <img
+                  <Image
+                    width={1920}
+                    height={1080}
+                    quality={100}
+                    alt={"Thumbnail"}
                     src={slideData.thumbnail}
                     className="w-full h-full object-contain"
                   />
@@ -346,7 +359,11 @@ const EditSlidePage = () => {
                 <div key={i} className="text-center">
                   <div className="w-full h-32 bg-slate-100 border-2 border-dashed rounded-xl flex items-center justify-center overflow-hidden mb-3">
                     {slideData.galleryImages[i] ? (
-                      <img
+                      <Image
+                        width={1920}
+                        height={1080}
+                        quality={100}
+                        alt={`Gallery Image ${i + 1}`}
                         src={slideData.galleryImages[i]}
                         className="w-full h-full object-contain"
                       />

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import Image from "next/image";
 import { RootState, useAppDispatch } from "@/store/store";
 import { deleteSlideById, fetchSlides } from "@/utils/api/landingpage";
 import {
@@ -24,7 +25,6 @@ const Page = () => {
   const slides = useSelector((state: RootState) => state.landingPage.slides);
   const dispatch = useAppDispatch();
 
-  // 👇 NEW: track which slides are being deleted
   const [deletingIds, setDeletingIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -32,9 +32,7 @@ const Page = () => {
   }, [dispatch]);
 
   const handleDelete = async (_id: string) => {
-    // prevent double-clicks
     if (deletingIds.includes(_id)) return;
-
     setDeletingIds((prev) => [...prev, _id]);
     try {
       const res = await dispatch(deleteSlideById(_id));
@@ -42,7 +40,6 @@ const Page = () => {
     } catch (error) {
       console.error("Delete failed:", error);
     } finally {
-      // remove ID from list once done
       setDeletingIds((prev) => prev.filter((id) => id !== _id));
     }
   };
@@ -56,7 +53,6 @@ const Page = () => {
     router.push("slides/new");
   };
 
-  // Modal logic (unchanged)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,23 +65,23 @@ const Page = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setModalImages([]);
     setCurrentIndex(0);
-  };
+  }, []);
 
-  const showPrev = () => {
+  const showPrev = useCallback(() => {
     setCurrentIndex((i) =>
       modalImages.length ? (i - 1 + modalImages.length) % modalImages.length : 0
     );
-  };
+  }, [modalImages]);
 
-  const showNext = () => {
+  const showNext = useCallback(() => {
     setCurrentIndex((i) =>
       modalImages.length ? (i + 1) % modalImages.length : 0
     );
-  };
+  }, [modalImages]);
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -94,7 +90,7 @@ const Page = () => {
       if (e.key === "ArrowLeft") showPrev();
       if (e.key === "ArrowRight") showNext();
     },
-    [isModalOpen, modalImages]
+    [isModalOpen, closeModal, showNext, showPrev]
   );
 
   useEffect(() => {
@@ -123,7 +119,6 @@ const Page = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {slides.map((slide) => {
             const isDeleting = deletingIds.includes(slide._id);
-
             return (
               <div
                 key={slide._id}
@@ -131,15 +126,17 @@ const Page = () => {
               >
                 {/* Thumbnail */}
                 <div className="relative h-64 bg-slate-200">
-                  <img
-                    src={slide.thumbnail?.url}
+                  <Image
+                    src={slide.thumbnail?.url || "/placeholder.jpg"}
                     alt={slide.name}
-                    className="w-full h-full object-cover cursor-pointer"
+                    fill
+                    className="object-cover cursor-pointer"
                     onClick={() =>
                       openModal(
                         [
                           slide.thumbnail?.url,
-                          ...(slide.gallery?.map((g: any) => g.url) ?? []),
+                          ...(slide.gallery?.map((g) => g.url) ??
+                            []),
                         ].filter(Boolean),
                         0
                       )
@@ -168,24 +165,26 @@ const Page = () => {
                       Gallery Images:
                     </p>
                     <div className="flex space-x-2">
-                      {slide.gallery?.map((image: any, index: number) => (
+                      {slide.gallery?.map((image, index: number) => (
                         <div
                           key={index}
-                          className="w-16 h-16 bg-slate-200 rounded-lg overflow-hidden cursor-pointer"
+                          className="w-16 h-16 bg-slate-200 rounded-lg overflow-hidden cursor-pointer relative"
                           onClick={() =>
                             openModal(
                               [
                                 slide.thumbnail?.url,
-                                ...(slide.gallery?.map((g: any) => g.url) ?? []),
+                                ...(slide.gallery?.map((g) => g.url) ??
+                                  []),
                               ].filter(Boolean),
                               Math.min(index + 1, slide.gallery?.length ?? 0)
                             )
                           }
                         >
-                          <img
-                            src={image.url}
+                          <Image
+                            src={image.url || "/placeholder.jpg"}
                             alt={`Gallery ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
                         </div>
                       ))}
@@ -244,7 +243,7 @@ const Page = () => {
         )}
       </div>
 
-      {/* Modal remains same */}
+      {/* Modal */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
@@ -282,9 +281,11 @@ const Page = () => {
               </>
             )}
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 src={modalImages[currentIndex]}
                 alt={`Image ${currentIndex + 1}`}
+                width={800}
+                height={600}
                 className="max-h-[80vh] max-w-full object-contain rounded-lg shadow-lg bg-white"
               />
             </div>

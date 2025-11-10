@@ -116,7 +116,7 @@ const EditReviewPage = () => {
         comment: reviewData.comment,
       };
       const res = await dispatch(
-        (updateReview as any)(reviewId, payload.customerName, payload.service, payload.rating, payload.comment)
+        (updateReview)(reviewId, payload.customerName, payload.service, payload.rating, payload.comment)
       );
       if (res) {
         setIsEditing(false);
