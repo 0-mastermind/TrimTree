@@ -65,6 +65,7 @@ export const getOfficialHolidays = (month: number, year: number) => async (dispa
   try {
     const res = await apiConnector("GET", `${ManagerEndpoints.GET_OFFICIAL_HOLIDAYS_API}?month=${month}&year=${year}`);
     
+    console.log(res);
     if (res.success && res.data) {
       dispatch(setHolidays(res.data as OfficialHolidays[]));
       return true;

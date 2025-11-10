@@ -183,7 +183,7 @@ export interface OfficialHolidays {
   _id: string;
   name: string;
   date: Date;
-  employees: string[];
+  employees: User[];
   branch: string;
   createdAt: Date;
   updatedAt: Date;
