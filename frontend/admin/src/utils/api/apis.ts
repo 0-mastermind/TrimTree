@@ -10,7 +10,7 @@ export const AuthEndpoints = {
 };
 
 export const BranchEndpoints = {
-  GET_BRANCHES_API: BASE_URL + "/admin/branches",
+  GET_BRANCHES_API: BASE_URL + "/admin/branches/owned",
   CREATE_BRANCH_API: BASE_URL + "/admin/create-branch"
 }
 

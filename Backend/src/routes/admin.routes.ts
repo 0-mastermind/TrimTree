@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { createBranch, deleteStaff, getAllBranches, getBranchManagers, getMonthlyAttendance, markPaymentOfEmployee } from "../controllers/admin.controller.js";
+import { createBranch, deleteStaff, getAllBranches, getBranchesOwned, getBranchManagers, getMonthlyAttendance, markPaymentOfEmployee } from "../controllers/admin.controller.js";
 import { multerUpload } from "../middleware/multer.middleware.js";
 import { adminMiddleware, authMiddleware } from "../middleware/auth.middleware.js";
 import { getManagerNameByBranch } from "../controllers/manager.controller.js";
 import { createCategory, createService, deleteCategory, deleteService, getAllCategories, getAllServices, getServicesByCategory, updateCategory, updateService } from "../controllers/category_services.controller.js";
-import { get } from "http";
 
 
 const adminRouter = Router();
@@ -19,6 +18,8 @@ const adminFiles = multerUpload.fields([
 adminRouter.post("/create-branch", adminFiles, authMiddleware , adminMiddleware , createBranch);
 
 adminRouter.get("/branches", authMiddleware, adminMiddleware, getAllBranches);
+
+adminRouter.get("/branches/owned", authMiddleware, adminMiddleware, getBranchesOwned);
 
 adminRouter.get("/managers" , authMiddleware, adminMiddleware, getBranchManagers);
 
