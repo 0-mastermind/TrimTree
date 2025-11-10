@@ -244,13 +244,34 @@ export const approveAttendance = asyncErrorHandler(
   }
 );
 
-export const dismissAttendance = asyncErrorHandler(
+export const dismissAttendance = asyncErrorHandler( 
   async (req: Request, res: Response) => {
     const { attendanceId } = req.body;
     if (!attendanceId) throw new ApiError(400, "attendanceId is required");
 
     const attendance = await AttendanceModel.findById(attendanceId);
     if (!attendance) throw new ApiError(404, "Attendance not found");
+
+    const isHoliday = await OfficialHolidayModel.findOne({
+      branch: attendance.branch,
+      date: {
+        $gte: getUTCStartOfDay(new Date(attendance.date)),
+        $lte: getUTCEndOfDay(new Date(attendance.date)),
+      },
+      employees: attendance.userId,
+    });
+
+    if (isHoliday) {
+      attendance.status = attendanceStatus.HOLIDAY;
+      attendance.leaveDescription = isHoliday.name || "";
+      await attendance.save();
+      emitAttendanceUpdated(attendance);
+      return new ApiResponse({
+        statusCode: 200,
+        message: "Attendance rejected",
+      }).send(res);
+    }
+
 
     attendance.status = attendanceStatus.DISMISSED;
     await attendance.save();

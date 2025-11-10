@@ -21,6 +21,7 @@ import StaffModel from "../models/staff.model.js";
 import mongoose from "mongoose";
 import branchModel from "../models/branch.model.js";
 
+
 export const applyForAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const userId = req.userId;
@@ -33,31 +34,21 @@ export const applyForAttendance = asyncErrorHandler(
     const staff = await StaffModel.findOne({ userId: user._id });
     if (!staff) throw new ApiError(404, "Staff not found");
 
-    const now = new Date(); // current UTC timestamp
-    const startOfDayUTC = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        0,
-        0,
-        0,
-        0
-      )
-    );
-    const endOfDayUTC = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        23,
-        59,
-        59,
-        999
-      )
-    );
+    const now = new Date(); 
+    const IST_OFFSET = 5.5 * 60 * 60 * 1000; 
+    const local = new Date(now.getTime() + IST_OFFSET); 
 
-    // check existing attendance
+
+    const startOfDayIST = new Date(
+      Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate(), 0, 0, 0, 0)
+    );
+    const endOfDayIST = new Date(
+      Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate(), 23, 59, 59, 999)
+    );
+    const startOfDayUTC = new Date(startOfDayIST.getTime() - IST_OFFSET);
+    const endOfDayUTC = new Date(endOfDayIST.getTime() - IST_OFFSET);
+
+  
     const existingAttendance = await AttendanceModel.findOne({
       userId: userId,
       branch: branchId,
@@ -79,6 +70,7 @@ export const applyForAttendance = asyncErrorHandler(
       existingAttendance.leaveDescription = "";
       existingAttendance.punchIn = { time: now, isApproved: false };
       existingAttendance.date = now;
+
       await existingAttendance.save();
 
       const attendanceReq = {
