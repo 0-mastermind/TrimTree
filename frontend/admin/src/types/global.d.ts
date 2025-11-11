@@ -183,7 +183,7 @@ export interface OfficialHolidays {
   _id: string;
   name: string;
   date: Date;
-  employees: string[];
+  employees: User[];
   branch: string;
   createdAt: Date;
   updatedAt: Date;
@@ -192,4 +192,47 @@ export interface OfficialHolidays {
 export interface ApiResponse {
   data: object;
   message: string;
+}
+
+export interface Employee {
+  _id: string;
+  designation: string;
+  userId: {
+    _id: string;
+    name: string;
+    designation: string;
+    image: {
+      publicId: string;
+      url: string;
+    };
+    createdAt: Date;
+    updatedAt: Date;
+  }
+}
+
+export interface Slide {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  thumbnail: {
+    url: string;
+    publicId: string;
+  };
+  gallery: {
+    url: string;
+    publicId: string;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Reviews {
+  _id: string;
+  customerName: string;
+  service : string;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

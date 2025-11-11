@@ -173,7 +173,7 @@ export default function ServicesSlider() {
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <h1 className="my-6 sm:my-10 text-3xl sm:text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)] font-semibold px-4">
-              Expert premium hair services tailored for you
+              Expert premium services tailored for you
             </h1>
           </motion.div>
 

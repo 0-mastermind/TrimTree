@@ -8,6 +8,11 @@ const Slider = new Schema<ISlider>(
         trim: true,
         lowercase: true,
     },
+    description : {
+        type: String,
+        required: true,
+        trim: true,
+    },
     price: {
         type: Number,
         required: true,

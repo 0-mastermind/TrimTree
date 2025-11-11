@@ -19,6 +19,7 @@ export interface IUser {
   email: string;
   role: userRoles;
   branch: Types.ObjectId;
+  branchOwned: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -139,6 +140,7 @@ export interface ISlider {
     url: string;
     publicId: string;
   };
+  description : string;
   gallery: {
     url: string;
     publicId: string;

@@ -110,7 +110,6 @@ interface EmployeeAnalyticsAPIProps {
 export const getSpecificEmployeeAnalytics =
   ({ userId, staffId, date }: EmployeeAnalyticsAPIProps) =>
   async (dispatch: AppDispatch): Promise<boolean> => {
-    console.log(date);
     try {
       const res = await apiConnector(
         "GET",
@@ -202,7 +201,6 @@ export const markEmployeePaymentAsPaid =
         { from: data.from, to: data.to, amount: data.amount }
       );
 
-      console.log(res);
       if (res.success) {
         toast.dismiss(toastId);
         toast.success("Payment marked successfully!");
@@ -247,7 +245,6 @@ export const deleteStaffMember = (staffId: string) => async (): Promise<boolean>
   try {
     const res = await apiConnector("DELETE", `${EmployeeEndpoints.DELETE_STAFF_API}?staffId=${staffId}`);
     
-    console.log(res);
     if (res.success) {
       toast.dismiss(toastId);
       toast.success("Employee deleted successfully!");

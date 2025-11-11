@@ -14,10 +14,13 @@ import { v2 as cloudinary } from "cloudinary";
 
 export const createBranch = asyncErrorHandler(
   async (req: Request, res: Response) => {
+    const user = req.userId;
     const { name, address } = req.body;
     const { branchImage } = req.files as {
       [filedName: string]: Express.Multer.File[];
     };
+
+    const admin = await UserModel.findById(user);
 
     if (!name && !address && !branchImage) {
       throw new ApiError(400, "All fields are required");
@@ -41,6 +44,9 @@ export const createBranch = asyncErrorHandler(
       },
     });
 
+    admin?.branchOwned.push(branch._id);
+    await admin?.save();
+
     if (!branch) {
       throw new ApiError(500, "Error while storing branch data");
     }
@@ -60,6 +66,24 @@ export const getAllBranches = asyncErrorHandler(
       statusCode: 200,
       message: "Branches fetched successfully!",
       data: branchesList,
+    }).send(res);
+  }
+);
+
+export const getBranchesOwned = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.userId;
+
+    const admin = await UserModel.findById(userId).populate("branchOwned");
+
+    if (!admin) {
+      throw new ApiError(404, "Admin not found");
+    }
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "Branches owned fetched successfully!",
+      data: admin.branchOwned,
     }).send(res);
   }
 );

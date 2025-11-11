@@ -44,7 +44,6 @@ export const createUser =
         formData
       );
       
-      console.log(res);
       if (res.success) {
         toast.dismiss(toastId);
         toast.success("Employee added successfully!");
