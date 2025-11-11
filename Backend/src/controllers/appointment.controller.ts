@@ -1,4 +1,5 @@
 import AppointmentModel from "../models/appointments.model.js";
+import { emitCreateAppointment } from "../socketio.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import asyncErrorHandler from "../utils/asyncErrorHandler.js";
@@ -18,17 +19,21 @@ export const createAppointment = asyncErrorHandler(
       throw new ApiError(400, "All fields are required!");
     }
 
-    const createAppointment = await AppointmentModel.create({
+    const createdAppointment = await AppointmentModel.create({
       customerName,
       description,
       appointmentAt,
       assignedStaffMember,
     });
-
-    if (!createAppointment) {
+    
+    if (!createdAppointment) {
       throw new ApiError(500, "Appointment can't be created!");
     }
-
+    
+    const managerID = req.userId as string;
+    
+    emitCreateAppointment(createAppointment, managerID);
+    
     return new ApiResponse({
       statusCode: 201,
       message: "Appointment Created Successfully!",
