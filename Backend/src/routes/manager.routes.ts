@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { adminMiddleware, authMiddleware, generalAdminMiddleware, managerMiddleware } from "../middleware/auth.middleware.js";
-import { approveAttendance, approveLeaves, approvePunchOut, createOfficialHoliday, deleteBonusByDate, dismissAttendance, getAllAbsentAttendance, getAllPendingAttendance, getAllPendingLeaves, getAllPendingPunchOuts, getMonthlyOfficialHolidays, getAllPresentAttendance, getAllNotAppliedAttendance, giveBonusToEmployee, rejectAttendance, rejectLeaves, rejectPunchOut } from "../controllers/manager.controller.js";
+import { approveAttendance, approveLeaves, approvePunchOut, createOfficialHoliday, deleteBonusByDate, dismissAttendance, getAllAbsentAttendance, getAllPendingAttendance, getAllPendingLeaves, getAllPendingPunchOuts, getMonthlyOfficialHolidays, getAllPresentAttendance, getAllNotAppliedAttendance, giveBonusToEmployee, rejectAttendance, rejectLeaves, rejectPunchOut, getStaffByManager } from "../controllers/manager.controller.js";
 
 const managerRouter = Router();
 
@@ -33,6 +33,8 @@ managerRouter.get("/leaves/pending", authMiddleware , managerMiddleware , getAll
 managerRouter.get("/punchOut/pending", authMiddleware , managerMiddleware , getAllPendingPunchOuts);
 
 managerRouter.get("/holidays/monthly", authMiddleware , managerMiddleware , getMonthlyOfficialHolidays);
+
+managerRouter.get("/get-all-staff-members", authMiddleware, managerMiddleware, getStaffByManager);
 
 managerRouter.patch("/add-staff-bonus", authMiddleware, generalAdminMiddleware, giveBonusToEmployee);
 

@@ -6,7 +6,7 @@ const appointmentRouter = Router();
 
 appointmentRouter.post("/create", authMiddleware, managerMiddleware, createAppointment);
 
-appointmentRouter.post("/update", authMiddleware, managerMiddleware, updateAppointment);
+appointmentRouter.patch("/update", authMiddleware, managerMiddleware, updateAppointment);
 
 appointmentRouter.delete("/delete", authMiddleware, managerMiddleware, deleteAppointment);
 

@@ -60,8 +60,7 @@ export const createOfficialHoliday = asyncErrorHandler(
         throw new ApiError(400, "employees are required");
       }
 
-
-      if (!name || !date  || !branchId) {
+      if (!name || !date || !branchId) {
         throw new ApiError(400, "All fields are required");
       }
 
@@ -244,7 +243,7 @@ export const approveAttendance = asyncErrorHandler(
   }
 );
 
-export const dismissAttendance = asyncErrorHandler( 
+export const dismissAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const { attendanceId } = req.body;
     if (!attendanceId) throw new ApiError(400, "attendanceId is required");
@@ -271,7 +270,6 @@ export const dismissAttendance = asyncErrorHandler(
         message: "Attendance rejected",
       }).send(res);
     }
-
 
     attendance.status = attendanceStatus.DISMISSED;
     await attendance.save();
@@ -525,7 +523,6 @@ export const getAllPendingLeaves = asyncErrorHandler(
   }
 );
 
-
 export const getMonthlyOfficialHolidays = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const branchId = req.branchId;
@@ -611,7 +608,7 @@ export const rejectPunchOut = asyncErrorHandler(
 );
 
 export const getAllPendingPunchOuts = asyncErrorHandler(
-  async (req: Request, res: Response) => { 
+  async (req: Request, res: Response) => {
     const pendingPunchOuts = await AttendanceModel.find({
       branch: req.branchId,
       "punchOut.isApproved": false,
@@ -620,7 +617,7 @@ export const getAllPendingPunchOuts = asyncErrorHandler(
       status: attendanceStatus.PRESENT,
     })
       .sort({ date: -1 })
-      .populate("userId", "name image")
+      .populate("userId", "name image");
 
     return new ApiResponse({
       statusCode: 200,
@@ -724,7 +721,9 @@ export const getAllPresentAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const managerId = req.userId;
 
-    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    const staffUnderManager = await StaffModel.find({
+      manager: managerId,
+    }).select("userId");
     if (!staffUnderManager.length) {
       return new ApiResponse({
         statusCode: 404,
@@ -733,7 +732,7 @@ export const getAllPresentAttendance = asyncErrorHandler(
       }).send(res);
     }
 
-    const employeeIds = staffUnderManager.map(staff => staff.userId);
+    const employeeIds = staffUnderManager.map((staff) => staff.userId);
 
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
@@ -743,7 +742,7 @@ export const getAllPresentAttendance = asyncErrorHandler(
       userId: { $in: employeeIds },
       status: attendanceStatus.PRESENT,
       type: attendanceType.ATTENDANCE,
-      date: { $gte: startOfDay, $lte: endOfDay }, 
+      date: { $gte: startOfDay, $lte: endOfDay },
     })
       .populate("userId", "name username email image")
       .sort({ date: -1 });
@@ -760,7 +759,9 @@ export const getAllAbsentAttendance = asyncErrorHandler(
   async (req: Request, res: Response) => {
     const managerId = req.userId;
 
-    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    const staffUnderManager = await StaffModel.find({
+      manager: managerId,
+    }).select("userId");
     if (!staffUnderManager.length) {
       return new ApiResponse({
         statusCode: 404,
@@ -769,7 +770,7 @@ export const getAllAbsentAttendance = asyncErrorHandler(
       }).send(res);
     }
 
-    const employeeIds = staffUnderManager.map(staff => staff.userId);
+    const employeeIds = staffUnderManager.map((staff) => staff.userId);
 
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
@@ -777,9 +778,16 @@ export const getAllAbsentAttendance = asyncErrorHandler(
 
     const absentAttendance = await AttendanceModel.find({
       userId: { $in: employeeIds },
-      status: {$in: [attendanceStatus.ABSENT , attendanceStatus.LEAVE , attendanceStatus.REJECTED_LEAVE , attendanceStatus.DISMISSED]},
-      type: {$in: [attendanceType.ATTENDANCE , attendanceType.LEAVE]}, 
-      date: { $gte: startOfDay, $lte: endOfDay }, 
+      status: {
+        $in: [
+          attendanceStatus.ABSENT,
+          attendanceStatus.LEAVE,
+          attendanceStatus.REJECTED_LEAVE,
+          attendanceStatus.DISMISSED,
+        ],
+      },
+      type: { $in: [attendanceType.ATTENDANCE, attendanceType.LEAVE] },
+      date: { $gte: startOfDay, $lte: endOfDay },
     })
       .populate("userId", "name username email image")
       .sort({ date: -1 });
@@ -800,7 +808,9 @@ export const getAllNotAppliedAttendance = asyncErrorHandler(
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
-    const staffUnderManager = await StaffModel.find({ manager: managerId }).select("userId");
+    const staffUnderManager = await StaffModel.find({
+      manager: managerId,
+    }).select("userId");
     if (!staffUnderManager.length) {
       return new ApiResponse({
         statusCode: 404,
@@ -809,23 +819,51 @@ export const getAllNotAppliedAttendance = asyncErrorHandler(
       }).send(res);
     }
 
-    const employeeIds = staffUnderManager.map(staff => staff.userId);
+    const employeeIds = staffUnderManager.map((staff) => staff.userId);
 
     const attendanceForToday = await AttendanceModel.find({
       userId: { $in: employeeIds },
       date: { $gte: startOfDay, $lte: endOfDay },
     }).select("userId");
 
-    const appliedUserIds = new Set(attendanceForToday.map(a => a.userId.toString()));
-    const notAppliedIds = employeeIds.filter(id => !appliedUserIds.has(id.toString()));
+    const appliedUserIds = new Set(
+      attendanceForToday.map((a) => a.userId.toString())
+    );
+    const notAppliedIds = employeeIds.filter(
+      (id) => !appliedUserIds.has(id.toString())
+    );
 
-    const notAppliedUsers = await UserModel.find({ _id: { $in: notAppliedIds } })
-      .select("name username email image");
+    const notAppliedUsers = await UserModel.find({
+      _id: { $in: notAppliedIds },
+    }).select("name username email image");
 
     return new ApiResponse({
       statusCode: 200,
       message: "Today's not-applied attendance fetched successfully",
       data: notAppliedUsers,
+    }).send(res);
+  }
+);
+
+export const getStaffByManager = asyncErrorHandler(
+  async (req: Request, res: Response) => {
+    const managerId = req.userId; // managerId
+
+    const staffList = await StaffModel.find({ manager: managerId })
+      .populate({
+        path: "userId",
+        select: "name username role branch image",
+        populate: {
+          path: "branch",
+          select: "name",
+        },
+      })
+      .select("designation");
+
+    return new ApiResponse({
+      statusCode: 200,
+      message: "All staff members fetched successfully!",
+      data: staffList,
     }).send(res);
   }
 );

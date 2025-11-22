@@ -1,3 +1,4 @@
+import { populate } from "dotenv";
 import AppointmentModel from "../models/appointments.model.js";
 import { emitCreateAppointment } from "../socketio.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -104,7 +105,14 @@ export const deleteAppointment = asyncErrorHandler(
 
 export const getAllAppointment = asyncErrorHandler(
   async (req: Request, res: Response) => {
-    const appointments = await AppointmentModel.find();
+    const appointments = await AppointmentModel.find().populate({
+      path: "assignedStaffMember",
+      select: "designation",
+      populate: {
+        path: "userId",
+        select: "name",
+      }
+    });
     
     return new ApiResponse({
       statusCode: 200,
