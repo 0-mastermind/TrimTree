@@ -236,3 +236,16 @@ export interface Reviews {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IAppointment {
+  _id: string;
+  customerName: string;
+  appointmentAt: string;
+  description: string;
+  assignedStaffMember: Staff;
+}
+
+export interface IStaffMember {
+  _id: string;
+  name: string;
+}

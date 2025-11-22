@@ -6,13 +6,13 @@ export const AuthEndpoints = {
   LOGOUT_API: BASE_URL + "/auth/logout",
   PROFILE_API: BASE_URL + "/auth/profile",
   CREATE_USER_API: BASE_URL + "/auth/register",
-  AUTHENTICATE_USER_API: BASE_URL + "/auth/authenticate"
+  AUTHENTICATE_USER_API: BASE_URL + "/auth/authenticate",
 };
 
 export const BranchEndpoints = {
   GET_BRANCHES_API: BASE_URL + "/admin/branches/owned",
-  CREATE_BRANCH_API: BASE_URL + "/admin/create-branch"
-}
+  CREATE_BRANCH_API: BASE_URL + "/admin/create-branch",
+};
 
 export const EmployeeEndpoints = {
   GET_BRANCH_EMPLOYEES_API: BASE_URL + "/staff/get-staff-by-branch",
@@ -25,13 +25,14 @@ export const EmployeeEndpoints = {
   REMOVE_EMPLOYEE_BONUS_API: BASE_URL + "/manager/delete-bonus-by-date",
   MARK_PAYMENT_API: BASE_URL + "/admin/mark-employee-payment",
   DELETE_STAFF_API: BASE_URL + "/admin/delete/staff",
-}
+};
 
 export const ManagerEndpoints = {
-  ADD_OFFICIAL_HOLIDAY_API: BASE_URL + "/manager/create-holiday", 
+  ADD_OFFICIAL_HOLIDAY_API: BASE_URL + "/manager/create-holiday",
   GET_OFFICIAL_HOLIDAYS_API: BASE_URL + "/manager/holidays/monthly",
   GET_MANAGER_BY_BRANCH_NAME_API: BASE_URL + "/admin/getManagerNameByBranch",
-}
+  GET_STAFF_BY_MANAGER_API: BASE_URL + "/manager/get-all-staff-members",
+};
 
 export const AttendanceEndpoints = {
   PENDING_ATTENDANCE_API: BASE_URL + "/manager/attendance/pending",
@@ -47,17 +48,32 @@ export const AttendanceEndpoints = {
   APPROVE_PUNCHOUT_API: BASE_URL + "/manager/approve-punch-out",
   APPROVE_LEAVE_API: BASE_URL + "/manager/approve-leave",
   REJECT_LEAVE_API: BASE_URL + "/manager/reject-leave",
-}
+};
 
 export const LandingPageEndpoints = {
   GET_SLIDERS_API: BASE_URL + "/landingpage/slider",
   GET_SLIDER_BY_ID_API: (id: string) => `${BASE_URL}/landingpage/slider/${id}`,
   CREATE_SLIDER_API: BASE_URL + "/landingpage/slider/create",
-  UPDATE_SLIDER_API: (id: string) => `${BASE_URL}/landingpage/slider/update/${id}`,
-  DELETE_SLIDER_API: (id: string) => `${BASE_URL}/landingpage/slider/delete/${id}`,
+  UPDATE_SLIDER_API: (id: string) =>
+    `${BASE_URL}/landingpage/slider/update/${id}`,
+  DELETE_SLIDER_API: (id: string) =>
+    `${BASE_URL}/landingpage/slider/delete/${id}`,
   GET_REVIEWS_API: BASE_URL + "/landingpage/reviews",
   CREATE_REVIEW_API: BASE_URL + "/landingpage/reviews/create",
-  UPDATE_REVIEW_API: (id: string) => `${BASE_URL}/landingpage/reviews/update/${id}`,
-  DELETE_REVIEW_API: (id: string) => `${BASE_URL}/landingpage/reviews/delete/${id}`,
+  UPDATE_REVIEW_API: (id: string) =>
+    `${BASE_URL}/landingpage/reviews/update/${id}`,
+  DELETE_REVIEW_API: (id: string) =>
+    `${BASE_URL}/landingpage/reviews/delete/${id}`,
   GET_REVIEW_BY_ID_API: (id: string) => `${BASE_URL}/landingpage/reviews/${id}`,
+};
+
+export const AppointmentsEndpoints = {
+  CREATE_APPOINTMENT_API: BASE_URL + "/appointments/create",
+  UPDATE_APPOINTMENT_API: (id: string) =>
+    `${BASE_URL}/appointments/update?appointmentId=${id}`,
+  DELETE_APPOINTMENT_API: (id: string) =>
+    `${BASE_URL}/appointments/delete?appointmentId=${id}`,
+  GET_ALL_APPOINTMENTS_API: BASE_URL + "/appointments/appointments",
+  GET_APPOINTMENTS_BY_STAFF_ID_API: (id: string) =>
+    `${BASE_URL}/appointments/get-appointment-by-employee?staffId${id}`,
 };
