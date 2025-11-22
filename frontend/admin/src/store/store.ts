@@ -7,7 +7,6 @@ import attendanceSlice from "./features/attendance/attendance.slice";
 import holidaysSlice from "./features/holidays/holidays.slice";
 import landingPageSlice from "./features/landingpage/landingPage.slice";
 import apppointmentsSlice from "./features/appointments/appointments.slice";
-import { Manager } from "socket.io-client";
 import managerSlice from "./features/manager/manager.slice";
 export const store = configureStore({
   reducer: {

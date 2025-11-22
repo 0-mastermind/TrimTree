@@ -12,7 +12,7 @@ import {
 import dynamic from "next/dynamic";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { getOfficialHolidays } from "@/utils/api/manager";
-import type { OfficialHolidays } from "@/types/global";
+import type { OfficialHolidays, User } from "@/types/global";
 import Image from "next/image";
 
 type ValuePiece = Date | null;
@@ -151,7 +151,7 @@ const HolidayCalendar: React.FC = () => {
     employees,
     maxVisible = 3,
   }: {
-    employees: any[];
+    employees: User[];
     maxVisible?: number;
   }) => {
     const [showAll, setShowAll] = useState(false);

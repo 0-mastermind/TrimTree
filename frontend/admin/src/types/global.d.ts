@@ -243,6 +243,8 @@ export interface IAppointment {
   appointmentAt: string;
   description: string;
   assignedStaffMember: Staff;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IStaffMember {

@@ -2,7 +2,7 @@ import type { AppDispatch } from "@/store/store";
 import { apiConnector } from "@/utils/apiConnector";
 import { AppointmentsEndpoints } from "./apis";
 import { setAppointments } from "@/store/features/appointment.slice";
-import type { IAppointment } from "@/types/type";
+import type { Appointment } from "@/types/type";
 
 export const getAppointments =
   (id: string) =>
@@ -14,7 +14,7 @@ export const getAppointments =
       );
             
       if (res.success && res.data) {
-        dispatch(setAppointments(res.data as IAppointment[]));
+        dispatch(setAppointments(res.data as Appointment[]));
         return true;
       }
 

@@ -3,7 +3,6 @@ import { createAppointment, getAllAppointments } from "@/utils/api/appointment";
 import { getStaffByManager } from "@/utils/api/manager";
 import { Loader, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 const today = new Date();
 const maxDate = new Date();
@@ -49,17 +48,17 @@ const AddAppointmentDailogue = ({
     return `${hoursStr}:${minutes} ${suffix}`;
   };
 
-  // Combine date and time into appointmentAt in `dd-mm-yyyy hh:mm AM/PM` format
+  // Combine date and time into appointmentAt in `yyyy-mm-dd hh:mm AM/PM` format
   useEffect(() => {
     if (appointmentDate && appointmentTime) {
       // appointmentDate is "yyyy-mm-dd"
       const [year, month, day] = appointmentDate.split("-");
-      const formattedDate = `${day}-${month}-${year}`; // dd-mm-yyyy
+      const formattedDate = `${year}-${month}-${day}`; // yyyy-mm-dd
 
       // appointmentTime is "HH:MM" 24h
       const formattedTime12h = convertTo12HourWithAmPm(appointmentTime); // hh:MM AM/PM
 
-      const formattedDateTime = `${formattedDate} ${formattedTime12h}`; // dd-mm-yyyy hh:MM AM/PM
+      const formattedDateTime = `${formattedDate} ${formattedTime12h}`; // yyyy-mm-dd hh:MM AM/PM
 
       setFormData((prev) => ({
         ...prev,
@@ -82,11 +81,9 @@ const AddAppointmentDailogue = ({
 
       if (res) {
         await dispatch(getAllAppointments());
-        toast.success("Appointment scheduled successfully");
       }
     } catch (error) {
       console.error("Error creating appointment:", error);
-      toast.error("Failed to create appointment");
     } finally {
       setLoading(false);
       onClose();
@@ -183,7 +180,7 @@ const AddAppointmentDailogue = ({
                 >
                   <option value="">Select a staff member</option>
                   {staff &&
-                    staff.map((staffMember: any) => (
+                    staff.map((staffMember) => (
                       <option
                         key={staffMember._id}
                         value={staffMember._id}

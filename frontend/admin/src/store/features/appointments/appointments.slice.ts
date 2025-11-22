@@ -1,9 +1,5 @@
 import type {
-  Attendance,
   IAppointment,
-  Leave,
-  pendingAttendance,
-  User,
 } from "@/types/global";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 

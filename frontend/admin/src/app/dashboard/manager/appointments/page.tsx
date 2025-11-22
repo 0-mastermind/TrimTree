@@ -1,18 +1,28 @@
 "use client";
+
+import React, { useEffect, useState } from "react";
 import AppointmentCard from "@/components/Manager/AppointmentCard";
 import AddAppointmentDailogue from "@/components/Manager/AppointmentDailogue";
 import EditAppointmentDailogue from "@/components/Manager/EditAppointmentDailogueBox";
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { deleteAppointment, getAllAppointments } from "@/utils/api/appointment";
+import {
+  deleteAppointment,
+  getAllAppointments,
+} from "@/utils/api/appointment";
 import { getStaffByManager } from "@/utils/api/manager";
 import { Plus } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import type { IAppointment } from "@/types/global"; 
 
 const Appointments = () => {
   const dispatch = useAppDispatch();
-  const { appointments } = useAppSelector((state) => state.appointment);
+  const { appointments } = useAppSelector((state) => state.appointment) as {
+    appointments: IAppointment[];
+  };
+
   const [isDialogueBoxOpen, setIsDailogueBoxOpen] = useState(false);
-  const [editAppointment, setEditAppointment] = useState<any>(null);
+  const [editAppointment, setEditAppointment] = useState<IAppointment | null>(
+    null
+  );
 
   useEffect(() => {
     const data = async () => {
@@ -27,20 +37,13 @@ const Appointments = () => {
     data();
   }, [dispatch]);
 
-  const handleEdit = (appointment: any) => {
-    setEditAppointment({
-      _id: appointment._id,
-      customerName: appointment.customerName,
-      appointmentAt: appointment.appointmentAt, 
-      assignedStaffMember: appointment.assignedStaffMember._id,
-      description: appointment.description,
-    });
+  const handleEdit = (appointment: IAppointment) => {
+    setEditAppointment(appointment);
   };
 
   const handleCancel = async (appointmentId: string) => {
     try {
       const res = await dispatch(deleteAppointment({ id: appointmentId }));
-
       if (res) {
         await dispatch(getAllAppointments());
       }
@@ -64,19 +67,17 @@ const Appointments = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6 my-4">
         {appointments && appointments.length > 0 ? (
-          appointments.map((item: any) => {
-            return (
-              <AppointmentCard
-                key={item._id}
-                customerName={item.customerName}
-                appointmentAt={item.appointmentAt}
-                assignedStaffMember={`${item.assignedStaffMember.userId.name} - ${item.assignedStaffMember.designation}`}
-                description={item.description}
-                onEdit={() => handleEdit(item)}
-                onCancel={() => handleCancel(item._id)}
-              />
-            );
-          })
+          appointments.map((item) => (
+            <AppointmentCard
+              key={item._id}
+              customerName={item.customerName}
+              appointmentAt={item.appointmentAt}
+              assignedStaffMember={`${item.assignedStaffMember.userId.name} - ${item.assignedStaffMember.designation}`}
+              description={item.description}
+              onEdit={() => handleEdit(item)}
+              onCancel={() => handleCancel(item._id)}
+            />
+          ))
         ) : (
           <p>No appointments</p>
         )}
@@ -88,7 +89,14 @@ const Appointments = () => {
 
       {editAppointment && (
         <EditAppointmentDailogue
-          appointment={editAppointment}
+          appointment={{
+            _id: editAppointment._id,
+            customerName: editAppointment.customerName,
+            appointmentAt: editAppointment.appointmentAt,
+            assignedStaffMember:
+              editAppointment.assignedStaffMember._id ?? "",
+            description: editAppointment.description,
+          }}
           onClose={() => setEditAppointment(null)}
         />
       )}

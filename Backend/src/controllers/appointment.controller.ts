@@ -110,7 +110,7 @@ export const getAllAppointment = asyncErrorHandler(
         path: "userId",
         select: "name",
       }
-    }).sort({createdAt : -1});
+    });
     
     return new ApiResponse({
       statusCode: 200,
@@ -130,7 +130,7 @@ export const getAppointmentsByStaffId = asyncErrorHandler(
 
     const appointments = await AppointmentModel.find({
       assignedStaffMember: id,
-    });
+    }).sort({ createdAt : -1 });
 
     return new ApiResponse({
       statusCode: 200,
