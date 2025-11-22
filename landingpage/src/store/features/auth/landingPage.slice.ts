@@ -1,14 +1,16 @@
-import { Demo, Employee, Reviews } from "@/types/type";
+import { Employee, Reviews, Slider } from "@/types/type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface landngPageState {
   reviews: Reviews[] | [];
   employees: Employee[] | [];
+  sliders: Slider[] | [];
 }
 
 const initialState: landngPageState = {
   reviews : [],
   employees: [],
+  sliders: [],
 };
 
 const landingPageSlice = createSlice({
@@ -21,8 +23,11 @@ const landingPageSlice = createSlice({
     setEmployees(state, action: PayloadAction<Employee[]>) {
       state.employees = action.payload;
     },
+    setSliders(state, action: PayloadAction<Slider[]>) {
+      state.sliders = action.payload;
+    },
   },
 });
 
-export const { setReviews , setEmployees } = landingPageSlice.actions;
+export const { setReviews , setEmployees , setSliders} = landingPageSlice.actions;
 export default landingPageSlice.reducer;

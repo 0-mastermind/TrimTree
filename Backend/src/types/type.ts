@@ -128,7 +128,7 @@ export interface IReviews {
 
 export interface IAppointments {
   customerName: string;
-  appointmentAt: Date;
+  appointmentAt: string;
   description: string;
   assignedStaffMember: Types.ObjectId;
 }

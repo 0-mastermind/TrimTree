@@ -1,8 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { IAppointment } from "@/types/global";
 import { createAppointment, getAllAppointments } from "@/utils/api/appointment";
 import { getStaffByManager } from "@/utils/api/manager";
-import { create } from "domain";
 import { Loader, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -22,8 +20,8 @@ const AddAppointmentDailogue = ({
 
   const [appointmentDate, setAppointmentDate] = useState(
     today.toISOString().slice(0, 10)
-  );
-  const [appointmentTime, setAppointmentTime] = useState("");
+  ); // yyyy-mm-dd
+  const [appointmentTime, setAppointmentTime] = useState(""); // HH:MM (24h from input)
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -34,13 +32,39 @@ const AddAppointmentDailogue = ({
 
   useEffect(() => {
     dispatch(getStaffByManager());
-  }, []);
+  }, [dispatch]);
 
-  // Combine date and time into appointmentAt whenever they change
+  // helper to convert "HH:MM" 24h -> "hh:MM AM/PM"
+  const convertTo12HourWithAmPm = (time: string) => {
+    if (!time) return "";
+    const [hStr, mStr] = time.split(":");
+    let hours = Number(hStr);
+    const minutes = mStr ?? "00";
+
+    const suffix = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    if (hours === 0) hours = 12; // 0 -> 12
+
+    const hoursStr = hours < 10 ? `0${hours}` : `${hours}`;
+    return `${hoursStr}:${minutes} ${suffix}`;
+  };
+
+  // Combine date and time into appointmentAt in `dd-mm-yyyy hh:mm AM/PM` format
   useEffect(() => {
     if (appointmentDate && appointmentTime) {
-      const combinedDateTime = `${appointmentDate}T${appointmentTime}:00`;
-      setFormData((prev) => ({ ...prev, appointmentAt: combinedDateTime }));
+      // appointmentDate is "yyyy-mm-dd"
+      const [year, month, day] = appointmentDate.split("-");
+      const formattedDate = `${day}-${month}-${year}`; // dd-mm-yyyy
+
+      // appointmentTime is "HH:MM" 24h
+      const formattedTime12h = convertTo12HourWithAmPm(appointmentTime); // hh:MM AM/PM
+
+      const formattedDateTime = `${formattedDate} ${formattedTime12h}`; // dd-mm-yyyy hh:MM AM/PM
+
+      setFormData((prev) => ({
+        ...prev,
+        appointmentAt: formattedDateTime,
+      }));
     }
   }, [appointmentDate, appointmentTime]);
 
@@ -49,32 +73,40 @@ const AddAppointmentDailogue = ({
 
     try {
       setLoading(true);
-      const res = await dispatch(createAppointment({ formData  }));
-      
+
+      const res = await dispatch(
+        createAppointment({
+          formData,
+        })
+      );
+
       if (res) {
         await dispatch(getAllAppointments());
+        toast.success("Appointment scheduled successfully");
       }
-      
     } catch (error) {
       console.error("Error creating appointment:", error);
+      toast.error("Failed to create appointment");
     } finally {
       setLoading(false);
+      onClose();
     }
-
-    onClose();
   };
 
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4"
-      onClick={onClose}>
+      onClick={onClose}
+    >
       <div
         className="bg-white relative rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}>
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close button */}
         <div
           className="absolute top-4 right-4 cursor-pointer"
-          onClick={onClose}>
+          onClick={onClose}
+        >
           <X className="hover:text-black/70" />
         </div>
 
@@ -104,9 +136,6 @@ const AddAppointmentDailogue = ({
                   placeholder="Enter customer name"
                   required
                 />
-                <p className="text-xs text-red-500 mt-1 hidden">
-                  This field is required
-                </p>
               </fieldset>
 
               <fieldset className="col-span-2 md:col-span-1">
@@ -122,9 +151,6 @@ const AddAppointmentDailogue = ({
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black-500 focus:border-transparent transition-all outline-none"
                   required
                 />
-                <p className="text-xs text-red-500 mt-1 hidden">
-                  Please select a future date
-                </p>
               </fieldset>
 
               <fieldset className="col-span-2 md:col-span-1">
@@ -138,9 +164,6 @@ const AddAppointmentDailogue = ({
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black-500 focus:border-transparent transition-all outline-none"
                   required
                 />
-                <p className="text-xs text-red-500 mt-1 hidden">
-                  Please select a time
-                </p>
               </fieldset>
 
               <fieldset className="col-span-2 md:col-span-1">
@@ -156,26 +179,25 @@ const AddAppointmentDailogue = ({
                     })
                   }
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black-500 focus:border-transparent transition-all outline-none bg-white"
-                  required>
+                  required
+                >
                   <option value="">Select a staff member</option>
                   {staff &&
-                    staff.map((staff) => (
+                    staff.map((staffMember: any) => (
                       <option
-                        key={staff._id}
-                        value={staff._id}
-                        className="capitalize">
-                        {staff.userId.name} - {staff.userId.role}
+                        key={staffMember._id}
+                        value={staffMember._id}
+                        className="capitalize"
+                      >
+                        {staffMember.userId.name} - {staffMember.userId.role}
                       </option>
                     ))}
                 </select>
-                <p className="text-xs text-red-500 mt-1 hidden">
-                  Please select a staff member
-                </p>
               </fieldset>
 
               <fieldset className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={formData.description}
@@ -184,7 +206,9 @@ const AddAppointmentDailogue = ({
                   }
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black-500 focus:border-transparent transition-all outline-none resize-none"
                   rows={3}
-                  placeholder="Notes for the staff about customer and the service they want..."></textarea>
+                  placeholder="Notes for the staff about customer and the service they want..."
+                  required
+                ></textarea>
               </fieldset>
             </div>
           </div>
@@ -193,16 +217,17 @@ const AddAppointmentDailogue = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm">
+              disabled={loading}
+              className="px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm flex items-center justify-center min-w-[180px]"
+            >
               {loading ? (
-                <span>
-                  <Loader className="animate-spin duration-300" />
-                </span>
+                <Loader className="animate-spin duration-300" />
               ) : (
                 "Schedule Appointment"
               )}

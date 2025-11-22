@@ -13,7 +13,8 @@ export const getAllAppointments =
         "GET",
         AppointmentsEndpoints.GET_ALL_APPOINTMENTS_API
       );
-
+      console.log(res);
+      
       // TODO: POINT BACKEND TO STORE MANAGER ID TOO...
       if (res.success && res.data) {
         dispatch(setAppointments(res.data as IAppointment[]));

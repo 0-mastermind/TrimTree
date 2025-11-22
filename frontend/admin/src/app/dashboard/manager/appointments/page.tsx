@@ -25,13 +25,13 @@ const Appointments = () => {
     };
 
     data();
-  }, []);
+  }, [dispatch]);
 
   const handleEdit = (appointment: any) => {
     setEditAppointment({
       _id: appointment._id,
       customerName: appointment.customerName,
-      appointmentAt: appointment.appointmentAt,
+      appointmentAt: appointment.appointmentAt, 
       assignedStaffMember: appointment.assignedStaffMember._id,
       description: appointment.description,
     });
@@ -55,7 +55,8 @@ const Appointments = () => {
       <div className="flex justify-end">
         <button
           className="text-xs cursor-pointer transition-all bg-green-600 text-white px-6 py-2 rounded-lg border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] flex gap-2 items-center"
-          onClick={() => setIsDailogueBoxOpen(true)}>
+          onClick={() => setIsDailogueBoxOpen(true)}
+        >
           <Plus className="h-4 w-4 md:h-5 md:w-5" />
           <span className="hidden md:block">Add an appointment</span>
         </button>
@@ -63,12 +64,12 @@ const Appointments = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6 my-4">
         {appointments && appointments.length > 0 ? (
-          appointments.map((item) => {
+          appointments.map((item: any) => {
             return (
               <AppointmentCard
                 key={item._id}
                 customerName={item.customerName}
-                appointmentAt={`${item.appointmentAt.split("T")[0]}, ${item.appointmentAt.split("T")[1].split(".")[0]}`}
+                appointmentAt={item.appointmentAt}
                 assignedStaffMember={`${item.assignedStaffMember.userId.name} - ${item.assignedStaffMember.designation}`}
                 description={item.description}
                 onEdit={() => handleEdit(item)}

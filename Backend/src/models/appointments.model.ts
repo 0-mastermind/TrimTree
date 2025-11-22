@@ -18,7 +18,7 @@ const AppointmentSchema = new Schema<IAppointments>(
       required: true,
     },
     appointmentAt: {
-      type: Date,
+      type: String,
       required: true,
     },
   },

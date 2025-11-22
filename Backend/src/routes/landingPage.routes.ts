@@ -19,7 +19,7 @@ landingPageRouter.patch("/slider/update/:id" , authMiddleware , adminMiddleware 
     { name: "thumbnail", maxCount: 1 },
     { name: "gallery", maxCount: 3 }, 
   ]), updateSliderItem);
-landingPageRouter.get("/slider" , authMiddleware , adminMiddleware , getSliderItems);
+landingPageRouter.get("/slider"  , getSliderItems);
 landingPageRouter.get("/slider/:id" , authMiddleware , adminMiddleware , fetchSlideById);
 landingPageRouter.delete("/slider/delete/:id" , authMiddleware , adminMiddleware , deleteSliderItem);
 

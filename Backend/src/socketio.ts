@@ -8,7 +8,7 @@ interface ServerToClientEvents {
   attendanceUpdated: (payload: { data: any; message: string }) => void;
   leaveUpdated: (payload: { data: any; message: string }) => void;
   punchOutUpdated: (payload: { data: any; message: string }) => void;
-  createAppointment: (payload: { data: any; message: string }) => void;
+  newAppointment: (payload: { data: any; message: string }) => void;
 }
 
 interface ClientToServerEvents {
@@ -91,11 +91,11 @@ export const emitPunchOutUpdated = (attendance: any) => {
   });
 };
 
-export const emitCreateAppointment = (appointment: any, managerID: string) => {
-  const userRoom = `manager:${managerID}`;
-  io.to(userRoom).emit("createAppointment", {
+export const emitNewAppointment = (appointment: any, staffID: string) => {
+  const userRoom = `staff:${staffID}`;
+  io.to(userRoom).emit("newAppointment", {
     data: appointment,
-    message: "Appointment Created Successfully!",
+    message: "You have a new appointment!",
   });
 };
 

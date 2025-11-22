@@ -95,10 +95,12 @@ export interface Leave {
   updatedAt: Date;
 }
 
-export interface IAppointment {
+export interface Appointment {
   _id: string;
   customerName: string;
   appointmentAt: string;
   description: string;
   assignedStaffMember: Staff;
+  createdAt: Date;
+  updatedAt: Date;
 }

@@ -53,3 +53,20 @@ export interface Employee {
     updatedAt: Date;
   }
 }
+
+export interface Slider {
+  _id: string;
+  name : string;
+  price: number;
+  thumbnail: {
+    url: string;
+    publicId: string;
+  };
+  description : string;
+  gallery: {
+    url: string;
+    publicId: string;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}

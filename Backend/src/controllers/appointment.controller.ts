@@ -1,6 +1,6 @@
-import { populate } from "dotenv";
+import { create } from "domain";
 import AppointmentModel from "../models/appointments.model.js";
-import { emitCreateAppointment } from "../socketio.js";
+import { emitNewAppointment } from "../socketio.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import asyncErrorHandler from "../utils/asyncErrorHandler.js";
@@ -31,9 +31,7 @@ export const createAppointment = asyncErrorHandler(
       throw new ApiError(500, "Appointment can't be created!");
     }
     
-    const managerID = req.userId as string;
-    
-    emitCreateAppointment(createAppointment, managerID);
+    emitNewAppointment(createdAppointment , assignedStaffMember);
     
     return new ApiResponse({
       statusCode: 201,
@@ -112,7 +110,7 @@ export const getAllAppointment = asyncErrorHandler(
         path: "userId",
         select: "name",
       }
-    });
+    }).sort({createdAt : -1});
     
     return new ApiResponse({
       statusCode: 200,

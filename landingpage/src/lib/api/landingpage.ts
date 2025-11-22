@@ -1,5 +1,5 @@
-import { setEmployees, setReviews } from "@/store/features/auth/landingPage.slice";
-import { Employee, Reviews } from "@/types/type";
+import { setEmployees, setReviews, setSliders } from "@/store/features/auth/landingPage.slice";
+import { Employee, Reviews, Slider } from "@/types/type";
 import { AppDispatch } from "@/store/store";
 import { apiConnector } from "@/utils/apiConnector";
 import { LandingPageEndpoints } from "./apis";
@@ -37,6 +37,24 @@ export const fetchEmployees = () => async (dispatch : AppDispatch): Promise<bool
         }
   } catch (error) {
     console.error("Error! while fetching employees", error);
+    return false;
+  }
+}
+
+export const fetchSliders = () => async (dispatch : AppDispatch): Promise<boolean> => {
+  try {
+    const res = await apiConnector(
+      "GET",
+      LandingPageEndpoints.GET_SLIDERS_API
+    );
+    if (res.success && res.data) { 
+      dispatch(setSliders(res.data as Slider[]));
+        return true;
+        } else {
+        return false;
+        }
+  } catch (error) {
+    console.error("Error! while fetching sliders", error);
     return false;
   }
 }
