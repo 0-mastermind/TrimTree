@@ -82,7 +82,7 @@ const PresentiesCard: React.FC<PresentiesCardProps> = ({ attendance }) => {
           <div>
             <p className="text-xs text-gray-500 mb-1">Punch Out</p>
             <p className="text-sm font-semibold text-red-700">
-              {formatTime(attendance.punchOut.time)}
+              {attendance.punchOut.time ? formatTime(attendance.punchOut.time) : "Not Applied"}
             </p>
           </div>
         </div>
