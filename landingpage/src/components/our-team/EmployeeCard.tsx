@@ -24,7 +24,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee }) => {
         <h6 className="text-left text-md sm:text-base md:text-[1.2rem] text-[var(--text-primary)] font-semibold capitalize leading-tight mb-1">
           {employee.userId.name}
         </h6>
-        <p className='font-secondary text-gray-500 text-sm leading-snug'>
+        <p className='font-secondary text-gray-500 text-sm leading-snug text-center'>
           {employee.designation}
         </p>
       </div>

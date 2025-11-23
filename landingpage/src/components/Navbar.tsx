@@ -26,9 +26,9 @@ const Navbar = () => {
       </div>
       <div className="flex gap-4">
         <ThemeToggler />
-        <button className="bg-black dark:bg-[#6b6b6b] px-6 py-3 text-white rounded-xl text-sm font-secondary cursor-pointer">
+        <Link href={"#footer"} className="bg-black dark:bg-[#6b6b6b] px-6 py-3 text-white rounded-xl text-sm font-secondary cursor-pointer">
           Contact Us
-        </button>
+        </Link>
       </div>
     </nav>
   );
