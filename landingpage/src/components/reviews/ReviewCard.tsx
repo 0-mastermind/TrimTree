@@ -26,7 +26,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, index = 0 }) => {
       <div className="flex items-start justify-between mb-5 gap-3">
         <div className="relative">
           <Image
-            src="/images/team/user.jpg"
+            src="/images/team/user-placeholder.png"
             className="rounded-full object-cover ring-2 ring-[var(--text-gray-light)]/20 ring-offset-2"
             alt={`${review.customerName}'s profile picture`}
             width={56}

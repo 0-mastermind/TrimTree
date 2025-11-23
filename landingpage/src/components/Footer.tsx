@@ -1,23 +1,34 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mt-20 lg:mt-40 pb-12 lg:pb-20">
+    <footer id="#footer" className="w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-">
+        <div className="grid grid-cols-1 mt-20 lg:mt-40 pb-12 lg:pb-20">
           {/* Brand Section */}
           <div className="space-y-6">
+            <div className="ml-16">
+              <Image
+                src="/images/logo.png"
+                height={100}
+                width={100}
+                alt="Trimtree Logo"
+              />
+            </div>
+
             <h1 className="text-3xl lg:text-4xl font-bold font-secondary dark:text-[var(--text-white)] text-gray-900">
               <Link href={"/"}>Trim Tree Salon</Link>
             </h1>
             <p className="text-sm lg:text-base max-w-md leading-relaxed text-gray-600 dark:text-[var(--text-gray-dark)]">
-              A modern salon designed for modern people who value style and comfort.
+              A modern salon designed for modern people who value style and
+              comfort.
             </p>
           </div>
 
           {/* Links Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 mt-4">
             {/* Menu Links */}
             <div>
               <h2 className="font-semibold text-base lg:text-lg text-[var(--text-primary)] mb-3 lg:mb-5">
@@ -43,7 +54,14 @@ const Footer = () => {
               </h2>
               <ul className="flex flex-col gap-2 text-sm text-gray-600 dark:text-[var(--text-gray-dark)]">
                 <li className="hover:text-[var(--text-primary)] transition-colors cursor-pointer">
-                  Instagram
+                  <a href="https://www.facebook.com/share/1DLL5Pe5dD">
+                    Facebook
+                  </a>
+                </li>
+                <li className="hover:text-[var(--text-primary)] transition-colors cursor-pointer">
+                  <a href="https://www.instagram.com/trimtreesalon">
+                    Instagram
+                  </a>
                 </li>
               </ul>
             </div>
@@ -71,9 +89,11 @@ const Footer = () => {
                       <rect x="2" y="4" width="20" height="16" rx="2" />
                     </svg>
                   </span>
-                  <span className="lowercase group-hover:text-[var(--text-primary)] transition-colors">
-                    testing@mail.com
-                  </span>
+                  <a
+                    href="mailto:trimtreesalon@gmail.com"
+                    className="lowercase group-hover:text-[var(--text-primary)] transition-colors">
+                    trimtreesalon@gmail.com
+                  </a>
                 </li>
 
                 {/* Phone */}
@@ -92,9 +112,13 @@ const Footer = () => {
                       <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
                     </svg>
                   </span>
-                  <span className="group-hover:text-[var(--text-primary)] transition-colors">
-                    +91 90909090
-                  </span>
+                  <Link
+                    href={
+                      "https://wa.me/+917536803403?text=Hello%20Trim%20Tree%20Salon,%20I%20would%20like%20to%20book%20an%20appointment."
+                    }
+                    className="group-hover:text-[var(--text-primary)] transition-colors hover:underline">
+                    +91 75368 03403
+                  </Link>
                 </li>
 
                 {/* Address */}
@@ -108,14 +132,14 @@ const Footer = () => {
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
-                      strokeLinecap="round"   
+                      strokeLinecap="round"
                       strokeLinejoin="round">
                       <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
                       <circle cx="12" cy="10" r="3" />
                     </svg>
                   </span>
                   <span className="group-hover:text-[var(--text-primary)] transition-colors">
-                    Durgacity, HLD
+                    Durga City Center, Near By IDBI Bank, Haldwani
                   </span>
                 </li>
               </ul>

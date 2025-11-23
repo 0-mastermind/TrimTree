@@ -15,8 +15,8 @@ const AboutCard1 = () => {
       </div>
 
       {/* Text Section */}
-      <div className="w-full flex flex-col justify-center items-start px-4 sm:px-6 lg:px-8 xl:px-12">
-        <h1 className="my-4 sm:my-6 md:my-8 lg:my-8 text-3xl lg:text-4xl xl:text-4xl text-left text-[var(--text-primary)] font-light leading-relaxed">
+      <div className="w-full flex flex-col items-start px-4 sm:px-6 lg:px-8 xl:px-12">
+        <h1 className="mb-4 text-3xl lg:text-4xl xl:text-4xl text-left text-[var(--text-primary)] font-light leading-relaxed">
           Welcome to Trim Tree Salon, your destination for self care
         </h1>
         <p className="text-left font-secondary px-1 sm:px-2 text-[var(--text-gray-light)] text-lg md:text-lg leading-relaxed">

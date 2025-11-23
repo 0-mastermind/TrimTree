@@ -85,7 +85,7 @@ const Team: React.FC = () => {
 
   return (
     <div id="team" className="py-20 px-3 transition-colors duration-300">
-      <h1 className="my-4 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-gray-900 dark:text-white transition-colors duration-300">
+      <h1 className="my-4 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-gray-900 dark:text-white transition-colors duration-300 font-bold">
         Meet the experts behind your perfect look
       </h1>
       <div className='grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3 mt-20 mb-10' style={{ perspective: '1500px' }}>
@@ -93,31 +93,6 @@ const Team: React.FC = () => {
           {randomEmployees.map((employee, index) => (
             <motion.div
               key={`${key}-${getEmployeeId(employee)}`}
-              initial={{ 
-                rotateY: 180,
-                opacity: 0,
-                scale: 0.7,
-                z: -100
-              }}
-              animate={{ 
-                rotateY: 0,
-                opacity: 1,
-                scale: 1,
-                z: 0
-              }}
-              exit={{ 
-                rotateY: -180,
-                opacity: 0,
-                scale: 0.7,
-                z: -100
-              }}
-              transition={{
-                duration: 0.8,
-                delay: index * 0.08,
-                type: "spring",
-                stiffness: 80,
-                damping: 15
-              }}
               style={{
                 transformStyle: 'preserve-3d',
               }}
@@ -126,15 +101,6 @@ const Team: React.FC = () => {
             </motion.div>
           ))}
         </AnimatePresence>
-      </div>
-      <div className="flex justify-center mt-14">
-        <button
-          className="flex gap-2 px-8 py-2 font-semibold justify-center items-center font-secondary border-2 hover:bg-[#ffaa00] border-[#ffaa00] rounded-lg hover:text-white transition-colors duration-300 cursor-pointer text-[#ffaa00] dark:text-[#ffaa00] dark:border-[#ffaa00] dark:hover:bg-[#ffaa00] dark:hover:text-white"
-          onClick={() => router.push('/team')}
-          type="button"
-        >
-          View All <MoveRight className='h-5 w-5' />
-        </button>
       </div>
     </div>
   )
