@@ -5,6 +5,7 @@ interface ServerToClientEvents {
   attendanceRequest: (payload: { data: object; message: string }) => void;
   punchOutRequest: (payload: { data: object; message: string }) => void;
   leaveRequest: (payload: { data: object; message: string }) => void;
+  createAppointment: (payload: { data: object; message: string }) => void;
 }
 
 interface ClientToServerEvents {

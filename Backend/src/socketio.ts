@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { Server as HttpServer } from "http";
+import type { Server as HttpServer } from "http";
 
 interface ServerToClientEvents {
   attendanceRequest: (payload: { data: any; message: string }) => void;
@@ -8,6 +8,7 @@ interface ServerToClientEvents {
   attendanceUpdated: (payload: { data: any; message: string }) => void;
   leaveUpdated: (payload: { data: any; message: string }) => void;
   punchOutUpdated: (payload: { data: any; message: string }) => void;
+  newAppointment: (payload: { data: any; message: string }) => void;
 }
 
 interface ClientToServerEvents {
@@ -33,7 +34,6 @@ export const initSocket = (httpServer: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-
     // staff or manager joins a room
     socket.on("joinRoom", (room) => {
       socket.join(room);
@@ -43,7 +43,7 @@ export const initSocket = (httpServer: HttpServer) => {
   return io;
 };
 
-export const emitAttendanceRequest = (attendance: any , manager : string) => {
+export const emitAttendanceRequest = (attendance: any, manager: string) => {
   const branchRoom = `manager:${manager}`;
   io.to(branchRoom).emit("attendanceRequest", {
     data: attendance,
@@ -51,7 +51,7 @@ export const emitAttendanceRequest = (attendance: any , manager : string) => {
   });
 };
 
-export const emitLeaveRequest = (leave: any , manager : string) => {
+export const emitLeaveRequest = (leave: any, manager: string) => {
   const branchRoom = `manager:${manager}`;
   io.to(branchRoom).emit("leaveRequest", {
     data: leave,
@@ -59,7 +59,7 @@ export const emitLeaveRequest = (leave: any , manager : string) => {
   });
 };
 
-export const emitPunchOutRequest = (attendance: any , manager : string) => {
+export const emitPunchOutRequest = (attendance: any, manager: string) => {
   const branchRoom = `manager:${manager}`;
   io.to(branchRoom).emit("punchOutRequest", {
     data: attendance,
@@ -88,6 +88,14 @@ export const emitPunchOutUpdated = (attendance: any) => {
   io.to(userRoom).emit("punchOutUpdated", {
     data: attendance,
     message: `Punch-out ${attendance.punchOut.status}`,
+  });
+};
+
+export const emitNewAppointment = (appointment: any, staffID: string) => {
+  const userRoom = `staff:${staffID}`;
+  io.to(userRoom).emit("newAppointment", {
+    data: appointment,
+    message: "You have a new appointment!",
   });
 };
 

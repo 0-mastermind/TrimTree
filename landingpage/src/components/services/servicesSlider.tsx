@@ -1,99 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MoveRight, ChevronRight } from "lucide-react";
 import { GalleryPopUp } from "./GalleryPopUp";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
-interface Service {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  image: string;
-  gallery: string[];
-}
-
-interface ServiceWithPosition extends Service {
+import { Slider } from "@/types/type";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "@/store/store";
+import { fetchSliders } from "@/lib/api/landingpage";
+interface ServiceWithPosition extends Slider {
   position: number;
   isCenter: boolean;
   slideKey: string;
 }
-
-const services: Service[] = [
-  {
-    id: 1,
-    title: "Hair Cut",
-    description:
-      "Get a fresh new look with a stylish haircut tailored to your preferences by professionals.",
-    price: "From ₹300",
-    image:
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80",
-      "https://images.unsplash.com/photo-1595475884562-073c30d45670?w=800&q=80",
-      "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&q=80",
-    ],
-  },
-  {
-    id: 2,
-    title: "Blow Dry",
-    description:
-      "A professional blow-dry to give your hair a smooth, voluminous, and perfectly styled finish.",
-    price: "From ₹300",
-    image:
-      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80",
-      "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=800&q=80",
-      "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=800&q=80",
-    ],
-  },
-  {
-    id: 3,
-    title: "Keratin Treatment",
-    description:
-      "Achieve smooth, frizz-free, and manageable hair with our transformative keratin treatment.",
-    price: "From ₹5000",
-    image:
-      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=500&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=800&q=80",
-      "https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80",
-      "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80",
-    ],
-  },
-  {
-    id: 4,
-    title: "Global Hair Colour (L'Oréal)",
-    description:
-      "Transform your look with a stunning, all-over global hair color using premium L'Oréal products.",
-    price: "From ₹3000",
-    image:
-      "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&q=80",
-      "https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=800&q=80",
-      "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=800&q=80",
-    ],
-  },
-  {
-    id: 5,
-    title: "Hair Spa (L'Oréal)",
-    description:
-      "Indulge in a premium L'Oréal hair spa to deeply nourish and revitalize your hair.",
-    price: "From ₹1200",
-    image:
-      "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=500&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&q=80",
-      "https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=800&q=80",
-      "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=800&q=80",
-    ],
-  },
-];
 
 export default function ServicesSlider() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -103,7 +24,18 @@ export default function ServicesSlider() {
   const [selectedService, setSelectedService] =
     useState<ServiceWithPosition | null>(null);
   const [galleryOpen, setGalleryOpen] = useState<boolean>(false);
+
   const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  const services = useSelector(
+    (state: RootState) => state.landingPage.sliders as Slider[]
+  );
+
+  // Fetch sliders on mount
+  useEffect(() => {
+    dispatch(fetchSliders());
+  }, [dispatch]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 200);
@@ -112,39 +44,47 @@ export default function ServicesSlider() {
 
   useEffect(() => {
     const checkMobile = () => {
+      if (typeof window === "undefined") return;
       setIsMobile(window.innerWidth < 768);
     };
 
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", checkMobile);
+      return () => window.removeEventListener("resize", checkMobile);
+    }
   }, []);
 
   useEffect(() => {
-    if (!isHovered) {
+    if (!isHovered && services.length > 0) {
       const interval = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % services.length);
       }, 3000);
 
       return () => clearInterval(interval);
     }
-  }, [isHovered]);
+  }, [isHovered, services.length]);
 
-  const getVisibleServices = (): ServiceWithPosition[] => {
+  const getVisibleServices = useMemo((): ServiceWithPosition[] => {
     const visibleCount = isMobile ? 1 : 3;
     const result: ServiceWithPosition[] = [];
 
-    for (let i = 0; i < visibleCount; i++) {
+    if (services.length === 0) return result;
+
+    for (let i = 0; i < Math.min(visibleCount, services.length); i++) {
       const index = (currentIndex + i) % services.length;
+      const base = services[index];
+
       result.push({
-        ...services[index],
+        ...base,
         position: i,
         isCenter: isMobile ? true : i === 1,
-        slideKey: `${index}-${currentIndex}-${i}`,
+        slideKey: `${base._id}-${currentIndex}-${i}`,
       });
     }
+
     return result;
-  };
+  }, [services, isMobile, currentIndex]);
 
   const handleServiceClick = (service: ServiceWithPosition) => {
     if (service.isCenter) {
@@ -159,8 +99,11 @@ export default function ServicesSlider() {
   };
 
   const nextSlide = () => {
+    if (services.length === 0) return;
     setCurrentIndex((prevIndex) => (prevIndex + 1) % services.length);
   };
+
+  const canSlide = services.length > (isMobile ? 1 : 1);
 
   return (
     <>
@@ -173,17 +116,16 @@ export default function ServicesSlider() {
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <h1 className="my-6 sm:my-10 text-3xl sm:text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)] font-semibold px-4">
-              Expert premium hair services tailored for you
+              Expert premium services tailored for you
             </h1>
           </motion.div>
 
-          {/* Navigation Container */}
           <div className="relative">
             {/* Right Navigation Button Only */}
             <button
               onClick={nextSlide}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-gray-800 hover:text-[var(--bg-primary)] rounded-full p-2 sm:p-3 shadow-lg border border-gray-200 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={services.length <= (isMobile ? 1 : 3)}
+              disabled={!canSlide}
             >
               <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -203,136 +145,156 @@ export default function ServicesSlider() {
                   ease: [0.25, 0.1, 0.25, 1],
                 }}
               >
-                <AnimatePresence mode="popLayout">
-                  {getVisibleServices().map((service) => (
-                    <motion.div
-                      key={service.slideKey}
-                      className={`relative ${
-                        service.isCenter ? "z-20" : "z-10"
-                      } w-full max-w-[340px] sm:max-w-none cursor-pointer`}
-                      layout
-                      initial={{
-                        opacity: 0,
-                        x: 400,
-                        scale: 0.9,
-                      }}
-                      animate={{
-                        opacity: service.isCenter ? 1 : 0.4,
-                        x: 0,
-                        scale: service.isCenter ? (isMobile ? 1 : 1.05) : 0.95,
-                        filter: service.isCenter ? "blur(0px)" : "blur(1px)",
-                      }}
-                      exit={{
-                        opacity: 0,
-                        x: -400,
-                        scale: 0.8,
-                      }}
-                      transition={{
-                        duration: 0.8,
-                        ease: [0.25, 0.1, 0.25, 1],
-                        layout: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] },
-                      }}
-                      whileHover={
-                        service.isCenter
-                          ? {
-                              y: -8,
-                              scale: isMobile ? 1 : 1.02,
-                              transition: {
-                                duration: 0.3,
-                                ease: [0.25, 0.1, 0.25, 1],
-                              },
-                            }
-                          : {
-                              opacity: 0.7,
-                              scale: 0.98,
-                              transition: {
-                                duration: 0.3,
-                                ease: [0.25, 0.1, 0.25, 1],
-                              },
-                            }
-                      }
-                      onClick={() => handleServiceClick(service)}
-                    >
+                {services.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    No services available.
+                  </div>
+                ) : (
+                  <AnimatePresence mode="popLayout">
+                    {getVisibleServices.map((service) => (
                       <motion.div
-                        className="w-full sm:w-90 rounded-3xl overflow-hidden"
+                        key={service.slideKey}
+                        className={`relative ${
+                          service.isCenter ? "z-20" : "z-10"
+                        } w-full max-w-[340px] sm:max-w-none cursor-pointer`}
+                        layout
+                        initial={{
+                          opacity: 0,
+                          x: 400,
+                          scale: 0.9,
+                        }}
+                        animate={{
+                          opacity: service.isCenter ? 1 : 0.4,
+                          x: 0,
+                          scale: service.isCenter
+                            ? isMobile
+                              ? 1
+                              : 1.05
+                            : 0.95,
+                          filter: service.isCenter ? "blur(0px)" : "blur(1px)",
+                        }}
+                        exit={{
+                          opacity: 0,
+                          x: -400,
+                          scale: 0.8,
+                        }}
                         transition={{
-                          boxShadow: {
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut",
+                          duration: 0.8,
+                          ease: [0.25, 0.1, 0.25, 1],
+                          layout: {
+                            duration: 0.8,
+                            ease: [0.25, 0.1, 0.25, 1],
                           },
                         }}
+                        whileHover={
+                          service.isCenter
+                            ? {
+                                y: -8,
+                                scale: isMobile ? 1 : 1.02,
+                                transition: {
+                                  duration: 0.3,
+                                  ease: [0.25, 0.1, 0.25, 1],
+                                },
+                              }
+                            : {
+                                opacity: 0.7,
+                                scale: 0.98,
+                                transition: {
+                                  duration: 0.3,
+                                  ease: [0.25, 0.1, 0.25, 1],
+                                },
+                              }
+                        }
+                        onClick={() => handleServiceClick(service)}
                       >
-                        <div className="relative h-64 sm:h-72 overflow-hidden">
-                          <motion.div
-                            className="relative w-full h-full"
-                            whileHover={{ scale: 1.05 }}
-                            transition={{
-                              duration: 0.4,
-                              ease: [0.25, 0.1, 0.25, 1],
-                            }}
-                          >
-                            <Image
-                              width={1920}
-                              height={1080}
-                              quality={100}
-                              src={service.image}
-                              alt={service.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </motion.div>
-                          <motion.div
-                            className="absolute top-4 sm:top-6 right-4 sm:right-6"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 0.2 }}
-                            animate={
-                              service.isCenter
-                                ? {
-                                    scale: [1, 1.05, 1],
-                                  }
-                                : {}
-                            }
-                          >
-                            <span className="bg-[var(--bg-primary)] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">
-                              {service.price}
-                            </span>
-                          </motion.div>
-                          <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-1.5">
-                            {[...Array(3)].map((_, i) => (
-                              <motion.div
-                                key={i}
-                                className="w-1.5 h-1.5 bg-white/80 rounded-full"
-                                animate={
-                                  service.isCenter
-                                    ? {
-                                        opacity: [0.5, 1, 0.5],
-                                      }
-                                    : {
-                                        opacity: 0.5,
-                                      }
-                                }
-                                transition={{
-                                  duration: 1.5,
-                                  repeat: Infinity,
-                                  delay: i * 0.2,
-                                }}
+                        <motion.div
+                          className="w-full sm:w-90 rounded-3xl overflow-hidden"
+                          transition={{
+                            boxShadow: {
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                            },
+                          }}
+                        >
+                          <div className="relative h-64 sm:h-72 overflow-hidden">
+                            <motion.div
+                              className="relative w-full h-full"
+                              whileHover={{ scale: 1.05 }}
+                              transition={{
+                                duration: 0.4,
+                                ease: [0.25, 0.1, 0.25, 1],
+                              }}
+                            >
+                              <Image
+                                width={1920}
+                                height={1080}
+                                quality={100}
+                                src={service.thumbnail?.url}
+                                alt={service.name}
+                                className="w-full h-full object-cover"
                               />
-                            ))}
+                            </motion.div>
+                            <motion.div
+                              className="absolute top-4 sm:top-6 right-4 sm:right-6"
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ duration: 0.2 }}
+                              animate={
+                                service.isCenter
+                                  ? {
+                                      scale: [1, 1.05, 1],
+                                    }
+                                  : {}
+                              }
+                            >
+                              <span className="bg-[var(--bg-primary)] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">
+                                ₹{service.price}
+                              </span>
+                            </motion.div>
+                            <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-1.5">
+                              {[...Array(3)].map((_, i) => (
+                                <motion.div
+                                  key={i}
+                                  className="w-1.5 h-1.5 bg-white/80 rounded-full"
+                                  animate={
+                                    service.isCenter
+                                      ? {
+                                          opacity: [0.5, 1, 0.5],
+                                        }
+                                      : {
+                                          opacity: 0.5,
+                                        }
+                                  }
+                                  transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    delay: i * 0.2,
+                                  }}
+                                />
+                              ))}
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="py-4 sm:py-6 px-2">
-                          <h3 className="text-2xl sm:text-[1.7rem] font-bold mb-3 sm:mb-4 text-[var(--text-primary)]">
-                            {service.title}
-                          </h3>
-                          <p className="text-sm sm:text-md leading-relaxed text-gray-600">
-                            {service.description}
-                          </p>
-                        </div>
+                          <div className="py-4 sm:py-6 px-2">
+                            <h3 className="text-2xl sm:text-[1.7rem] font-bold mb-3 sm:mb-4 text-[var(--text-primary)]">
+                              {service.name
+                                .split(" ")
+                                .map(
+                                  (word) =>
+                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                )
+                                .join(" ")}
+                            </h3>
+
+                            <p className="text-sm sm:text-md leading-relaxed text-gray-600">
+                              {service.description}
+                            </p>
+                          </div>
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                    ))}
+                  </AnimatePresence>
+                )}
               </motion.div>
             </div>
           </div>
@@ -353,7 +315,7 @@ export default function ServicesSlider() {
       <AnimatePresence>
         {galleryOpen && selectedService && (
           <GalleryPopUp
-            images={selectedService.gallery}
+            images={selectedService.gallery?.map((g) => g.url) ?? []}
             currentImageIndex={0}
             onClose={closeGallery}
           />

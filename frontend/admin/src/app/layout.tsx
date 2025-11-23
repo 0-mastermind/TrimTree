@@ -46,6 +46,9 @@ export default function RootLayout({
             padding: "10px",
             color: "#713200",
           },
+          loading: {
+            duration: Infinity,
+          },
         }}
       />
         <StoreProvider>

@@ -94,3 +94,13 @@ export interface Leave {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface Appointment {
+  _id: string;
+  customerName: string;
+  appointmentAt: string;
+  description: string;
+  assignedStaffMember: Staff;
+  createdAt: Date;
+  updatedAt: Date;
+}

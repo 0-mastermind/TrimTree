@@ -12,6 +12,7 @@ import {
   CalendarClock,
   User,
   ChevronDown,
+  ClipboardClock,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -64,6 +65,11 @@ const managerRoutes = [
     label: "Team Calendar",
     icon: <Calendar className="h-5 w-5" />,
   },
+  {
+    href: "/dashboard/manager/appointments",
+    label: "Appointments",
+    icon: <ClipboardClock />
+  }
 ];
 
 const Sidebar = ({ children }: { children: React.ReactNode }) => {

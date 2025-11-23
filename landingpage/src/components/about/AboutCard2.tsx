@@ -12,14 +12,14 @@ const AboutCard2 = () => {
     },
     {
       title: "Personalization",
-      description: "Tailored care for your unique hair",
+      description: "Tailored care for your unique needs",
     },
   ];
   return (
     <div className="w-full flex flex-col-reverse lg:flex-row  gap-6 md:gap-8 lg:gap-10 xl:gap-12">
       <div className="w-full flex flex-col justify-center items-start px-4 sm:px-6 lg:px-8 xl:px-12">
         <h1 className="my-4 sm:my-6 md:my-8 lg:my-10 text-3xl lg:text-4xl xl:text-4xl text-left text-[var(--text-primary)] font-light leading-relaxed">
-          Why TrimTree is the right choice for your hair
+          Why TrimTree is the right choice for you
         </h1>
         <div className="space-y-4">
           {features.map((feature, index) => (

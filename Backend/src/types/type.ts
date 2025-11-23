@@ -19,6 +19,7 @@ export interface IUser {
   email: string;
   role: userRoles;
   branch: Types.ObjectId;
+  branchOwned: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -70,8 +71,8 @@ export interface IStaff {
   payments: {
     from: Date;
     to: Date;
-    amount: number,
-  }[],
+    amount: number;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -99,7 +100,7 @@ export interface IBranches {
 
 export interface ICategory {
   name: string;
-  image : {
+  image: {
     url: string;
     publicId: string;
   };
@@ -112,6 +113,38 @@ export interface IService {
   price: number;
   category: Types.ObjectId;
   description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IReviews {
+  customerName: string;
+  service: string;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IAppointments {
+  customerName: string;
+  appointmentAt: string;
+  description: string;
+  assignedStaffMember: Types.ObjectId;
+}
+
+export interface ISlider {
+  name : string;
+  price: number;
+  thumbnail: {
+    url: string;
+    publicId: string;
+  };
+  description : string;
+  gallery: {
+    url: string;
+    publicId: string;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }

@@ -22,3 +22,7 @@ export const AnalyticsEndpoints = {
   GET_MONTHLY_ATTENDANCE_API: BASE_URL + "/staff/attendance/monthly",
 }
 
+export const AppointmentsEndpoints = {
+  GET_APPOINTMENTS_API: (id: string) => `${BASE_URL}/appointments/get-appointment-by-employee?staffId=${id}`,
+}
+

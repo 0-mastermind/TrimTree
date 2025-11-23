@@ -6,6 +6,7 @@ import UserSettingsPage from '@/components/dashboard/setting/Setting';
 import Loader from '@/components/common/Loader';
 import ProfilePage from '@/components/dashboard/profile/Profile';
 import LeaveApplication from '@/components/dashboard/leave/Leaves';
+import Appointments from "@/components/dashboard/appointments/Appointments";
 
 
 export default function Dashboard() {
@@ -24,6 +25,9 @@ export default function Dashboard() {
       break;
     case 'settings':
       content = <UserSettingsPage />;
+      break;
+    case 'appointments':
+      content = <Appointments />;
       break;
     case 'analytics':
       content = <StaffAnalytics />;

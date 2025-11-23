@@ -16,15 +16,20 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(currentImageIndex);
 
+  const hasImages = images && images.length > 0;
+
   const nextImage = useCallback(() => {
+    if (!hasImages) return;
     setCurrentIndex((prev) => (prev + 1) % images.length);
-  }, [images.length]);
+  }, [images.length, hasImages]);
 
   const prevImage = useCallback(() => {
+    if (!hasImages) return;
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  }, [images.length]);
+  }, [images.length, hasImages]);
 
   const goToImage = (index: number) => {
+    if (!hasImages) return;
     setCurrentIndex(index);
   };
 
@@ -38,6 +43,8 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose, nextImage, prevImage]);
+
+  if (!hasImages) return null;
 
   return (
     <motion.div
@@ -57,16 +64,23 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
 
       {/* Main Image Display */}
       <div className="relative max-w-6xl max-h-[90vh] w-full mx-4">
-        <div className="relative h-[80vh] rounded-lg overflow-hidden p-2 flex items-center justify-center">
-          <motion.img
+        <div className="relative h-[80vh] rounded-lg overflow-hidden p-2 flex items-center justify-center bg-black/40">
+          <motion.div
             key={currentIndex}
-            src={images[currentIndex]}
-            alt={`Gallery image ${currentIndex + 1}`}
-            className="h-full object-contain rounded-lg"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-          />
+            className="relative w-full h-full flex items-center justify-center"
+          >
+            <Image
+              width={1920}
+              height={1080}
+              quality={100}
+              src={images[currentIndex]}
+              alt={`Gallery image ${currentIndex + 1}`}
+              className="h-full w-auto max-w-full object-contain rounded-lg"
+            />
+          </motion.div>
 
           {/* Navigation Arrows */}
           {images.length > 1 && (
@@ -76,7 +90,7 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
                 className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 backdrop-blur-sm transition-all duration-200 cursor-pointer"
               >
                 <svg
-                  className="w-6 h-6 text-"
+                  className="w-6 h-6 text-black"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -114,14 +128,14 @@ export const GalleryPopUp: React.FC<ImageGalleryPopupProps> = ({
 
         {/* Image Counter */}
         {images.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2  bg-opacity-50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
             {currentIndex + 1} / {images.length}
           </div>
         )}
 
         {/* Image Thumbnails */}
         {images.length > 1 && (
-          <div className="mt-4 p-4 bg-opacity-50 rounded-lg backdrop-blur-sm">
+          <div className="mt-4 p-4 bg-black/30 rounded-lg backdrop-blur-sm">
             <div className="flex justify-center space-x-2 overflow-x-auto py-2">
               {images.map((image, index) => (
                 <button

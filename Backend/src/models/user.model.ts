@@ -51,7 +51,15 @@ const UserSchema = new Schema<IUser>(
       required: function () {
         return this.role !== userRoles.ADMIN; // required if role is not admin
       },
-    }
+    },
+  
+    branchOwned: [{
+      type : Schema.Types.ObjectId,
+      ref: 'Branch',
+      required: function() {
+        return this.role === userRoles.ADMIN; 
+      }
+    }],
   },
   { timestamps: true }
 );

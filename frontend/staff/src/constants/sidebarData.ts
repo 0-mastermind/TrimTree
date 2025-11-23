@@ -1,4 +1,4 @@
-import {  Home, Settings, BarChart3, LogOut, User, Plane } from 'lucide-react';
+import {  Home, Settings, BarChart3, LogOut, User, Plane, ClipboardClock } from 'lucide-react';
 
 export interface SidebarItem {
   id: string;
@@ -27,6 +27,11 @@ export const sidebarData: SidebarItem[] = [
     id: 'analytics',
     label: 'Analytics',
     icon: BarChart3,
+  },
+  {
+    id: 'appointments',
+    label: 'appointments',
+    icon: ClipboardClock,
   },
   {
     id: 'settings',

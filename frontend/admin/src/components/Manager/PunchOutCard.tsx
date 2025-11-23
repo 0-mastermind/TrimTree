@@ -1,5 +1,5 @@
 import { Attendance } from "@/types/global";
-import { Clock, Calendar, Check, X, LogIn, LogOut, Loader } from "lucide-react";
+import { Calendar, Check, X, LogIn, LogOut, Loader } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useAppDispatch } from "@/store/store";

@@ -9,13 +9,15 @@ function App() {
       <Toaster
         position="top-right"
         toastOptions={{
-          duration: 1000,
+          duration: 1500,
           style: {
             border: "1px solid #713200",
             padding: "10px",
             color: "#713200",
           },
-          
+          loading: {
+            duration: Infinity,
+          }
         }}
       />
       <AppRouter />

@@ -2,9 +2,10 @@ import { AppDispatch } from "@/store/store";
 import { apiConnector } from "../apiConnector";
 import { ManagerEndpoints } from "./apis";
 import { setBranchManagersByBranchName } from "@/store/features/branches/branch.slice";
-import { BranchManagerByNameState, OfficialHolidays } from "@/types/global";
+import { BranchManagerByNameState, OfficialHolidays, Staff } from "@/types/global";
 import toast from "react-hot-toast";
 import { setHolidays } from "@/store/features/holidays/holidays.slice";
+import { setManager } from "@/store/features/manager/manager.slice";
 
 export const getManagerNameByBranch =
   (branchId: string) =>
@@ -74,6 +75,22 @@ export const getOfficialHolidays = (month: number, year: number) => async (dispa
     return false;
   } catch (error) {
     console.error("Error! fetching official holidays", error);
+    return false;
+  }
+}
+
+export const getStaffByManager = () => async (dispatch: AppDispatch): Promise<boolean> => {
+  try {
+    const res = await apiConnector("GET", ManagerEndpoints.GET_STAFF_BY_MANAGER_API);
+    
+    if (res.success && res.data) {
+      dispatch(setManager(res.data as Staff[]));
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error("Error! fetching staff by manager", error);
     return false;
   }
 }

@@ -5,6 +5,9 @@ import branchSlice from "./features/branches/branch.slice";
 import employeeSlice from "./features/employee/employee.slice";
 import attendanceSlice from "./features/attendance/attendance.slice";
 import holidaysSlice from "./features/holidays/holidays.slice";
+import landingPageSlice from "./features/landingpage/landingPage.slice";
+import apppointmentsSlice from "./features/appointments/appointments.slice";
+import managerSlice from "./features/manager/manager.slice";
 export const store = configureStore({
   reducer: {
     auth: userSlice,
@@ -12,6 +15,9 @@ export const store = configureStore({
     employees: employeeSlice,
     attendance: attendanceSlice,
     holidays: holidaysSlice,
+    landingPage: landingPageSlice,
+    appointment: apppointmentsSlice,
+    manager: managerSlice,
   },
 });
 

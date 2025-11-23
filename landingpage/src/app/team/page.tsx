@@ -1,13 +1,26 @@
 "use client";
-import employees from "@/components/our-team/data";
 import EmployeeCard from "@/components/our-team/EmployeeCard";
-import React from "react";
+import React, { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "@/store/store";
+import { fetchEmployees } from "../../lib/api/landingpage";
 
 const Team = () => {
   const router = useRouter();
-
+  const employees = useSelector((state : RootState) => state.landingPage.employees);
+  const dispatch = useAppDispatch();
+   useEffect(() => {
+      const fetchData = async () => {
+        try {
+          dispatch(fetchEmployees());
+        } catch (error) {
+          console.error('Error fetching employees:', error);
+        }
+      }
+      fetchData()
+    }, [dispatch])
   return (
     <div className="min-h-screen">
       {/* Header Section */}
@@ -31,7 +44,7 @@ const Team = () => {
             </span>
           </div>
           <h1 className="my-10 text-4xl md:text-5xl max-w-[700px] text-center mx-auto text-[var(--text-primary)]">
-            Meet the experts behind your perfect hair
+            Meet the experts behind your perfect look
           </h1>
 
           <h6 className="text-center text-lg text-[var(--text-primary)] font-secondary capitalize">
