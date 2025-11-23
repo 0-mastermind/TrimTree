@@ -1,13 +1,23 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const Footer = () => {
   return (
     <footer id="#footer" className="w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mt-20 lg:mt-40 pb-12 lg:pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-">
+        <div className="grid grid-cols-1 mt-20 lg:mt-40 pb-12 lg:pb-20">
           {/* Brand Section */}
           <div className="space-y-6">
+            <div className="ml-16">
+              <Image
+                src="/images/logo.png"
+                height={100}
+                width={100}
+                alt="Trimtree Logo"
+              />
+            </div>
+
             <h1 className="text-3xl lg:text-4xl font-bold font-secondary dark:text-[var(--text-white)] text-gray-900">
               <Link href={"/"}>Trim Tree Salon</Link>
             </h1>
@@ -18,7 +28,7 @@ const Footer = () => {
           </div>
 
           {/* Links Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 mt-4">
             {/* Menu Links */}
             <div>
               <h2 className="font-semibold text-base lg:text-lg text-[var(--text-primary)] mb-3 lg:mb-5">
@@ -129,7 +139,7 @@ const Footer = () => {
                     </svg>
                   </span>
                   <span className="group-hover:text-[var(--text-primary)] transition-colors">
-                    Durgacity, HLD
+                    Durga City Center, Near By IDBI Bank, Haldwani
                   </span>
                 </li>
               </ul>

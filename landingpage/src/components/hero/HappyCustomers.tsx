@@ -28,7 +28,7 @@ const HappyCustomers = () => {
         />
       </div>
       <div className="flex items-center">
-        <span className="text-xl font-secondary dark:text-[var(--text-white)]">5K+</span><span className="text-[var(--text-gray-light)] ml-2 font-secondary">Happy Customers</span>
+        <span className="text-xl font-secondary dark:text-[var(--text-white)]">40K+</span><span className="text-[var(--text-gray-light)] ml-2 font-secondary">Happy Customers</span>
       </div>
     </div>
   );
