@@ -20,6 +20,7 @@
     const whitelist = process.env.CORS_ORIGIN?.split(",") || [
       "http://localhost:3000",
       "http://localhost:4173",
+      "https://trimtreesalon.in",
     ];
 
     // Middleware
