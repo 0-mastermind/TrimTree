@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MoveRight, ChevronRight } from "lucide-react";
+import { MoveRight, ChevronRight, ChevronLeft } from "lucide-react";
 import { GalleryPopUp } from "./GalleryPopUp";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import { Slider } from "@/types/type";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "@/store/store";
 import { fetchSliders } from "@/lib/api/landingpage";
+
 interface ServiceWithPosition extends Slider {
   position: number;
   isCenter: boolean;
@@ -24,6 +25,8 @@ export default function ServicesSlider() {
   const [selectedService, setSelectedService] =
     useState<ServiceWithPosition | null>(null);
   const [galleryOpen, setGalleryOpen] = useState<boolean>(false);
+  const [direction, setDirection] = useState<number>(1); // 1 for next, -1 for prev
+  const [autoPlayKey, setAutoPlayKey] = useState<number>(0); // Key to reset autoplay
 
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -58,12 +61,13 @@ export default function ServicesSlider() {
   useEffect(() => {
     if (!isHovered && services.length > 0) {
       const interval = setInterval(() => {
+        setDirection(1);
         setCurrentIndex((prevIndex) => (prevIndex + 1) % services.length);
       }, 3000);
 
       return () => clearInterval(interval);
     }
-  }, [isHovered, services.length]);
+  }, [isHovered, services.length, autoPlayKey]);
 
   const getVisibleServices = useMemo((): ServiceWithPosition[] => {
     const visibleCount = isMobile ? 1 : 3;
@@ -100,7 +104,18 @@ export default function ServicesSlider() {
 
   const nextSlide = () => {
     if (services.length === 0) return;
+    setDirection(1);
     setCurrentIndex((prevIndex) => (prevIndex + 1) % services.length);
+    setAutoPlayKey((prev) => prev + 1); // Reset autoplay timer
+  };
+
+  const prevSlide = () => {
+    if (services.length === 0) return;
+    setDirection(-1);
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? services.length - 1 : prevIndex - 1
+    );
+    setAutoPlayKey((prev) => prev + 1); // Reset autoplay timer
   };
 
   const canSlide = services.length > (isMobile ? 1 : 1);
@@ -121,7 +136,16 @@ export default function ServicesSlider() {
           </motion.div>
 
           <div className="relative">
-            {/* Right Navigation Button Only */}
+            {/* Previous Button */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-gray-800 hover:text-[var(--bg-primary)] rounded-full p-2 sm:p-3 shadow-lg border border-gray-200 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!canSlide}
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+
+            {/* Next Button */}
             <button
               onClick={nextSlide}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-gray-800 hover:text-[var(--bg-primary)] rounded-full p-2 sm:p-3 shadow-lg border border-gray-200 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -160,7 +184,7 @@ export default function ServicesSlider() {
                         layout
                         initial={{
                           opacity: 0,
-                          x: 400,
+                          x: direction === 1 ? 400 : -400,
                           scale: 0.9,
                         }}
                         animate={{
@@ -175,7 +199,7 @@ export default function ServicesSlider() {
                         }}
                         exit={{
                           opacity: 0,
-                          x: -400,
+                          x: direction === 1 ? -400 : 400,
                           scale: 0.8,
                         }}
                         transition={{

@@ -1,26 +1,12 @@
 "use client";
 import EmployeeCard from "@/components/our-team/EmployeeCard";
-import React, { useEffect } from "react";
+import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "@/store/store";
-import { fetchEmployees } from "../../lib/api/landingpage";
+import { employeesData } from "@/components/our-team/data";
 
 const Team = () => {
   const router = useRouter();
-  const employees = useSelector((state : RootState) => state.landingPage.employees);
-  const dispatch = useAppDispatch();
-   useEffect(() => {
-      const fetchData = async () => {
-        try {
-          dispatch(fetchEmployees());
-        } catch (error) {
-          console.error('Error fetching employees:', error);
-        }
-      }
-      fetchData()
-    }, [dispatch])
   return (
     <div className="min-h-screen">
       {/* Header Section */}
@@ -28,13 +14,12 @@ const Team = () => {
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-[var(--text-primary)] mb-8 md:mb-12 group"
-        >
+          className="inline-flex items-center gap-2 text-[var(--text-primary)] mb-8 md:mb-12 group">
           <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-gray-100">
             <ArrowLeft className="w-5 h-5 text-black" />
           </div>
           <span className="font-medium">Back</span>
-        </button>   
+        </button>
 
         {/* Title Section */}
         <div className="max-w-4xl mx-auto text-center space-y-4">
@@ -58,17 +43,13 @@ const Team = () => {
       <div className="px-6 md:px-12 lg:px-20 pb-16 md:pb-24">
         <div className="max-w-[1600px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6 lg:gap-8">
-            {employees.map((employee, index) => (
-              <div
-                key={index}
-                className="transform transition-all duration-300"
-                style={{
-                  animationDelay: `${index * 50}ms`,
-                  animation: "fadeInUp 0.6s ease-out forwards",
-                  opacity: 0,
-                }}
-              >
-                <EmployeeCard employee={employee} />
+            {employeesData.map((employee, index) => (
+              <div key={index}>
+                <EmployeeCard
+                  name={employee.name}
+                  image={employee.image}
+                  designation={employee.designation}
+                />
               </div>
             ))}
           </div>
