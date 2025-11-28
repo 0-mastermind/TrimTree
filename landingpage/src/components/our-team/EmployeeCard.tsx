@@ -24,7 +24,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ name, image, designation })
         width={1920}
         height={1080}
         quality={100}
-        className="w-full rounded-3xl object-cover aspect-[4:3]"
+        className="w-full rounded-3xl object-cover"
         />
         </div>
         <div className='px-1 text-center'>
